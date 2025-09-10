@@ -9,8 +9,16 @@ import { useAuth } from "./hooks/useAuth";
 // layouts
 import AdminLayout from "./Layouts/AdminLayout";
 import UserLayout from "./Layouts/UserLayout";
+import ProtectedRoute from "./routes/ProtectedRoute";
+import PublicRoute from "./routes/PublicRoute";
 
-function PrivateRoute({ children, allowed }: { children: JSX.Element; allowed: string[] }) {
+function PrivateRoute({
+  children,
+  allowed,
+}: {
+  children: JSX.Element;
+  allowed: string[];
+}) {
   const { token, role } = useAuth();
   if (!token) return <Navigate to="/login" />;
   if (!allowed.includes(role || "")) return <Navigate to="/login" />;
@@ -22,31 +30,38 @@ function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          <Route path="/login" element={<Login />} />
+          {/* Public routes */}
+          <Route element={<PublicRoute restricted={true} />}>
+            <Route path="/login" element={<Login />} />
+          </Route>
 
-          {/* user biasa */}
-          <Route
-            path="/home"
-            element={
-              <PrivateRoute allowed={["user"]}>
-                <UserLayout>
-                  <Home />
-                </UserLayout>
-              </PrivateRoute>
-            }
-          />
+          {/* Protected for admin */}
+          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
+            <Route
+              path="/dashboard"
+              element={
+                <PrivateRoute allowed={["admin"]}>
+                  <AdminLayout>
+                    <Dashboard />
+                  </AdminLayout>
+                </PrivateRoute>
+              }
+            />
+          </Route>
 
-          {/* admin */}
-          <Route
-            path="/dashboard"
-            element={
-              <PrivateRoute allowed={["admin"]}>
-                <AdminLayout>
-                  <Dashboard />
-                </AdminLayout>
-              </PrivateRoute>
-            }
-          />
+          {/* Protected for user */}
+          <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
+            <Route
+              path="/home"
+              element={
+                <PrivateRoute allowed={["user"]}>
+                  <UserLayout>
+                    <Home />
+                  </UserLayout>
+                </PrivateRoute>
+              }
+            />
+          </Route>
         </Routes>
       </BrowserRouter>
     </AuthProvider>
