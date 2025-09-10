@@ -1,12 +1,15 @@
+// src/App.tsx
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/authProvider";
-import Login from "./pages/Login";
-import Dashboard from "./pages/Dashboard";
-import Home from "./pages/Home";
-import AdminLayout from "./Layouts/AdminLayout";
-import UserLayout from "./Layouts/UserLayout";
-import ProtectedRoute from "./routes/ProtectedRoute";
+import { Suspense, lazy } from "react";
+import LoadingSpinner from "./components/LoaderSpinner";
+// routes
 import PublicRoute from "./routes/PublicRoute";
+import AdminRoutes from "./routes/AdminRoutes";
+import UserRoutes from "./routes/UserRoutes";
+
+// ✅ Lazy import login
+const Login = lazy(() => import("./pages/Login"));
 
 function App() {
   return (
@@ -15,32 +18,21 @@ function App() {
         <Routes>
           {/* Public routes */}
           <Route element={<PublicRoute restricted />}>
-            <Route path="/login" element={<Login />} />
+            <Route
+              path="/login"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Login />
+                </Suspense>
+              }
+            />
           </Route>
 
           {/* Admin routes */}
-          <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-            <Route
-              path="/dashboard"
-              element={
-                <AdminLayout>
-                  <Dashboard />
-                </AdminLayout>
-              }
-            />
-          </Route>
+          {AdminRoutes()}
 
           {/* User routes */}
-          <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-            <Route
-              path="/home"
-              element={
-                <UserLayout>
-                  <Home />
-                </UserLayout>
-              }
-            />
-          </Route>
+          {UserRoutes()}
 
           {/* Fallback */}
           <Route path="*" element={<Navigate to="/login" replace />} />
