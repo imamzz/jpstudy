@@ -2,11 +2,11 @@
 import { Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./ProtectedRoute";
-import LoadingSpinner from "../components/LoaderSpinner";
+import LoadingSpinner from "../components/atoms/LoaderSpinner";
 
 // ✅ Lazy imports
-const AdminLayout = lazy(() => import("../Layouts/AdminLayout"));
-const Dashboard = lazy(() => import("../pages/Dashboard"));
+const AdminLayout = lazy(() => import("../components/layouts/AdminLayout"));
+const Dashboard = lazy(() => import("../pages/admin/Dashboard/Dashboard"));
 
 export default function AdminRoutes() {
   return (

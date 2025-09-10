@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import api from "../api/axios";
+import api from "../../../api/axios";
 import { PlusCircle, Edit2, Trash2, BookOpen } from "lucide-react";
 
 interface Word {

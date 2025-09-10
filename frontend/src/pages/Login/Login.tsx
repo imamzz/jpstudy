@@ -1,7 +1,7 @@
 import { useState } from "react";
-import api from "../api/axios";
-import { useAuth } from "../hooks/useAuth";
-import knowledge from "../assets/undraw_knowledge.svg";
+import api from "../../api/axios";
+import { useAuth } from "../../hooks/useAuth";
+import knowledge from "../../assets/undraw_knowledge.svg";
 
 const Login = () => {
   const { login } = useAuth();

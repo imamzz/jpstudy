@@ -2,14 +2,14 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./context/authProvider";
 import { Suspense, lazy } from "react";
-import LoadingSpinner from "./components/LoaderSpinner";
+import LoadingSpinner from "./components/atoms/LoaderSpinner";
 // routes
 import PublicRoute from "./routes/PublicRoute";
 import AdminRoutes from "./routes/AdminRoutes";
 import UserRoutes from "./routes/UserRoutes";
 
 // ✅ Lazy import login
-const Login = lazy(() => import("./pages/Login"));
+const Login = lazy(() => import("./pages/Login/Login"));
 
 function App() {
   return (
