@@ -1,11 +1,14 @@
-import React from "react";
+// components/atoms/Input.tsx
+import React, { forwardRef } from "react";
+import clsx from "clsx";
 
 type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
-  variant?: "default" | "error" | "success";
+  label?: string;
+  variant?: "default" | "error";
   errorMessage?: string;
 };
 
-const variants: Record<string, string> = {
+const variants: Record<NonNullable<InputProps["variant"]>, string> = {
   default:
     "border-gray-300 focus:ring-blue-500 focus:border-blue-500 " +
     "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white " +
@@ -15,30 +18,42 @@ const variants: Record<string, string> = {
     "border-red-500 focus:ring-red-500 focus:border-red-500 " +
     "dark:bg-gray-700 dark:border-red-600 dark:placeholder-gray-400 dark:text-white " +
     "dark:focus:ring-red-500 dark:focus:border-red-500",
-
-  success:
-    "border-green-500 focus:ring-green-500 focus:border-green-500 " +
-    "dark:bg-gray-700 dark:border-green-600 dark:placeholder-gray-400 dark:text-white " +
-    "dark:focus:ring-green-500 dark:focus:border-green-500",
 };
 
-const Input: React.FC<InputProps> = ({
-  variant = "default",
-  errorMessage,
-  className = "",
-  ...props
-}) => {
-  return (
-    <div className="space-y-1">
-      <input
-        className={`w-full p-2.5 text-sm rounded-lg border transition ${variants[variant]} ${className}`}
-        {...props}
-      />
-      {errorMessage && (
-        <p className="text-red-600 text-xs">{errorMessage}</p>
-      )}
-    </div>
-  );
-};
+const Input = forwardRef<HTMLInputElement, InputProps>(
+  ({ label, variant = "default", errorMessage, className, id, ...props }, ref) => {
+    // Jika ada errorMessage, pakai style error walau variant bukan error
+    const finalVariant = errorMessage ? "error" : variant;
+    const inputId = id || props.name;
+
+    return (
+      <div className="space-y-1">
+        {label && (
+          <label
+            htmlFor={inputId}
+            className="block text-sm font-medium text-gray-700 dark:text-gray-300"
+          >
+            {label}
+          </label>
+        )}
+        <input
+          id={inputId}
+          ref={ref}
+          className={clsx(
+            "w-full px-3 py-2 border rounded-lg text-sm focus:outline-none focus:ring-2 transition",
+            variants[finalVariant],
+            className
+          )}
+          {...props}
+        />
+        {errorMessage && (
+          <p className="text-red-600 text-xs">{errorMessage}</p>
+        )}
+      </div>
+    );
+  }
+);
+
+Input.displayName = "Input";
 
 export default Input;

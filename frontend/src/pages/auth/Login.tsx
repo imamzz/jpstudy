@@ -8,6 +8,7 @@ import { useFormValidation } from "../../hooks/useFormValidation";
 import knowledge from "../../assets/undraw_knowledge.svg";
 import Input from "../../components/atoms/Input";
 import Button from "../../components/atoms/Button";
+import clsx from "clsx";
 
 interface LoginForm {
   email: string;
@@ -82,22 +83,24 @@ const Login: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
-              name="email"
+              label="Email"
               type="email"
-              placeholder="Email address"
+              name="email"
+              placeholder="Enter your email"
               value={values.email}
               onChange={handleChange}
               errorMessage={errors.email}
-              required
+              className={clsx("bg-white", errors.email && "animate-shake")}
             />
             <Input
+              label="Password"
               name="password"
               type="password"
               placeholder="Password"
               value={values.password}
               onChange={handleChange}
               errorMessage={errors.password}
-              required
+              className={clsx("bg-white", errors.password && "animate-shake")}
             />
             <Button type="submit">Login</Button>
           </form>

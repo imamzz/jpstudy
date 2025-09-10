@@ -7,6 +7,7 @@ import { useFormValidation } from "../../hooks/useFormValidation";
 import knowledge from "../../assets/undraw_knowledge.svg";
 import Input from "../../components/atoms/Input";
 import Button from "../../components/atoms/Button";
+import clsx from "clsx";
 
 interface RegisterForm {
   username: string;
@@ -101,6 +102,7 @@ const Register: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
+              label="Username"
               name="username"
               type="text"
               placeholder="Username"
@@ -110,6 +112,7 @@ const Register: React.FC = () => {
               required
             />
             <Input
+              label="Email"
               name="email"
               type="email"
               placeholder="Email address"
@@ -119,6 +122,7 @@ const Register: React.FC = () => {
               required
             />
             <Input
+              label="Password"
               name="password"
               type="password"
               placeholder="Password"
@@ -128,6 +132,7 @@ const Register: React.FC = () => {
               required
             />
             <Input
+              label="Confirm Password"
               name="confirmPassword"
               type="password"
               placeholder="Confirm Password"

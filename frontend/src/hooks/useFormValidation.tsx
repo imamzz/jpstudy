@@ -22,6 +22,11 @@ export function useFormValidation<T extends Record<string, any>>(
     return Object.keys(newErrors).length === 0;
   };
 
+  const resetForm = () => {
+    setValues(initialValues);
+    setErrors({});
+  };
+
   return {
     values,
     errors,
@@ -29,5 +34,6 @@ export function useFormValidation<T extends Record<string, any>>(
     handleChange,
     validateForm,
     setValues,
+    resetForm,
   };
 }
