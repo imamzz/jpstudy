@@ -2,68 +2,73 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { handleApiError } from "../../utils/handleApiError";
+import { useFormValidation } from "../../hooks/useFormValidation";
 
 import knowledge from "../../assets/undraw_knowledge.svg";
 import Input from "../../components/atoms/Input";
 import Button from "../../components/atoms/Button";
 
+interface RegisterForm {
+  username: string;
+  email: string;
+  password: string;
+  confirmPassword: string;
+}
+
 const Register: React.FC = () => {
   const navigate = useNavigate();
-
-  const [username, setUsername] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [usernameError, setUsernameError] = useState("");
-  const [emailError, setEmailError] = useState("");
-  const [passwordError, setPasswordError] = useState("");
-  const [confirmPasswordError, setConfirmPasswordError] = useState("");
-  const [errorMessage, setErrorMessage] = useState("");
+  const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
+
+  const { values, errors, handleChange, validateForm } =
+    useFormValidation<RegisterForm>(
+      {
+        username: "",
+        email: "",
+        password: "",
+        confirmPassword: "",
+      },
+      (values) => {
+        const newErrors: Partial<Record<keyof RegisterForm, string>> = {};
+
+        if (!values.username) newErrors.username = "Username is required";
+        if (!values.email) {
+          newErrors.email = "Email is required";
+        } else if (!/\S+@\S+\.\S+/.test(values.email)) {
+          newErrors.email = "Invalid email format";
+        }
+        if (!values.password) {
+          newErrors.password = "Password is required";
+        } else if (values.password.length < 6) {
+          newErrors.password = "Password must be at least 6 characters";
+        }
+        if (values.confirmPassword !== values.password) {
+          newErrors.confirmPassword = "Passwords do not match";
+        }
+
+        return newErrors;
+      }
+    );
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-
-    // Reset errors
-    setEmailError("");
-    setPasswordError("");
-    setConfirmPasswordError("");
-    setErrorMessage("");
+    setServerError("");
     setSuccessMessage("");
 
-    // Basic validation
-    if (!username) {
-      setUsernameError("Username is required");
-      return;
-    }
-    if (!email.includes("@")) {
-      setEmailError("Email tidak valid");
-      return;
-    }
-    if (password.length < 6) {
-      setPasswordError("Password minimal 6 karakter");
-      return;
-    }
-    if (password !== confirmPassword) {
-      setConfirmPasswordError("Passwords do not match");
-      return;
-    }
+    if (!validateForm()) return;
 
     try {
-      const response = await api.post("/auth/register", {
-        username,
-        email,
-        password,
+      const res = await api.post("/auth/register", {
+        username: values.username,
+        email: values.email,
+        password: values.password,
       });
 
-      setSuccessMessage(response.data.message || "Registration successful!");
+      setSuccessMessage(res.data.message || "Registration successful!");
       setTimeout(() => navigate("/login"), 2000);
-    } catch (error) {
-      const message = handleApiError(
-        error,
-        "Registration failed, please try again."
-      );
-      setErrorMessage(message);
+    } catch (error: unknown) {
+      const msg = handleApiError(error, "Registration failed, please try again.");
+      setServerError(msg);
     }
   };
 
@@ -74,7 +79,7 @@ const Register: React.FC = () => {
         <img src={knowledge} alt="Register Illustration" className="max-w-md" />
       </div>
 
-      {/* Right side (register form) */}
+      {/* Right side (form) */}
       <div className="flex w-full md:w-1/2 items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full space-y-6">
           <div className="text-center">
@@ -82,9 +87,9 @@ const Register: React.FC = () => {
             <p className="text-gray-500">Join us and start your journey 🚀</p>
           </div>
 
-          {errorMessage && (
+          {serverError && (
             <p className="text-red-600 text-sm text-center bg-red-50 py-2 rounded">
-              {errorMessage}
+              {serverError}
             </p>
           )}
 
@@ -96,45 +101,41 @@ const Register: React.FC = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
+              name="username"
               type="text"
               placeholder="Username"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              aria-label="Username"
-              variant={usernameError ? "error" : "default"}
-              errorMessage={usernameError}
+              value={values.username}
+              onChange={handleChange}
+              errorMessage={errors.username}
               required
             />
             <Input
+              name="email"
               type="email"
               placeholder="Email address"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              variant={emailError ? "error" : "default"}
-              errorMessage={emailError}
+              value={values.email}
+              onChange={handleChange}
+              errorMessage={errors.email}
               required
             />
-
             <Input
+              name="password"
               type="password"
               placeholder="Password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              variant={passwordError ? "error" : "default"}
-              errorMessage={passwordError}
+              value={values.password}
+              onChange={handleChange}
+              errorMessage={errors.password}
               required
             />
-
             <Input
+              name="confirmPassword"
               type="password"
               placeholder="Confirm Password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              variant={confirmPasswordError ? "error" : "default"}
-              errorMessage={confirmPasswordError}
+              value={values.confirmPassword}
+              onChange={handleChange}
+              errorMessage={errors.confirmPassword}
               required
             />
-
             <Button type="submit">Register</Button>
           </form>
 
