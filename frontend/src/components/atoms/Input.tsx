@@ -1,19 +1,42 @@
 import React from "react";
 
-interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
-  label?: string;
-  error?: string;
-}
+type InputProps = React.InputHTMLAttributes<HTMLInputElement> & {
+  variant?: "default" | "error" | "success";
+  errorMessage?: string;
+};
 
-const Input: React.FC<InputProps> = ({ label, error, className = "", ...props }) => {
+const variants: Record<string, string> = {
+  default:
+    "border-gray-300 focus:ring-blue-500 focus:border-blue-500 " +
+    "dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white " +
+    "dark:focus:ring-blue-500 dark:focus:border-blue-500",
+
+  error:
+    "border-red-500 focus:ring-red-500 focus:border-red-500 " +
+    "dark:bg-gray-700 dark:border-red-600 dark:placeholder-gray-400 dark:text-white " +
+    "dark:focus:ring-red-500 dark:focus:border-red-500",
+
+  success:
+    "border-green-500 focus:ring-green-500 focus:border-green-500 " +
+    "dark:bg-gray-700 dark:border-green-600 dark:placeholder-gray-400 dark:text-white " +
+    "dark:focus:ring-green-500 dark:focus:border-green-500",
+};
+
+const Input: React.FC<InputProps> = ({
+  variant = "default",
+  errorMessage,
+  className = "",
+  ...props
+}) => {
   return (
-    <div className="flex flex-col space-y-1">
-      {label && <label className="text-sm font-medium text-gray-700 dark:text-gray-300">{label}</label>}
+    <div className="space-y-1">
       <input
+        className={`w-full p-2.5 text-sm rounded-lg border transition ${variants[variant]} ${className}`}
         {...props}
-        className={`border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500 ${className}`}
       />
-      {error && <p className="text-sm text-red-500">{error}</p>}
+      {errorMessage && (
+        <p className="text-red-600 text-xs">{errorMessage}</p>
+      )}
     </div>
   );
 };

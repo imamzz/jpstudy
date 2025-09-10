@@ -9,7 +9,8 @@ import AdminRoutes from "./routes/AdminRoutes";
 import UserRoutes from "./routes/UserRoutes";
 
 // ✅ Lazy import login
-const Login = lazy(() => import("./pages/Login/Login"));
+const Login = lazy(() => import("./pages/auth/Login"));
+const Register = lazy(() => import("./pages/auth/Register"));
 
 function App() {
   return (
@@ -23,6 +24,14 @@ function App() {
               element={
                 <Suspense fallback={<LoadingSpinner />}>
                   <Login />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/register"
+              element={
+                <Suspense fallback={<LoadingSpinner />}>
+                  <Register />
                 </Suspense>
               }
             />

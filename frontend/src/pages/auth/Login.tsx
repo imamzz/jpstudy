@@ -74,7 +74,7 @@ const Login: React.FC = () => {
               aria-label="Password"
               required
             />
-            <Button type="submit">Login</Button>
+            <Button variant="primary" type="submit">Login</Button>
           </form>
 
           <p className="text-sm text-gray-500 text-center">
