@@ -1,48 +1,49 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import api from "../../api/axios";
 import { useAuth } from "../../hooks/useAuth";
 import knowledge from "../../assets/undraw_knowledge.svg";
 
-const Login = () => {
+import Button from "../../components/atoms/Button";
+import Input from "../../components/atoms/Input";
+import { handleApiError } from "../../utils/handleApiError";
+
+const Login: React.FC = () => {
+  const navigate = useNavigate();
   const { login } = useAuth();
+
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
+  const [errorMessage, setErrorMessage] = useState("");
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    console.log("🔑 Submit jalan dengan:", { email, password });
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError("");
-  
+    setErrorMessage("");
+
     try {
-      const res = await api.post("/auth/login", { email, password });
-      console.log("API response:", res.data); // 👈 cek di console
-      login(res.data.token, res.data.role, res.data.user);
-    
-      if (res.data.role === "admin") {
-        window.location.href = "/dashboard";
+      const response = await api.post("/auth/login", { email, password });
+
+      login(response.data.token, response.data.role, response.data.user);
+
+      if (response.data.role === "admin") {
+        navigate("/dashboard");
       } else {
-        window.location.href = "/home";
+        navigate("/home");
       }
-    } catch (err: any) {
-      setError(err.response?.data?.error || "Login gagal");
+    } catch (error) {
+      const message = handleApiError(error, "Login failed, please try again.");
+      setErrorMessage(message);
     }
-    
   };
-  
 
   return (
     <div className="min-h-screen flex">
-      {/* Bagian kiri (gambar ilustrasi) */}
+      {/* Left side (illustration) */}
       <div className="hidden md:flex w-1/2 bg-blue-100 items-center justify-center">
-        <img
-          src={knowledge}
-          alt="Login Illustration"
-          className="max-w-md"
-        />
+        <img src={knowledge} alt="Login Illustration" className="max-w-md" />
       </div>
 
-      {/* Bagian kanan (form login) */}
+      {/* Right side (login form) */}
       <div className="flex w-full md:w-1/2 items-center justify-center p-8 bg-white">
         <div className="max-w-md w-full space-y-6">
           <div className="text-center">
@@ -50,41 +51,36 @@ const Login = () => {
             <p className="text-gray-500">Login to continue your journey 🚀</p>
           </div>
 
-          {error && (
+          {errorMessage && (
             <p className="text-red-600 text-sm text-center bg-red-50 py-2 rounded">
-              {error}
+              {errorMessage}
             </p>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <input
+            <Input
               type="email"
               placeholder="Email address"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              aria-label="Email address"
               required
             />
-            <input
+            <Input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className=" border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+              aria-label="Password"
               required
             />
-            <button
-              type="submit"
-              className="w-full transition text-white bg-blue-700 hover:bg-blue-800 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800 cursor-pointer"
-            >
-              Login
-            </button>
+            <Button type="submit">Login</Button>
           </form>
 
           <p className="text-sm text-gray-500 text-center">
-            Belum punya akun?{" "}
+            Don’t have an account?{" "}
             <a href="/register" className="text-blue-600 hover:underline">
-              Daftar sekarang
+              Sign up now
             </a>
           </p>
         </div>
