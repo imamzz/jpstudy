@@ -1,10 +1,10 @@
 import { useAuth } from "../hooks/useAuth";
 const Topbar = () => {
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   return (
     <header className="w-full bg-white shadow p-4 flex justify-end">
       <div className="flex items-center gap-2">
-        <p className="text-lg font-semibold">User</p>
+        <p className="text-lg font-semibold">{user?.username}</p>
         <button
           onClick={logout}
           className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"

@@ -1,8 +1,9 @@
 import { createContext } from "react";
 
 export interface User {
+  id: number;
   username: string;
-  // Add other user properties here as needed
+  email: string;
 }
 
 export interface AuthContextType {

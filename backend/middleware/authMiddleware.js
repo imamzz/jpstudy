@@ -1,18 +1,18 @@
 const jwt = require("jsonwebtoken");
 
-function authMiddleware(req, res, next) {
+module.exports = (req, res, next) => {
   const authHeader = req.headers["authorization"];
-  const token = authHeader && authHeader.split(" ")[1];
+  const token = authHeader && authHeader.split(" ")[1]; // "Bearer <token>"
 
-  if (!token) return res.status(401).json({ error: "Akses ditolak" });
+  if (!token) {
+    return res.status(401).json({ success: false, message: "Token tidak ada" });
+  }
 
   try {
-    const verified = jwt.verify(token, process.env.JWT_SECRET);
-    req.user = verified; // simpan data user ke request
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+    req.user = decoded; // simpan ke request
     next();
   } catch (err) {
-    res.status(400).json({ error: "Token tidak valid" });
+    return res.status(403).json({ success: false, message: "Token tidak valid" });
   }
-}
-
-module.exports = authMiddleware;
+};

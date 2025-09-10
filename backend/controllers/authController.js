@@ -67,6 +67,36 @@ exports.login = async (req, res, next) => {
       message: "Login berhasil",
       token,
       role: user.rows[0].role,
+      user: {
+        id: user.rows[0].id,
+        username: user.rows[0].username,
+        email: user.rows[0].email,
+      },
+    });
+  } catch (err) {
+    next(err);
+  }
+};
+
+// controllers/authController.js
+exports.profile = async (req, res, next) => {
+  try {
+    // req.user diisi dari middleware auth
+    const { id } = req.user;
+
+    const user = await pool.query(
+      "SELECT id, username, email, role FROM users WHERE id=$1",
+      [id]
+    );
+
+    if (user.rows.length === 0) {
+      return res.status(404).json({ success: false, message: "User tidak ditemukan" });
+    }
+
+    return res.json({
+      success: true,
+      message: "Profil user berhasil diambil",
+      user: user.rows[0],
     });
   } catch (err) {
     next(err);
