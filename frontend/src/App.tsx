@@ -3,27 +3,10 @@ import { AuthProvider } from "./context/authProvider";
 import Login from "./pages/Login";
 import Dashboard from "./pages/Dashboard";
 import Home from "./pages/Home";
-import type { JSX } from "react";
-import { useAuth } from "./hooks/useAuth";
-
-// layouts
 import AdminLayout from "./Layouts/AdminLayout";
 import UserLayout from "./Layouts/UserLayout";
 import ProtectedRoute from "./routes/ProtectedRoute";
 import PublicRoute from "./routes/PublicRoute";
-
-function PrivateRoute({
-  children,
-  allowed,
-}: {
-  children: JSX.Element;
-  allowed: string[];
-}) {
-  const { token, role } = useAuth();
-  if (!token) return <Navigate to="/login" />;
-  if (!allowed.includes(role || "")) return <Navigate to="/login" />;
-  return children;
-}
 
 function App() {
   return (
@@ -31,37 +14,36 @@ function App() {
       <BrowserRouter>
         <Routes>
           {/* Public routes */}
-          <Route element={<PublicRoute restricted={true} />}>
+          <Route element={<PublicRoute restricted />}>
             <Route path="/login" element={<Login />} />
           </Route>
 
-          {/* Protected for admin */}
+          {/* Admin routes */}
           <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
             <Route
               path="/dashboard"
               element={
-                <PrivateRoute allowed={["admin"]}>
-                  <AdminLayout>
-                    <Dashboard />
-                  </AdminLayout>
-                </PrivateRoute>
+                <AdminLayout>
+                  <Dashboard />
+                </AdminLayout>
               }
             />
           </Route>
 
-          {/* Protected for user */}
+          {/* User routes */}
           <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
             <Route
               path="/home"
               element={
-                <PrivateRoute allowed={["user"]}>
-                  <UserLayout>
-                    <Home />
-                  </UserLayout>
-                </PrivateRoute>
+                <UserLayout>
+                  <Home />
+                </UserLayout>
               }
             />
           </Route>
+
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/login" replace />} />
         </Routes>
       </BrowserRouter>
     </AuthProvider>
