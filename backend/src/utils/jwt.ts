@@ -1,14 +1,14 @@
-import jwt from "jsonwebtoken";
-import { JwtPayload } from "jsonwebtoken";
+import jwt, { JwtPayload, SignOptions, Secret } from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "supersecret";
+const JWT_SECRET: Secret = process.env.JWT_SECRET || "supersecret";
 
 // Fungsi buat generate token
 export function signToken(
   payload: object,
   expiresIn: string | number = "1h"
 ): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn });
+  const options: SignOptions = { expiresIn: expiresIn as any }; // 👉 pakai casting biar aman
+  return jwt.sign(payload, JWT_SECRET, options);
 }
 
 // Fungsi buat verifikasi token

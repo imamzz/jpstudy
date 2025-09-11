@@ -12,11 +12,11 @@
       "resolveJsonModule": true,                  
       "allowSyntheticDefaultImports": true,       
       "sourceMap": true,                          
-      "types": ["node", "express"],       
+      "types": ["node", "express", "jest"],       
       "experimentalDecorators": true,
       "emitDecoratorMetadata": true    
     },
-    "include": ["src/**/*"],
+    "include": ["src/**/*", "src", "src/tests"],
     "exclude": ["node_modules", "dist"]
   }
   
