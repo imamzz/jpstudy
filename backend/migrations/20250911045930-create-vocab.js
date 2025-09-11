@@ -7,6 +7,8 @@ module.exports = {
     await queryInterface.createTable("vocab", {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
       word: { type: Sequelize.STRING(255), allowNull: false },
+      kanji: {type: Sequelize.STRING(255), allowNull: false},
+      romaji: {type: Sequelize.STRING(255), allowNull: false},
       meaning: { type: Sequelize.STRING(255), allowNull: false },
       example: { type: Sequelize.TEXT },
       level: { type: Sequelize.STRING(10), allowNull: false },

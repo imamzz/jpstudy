@@ -1,7 +1,8 @@
-import { IsEmail, MinLength } from "class-validator";
+import { IsEmail, IsNotEmpty, MinLength } from "class-validator";
 
 export class LoginDto {
-  @IsEmail({}, { message: "Format email tidak valid" })
+  @IsEmail()
+  @IsNotEmpty({ message: "Email wajib diisi" })
   email!: string;
 
   @MinLength(6, { message: "Password minimal 6 karakter" })

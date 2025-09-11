@@ -7,26 +7,26 @@ export async function createVocab(data: any) {
     }
     const vocab = await Vocab.create(data);
     return {
-        vocab: { id: vocab.id, word: vocab.word, meaning: vocab.meaning, example: vocab.example, level: vocab.level },
+        vocab: { id: vocab.id, word: vocab.word, meaning: vocab.meaning, example: vocab.example, kanji: vocab.kanji, romaji: vocab.romaji, level: vocab.level },
     };
 }
 
 export async function getAllVocab() {
-    const vocab = await Vocab.findAll({ attributes: ["id", "word", "meaning", "example", "level"], order: [["id", "ASC"]] });
+    const vocab = await Vocab.findAll({ attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {
         vocab: vocab,
     };
 }
 
 export async function getVocabById(id: string) {
-    const vocab = await Vocab.findByPk(id, { attributes: ["id", "word", "meaning", "example", "level"], order: [["id", "ASC"]] });
+    const vocab = await Vocab.findByPk(id, { attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {
         vocab: vocab,
     };
 }
 
 export async function getVocabByLevel(level: string) {
-    const vocab = await Vocab.findAll({ where: { level }, attributes: ["id", "word", "meaning", "example", "level"], order: [["id", "ASC"]] });
+    const vocab = await Vocab.findAll({ where: { level }, attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {
         vocab: vocab,
     };

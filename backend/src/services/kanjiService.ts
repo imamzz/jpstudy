@@ -7,26 +7,26 @@ export async function createKanji(data: any) {
   }
   const kanji = await Kanji.create(data);
   return {
-    kanji: { id: kanji.id, kanji: kanji.kanji, meaning: kanji.meaning, level: kanji.level, example_words: kanji.example_words },
+    kanji: { id: kanji.id, kanji: kanji.kanji, meaning: kanji.meaning, level: kanji.level, example_words: kanji.example_words, word: kanji.word, romaji: kanji.romaji },
   };
 }
 
 export async function getAllKanji() {
-  const kanji = await Kanji.findAll({ attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
+  const kanji = await Kanji.findAll({ attributes: ["id", "kanji", "meaning", "level", "example_words", "word", "romaji"], order: [["id", "ASC"]] });
   return {
     kanji: kanji,
   };
 }
 
 export async function getKanjiById(id: string) {
-  const kanji = await Kanji.findByPk(id, { attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
+  const kanji = await Kanji.findByPk(id, { attributes: ["id", "kanji", "meaning", "level", "example_words", "word", "romaji"], order: [["id", "ASC"]] });
   return {
     kanji: kanji,
   };
 }
 
 export async function getKanjiByLevel(level: string) {
-  const kanji = await Kanji.findAll({ where: { level }, attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
+  const kanji = await Kanji.findAll({ where: { level }, attributes: ["id", "kanji", "meaning", "level", "example_words", "word", "romaji"], order: [["id", "ASC"]] });
   return {
     kanji: kanji,
   };

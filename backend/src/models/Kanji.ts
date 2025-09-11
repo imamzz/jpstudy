@@ -7,7 +7,7 @@ interface KanjiAttributes {
   kanji: string;
   meaning: string;
   example_words?: string;
-  kana?: string;
+  word?: string;
   romaji?: string;
 }
 
@@ -20,7 +20,7 @@ class Kanji extends Model<KanjiAttributes, KanjiCreationAttributes>
   public kanji!: string;
   public meaning!: string;
   public example_words?: string;
-  public kana?: string;
+  public word?: string;
   public romaji?: string;
 }
 
@@ -31,7 +31,7 @@ Kanji.init(
     kanji: { type: DataTypes.STRING(10), allowNull: false },
     meaning: { type: DataTypes.STRING(255), allowNull: false },
     example_words: { type: DataTypes.TEXT },
-    kana: { type: DataTypes.STRING(255) },
+    word: { type: DataTypes.STRING(255) },
     romaji: { type: DataTypes.STRING(255) },
   },
   { sequelize, tableName: "kanji", timestamps: true, underscored: false }

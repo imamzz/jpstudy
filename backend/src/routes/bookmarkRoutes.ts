@@ -1,9 +1,17 @@
 import { Router } from "express";
-import { createBookmark, getAllBookmark, getBookmarkById, getBookmarkByLevel, deleteBookmark } from "../controllers/bookmarkController";
+import { 
+    createBookmark, 
+    getAllBookmark, 
+    getBookmarkById, 
+    getBookmarkByLevel, 
+    deleteBookmark 
+} from "../controllers/bookmarkController";
+import { validateDto } from "../middleware/validateDto";
+import { CreateBookmarkDto } from "../dtos/bookmarkDto";
 
 const router = Router();
 
-router.post("/", createBookmark);
+router.post("/", validateDto(CreateBookmarkDto), createBookmark);
 router.get("/", getAllBookmark);
 router.get("/:id", getBookmarkById);
 router.get("/level/:level", getBookmarkByLevel);

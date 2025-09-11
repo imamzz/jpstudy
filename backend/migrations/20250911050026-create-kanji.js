@@ -27,7 +27,7 @@ module.exports = {
       example_words: {
         type: Sequelize.TEXT,
       },
-      kana: {
+      word: {
         type: Sequelize.STRING(255),
       },
       romaji: {
