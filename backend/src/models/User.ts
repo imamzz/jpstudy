@@ -1,17 +1,20 @@
 import { DataTypes, Model, Optional } from "sequelize";
 import sequelize from "../config/database";
 
-// definisikan attributes user
-interface UserAttributes {
+// ✅ Definisi atribut User
+export interface UserAttributes {
   id: number;
   username: string;
   email: string;
   password: string;
-  role: "user" | "admin"; // lebih aman pakai union type
+  role: "user" | "admin";
+  createdAt?: Date;
+  updatedAt?: Date;
 }
 
-// atribut opsional ketika create user baru (id auto increment)
-interface UserCreationAttributes extends Optional<UserAttributes, "id" | "role"> {}
+// ✅ atribut opsional saat create user baru
+export interface UserCreationAttributes
+  extends Optional<UserAttributes, "id" | "role" | "createdAt" | "updatedAt"> {}
 
 class User extends Model<UserAttributes, UserCreationAttributes> implements UserAttributes {
   public id!: number;
@@ -19,6 +22,10 @@ class User extends Model<UserAttributes, UserCreationAttributes> implements User
   public email!: string;
   public password!: string;
   public role!: "user" | "admin";
+
+  // otomatis dari timestamps
+  public readonly createdAt!: Date;
+  public readonly updatedAt!: Date;
 }
 
 User.init(
@@ -45,7 +52,7 @@ User.init(
       allowNull: false,
     },
     role: {
-      type: DataTypes.ENUM("user", "admin"), // ✅ ENUM lebih aman
+      type: DataTypes.ENUM("user", "admin"),
       allowNull: false,
       defaultValue: "user",
     },
@@ -54,8 +61,8 @@ User.init(
     sequelize,
     modelName: "User",
     tableName: "users",
-    timestamps: false, // ✅ aktifkan createdAt & updatedAt (umumnya dibutuhkan)
-    underscored: false, // ✅ kalau mau pakai snake_case di DB (created_at, updated_at)
+    timestamps: true,
+    underscored: false, 
   }
 );
 
