@@ -1,0 +1,8 @@
+export function logInfo(message: string) {
+    console.log(`ℹ️ [INFO]: ${message}`);
+  }
+  
+  export function logError(message: string) {
+    console.error(`❌ [ERROR]: ${message}`);
+  }
+  
