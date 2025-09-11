@@ -47,9 +47,11 @@ const Login: React.FC = () => {
         password: values.password,
       });
 
-      login(res.data.token, res.data.role, res.data.user);
+      const { token, user } = res.data.data;
 
-      if (res.data.role === "admin") {
+      login(token, user.role, user);
+
+      if (user.role === "admin") {
         navigate("/dashboard");
       } else {
         navigate("/home");
