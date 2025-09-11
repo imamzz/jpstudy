@@ -11,6 +11,14 @@ export async function createBookmark(data: any) {
   };
 }
 
+export async function updateBookmark(id: string, data: any) {
+  const bookmark = await Bookmark.findByPk(id);
+  if (!bookmark) throw new Error("Bookmark not found");
+
+  await bookmark.update(data);
+  return bookmark;
+}
+
 export async function getAllBookmark() {
   const bookmark = await Bookmark.findAll({ attributes: ["id", "item_id"], order: [["id", "ASC"]] });
   return {

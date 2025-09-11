@@ -1,24 +1,24 @@
-import { IsNotEmpty, IsString, IsIn } from "class-validator";
+import { IsOptional, IsString, IsIn } from "class-validator";
 import { Transform } from "class-transformer";
 
 const LEVELS = ["N5", "N4", "N3", "N2", "N1"];
 
-export class CreateGrammarDto {
+export class UpdateGrammarDto {
+  @IsOptional()
   @Transform(({ value }) => (value ? String(value).toUpperCase() : value))
   @IsString({ message: "Level wajib berupa string" })
-  @IsNotEmpty({ message: "Level wajib diisi" })
   @IsIn(LEVELS, { message: `Level harus salah satu dari ${LEVELS.join(", ")}` })
-  level!: string;
+  level?: string;
 
+  @IsOptional()
   @IsString({ message: "Pattern wajib berupa string" })
-  @IsNotEmpty({ message: "Pattern wajib diisi" })
-  pattern!: string;
+  pattern?: string;
 
+  @IsOptional()
   @IsString({ message: "Meaning wajib berupa string" })
-  @IsNotEmpty({ message: "Meaning wajib diisi" })
-  meaning!: string;
+  meaning?: string;
 
+  @IsOptional()
   @IsString({ message: "Example wajib berupa string" })
-  @IsNotEmpty({ message: "Example wajib diisi" })
-  example!: string;
+  example?: string;
 }

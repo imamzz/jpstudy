@@ -12,6 +12,16 @@ export async function createReview(req: Request, res: Response, next: NextFuncti
     }
 }
 
+export async function updateReview(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const review = await reviewService.updateReview(id, req.body);
+      res.status(200).json(successResponse("Review berhasil diperbarui", review));
+    } catch (error: any) {
+      res.status(400).json(errorResponse(error.message));
+    }
+}
+
 export async function getAllReview(req: Request, res: Response, next: NextFunction) {
     try {
         const reviewData = await reviewService.getAllReview();

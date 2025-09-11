@@ -11,6 +11,14 @@ export async function createKanji(data: any) {
   };
 }
 
+export async function updateKanji(id: string, data: any) {
+  const kanji = await Kanji.findByPk(id);
+  if (!kanji) throw new Error("Kanji tidak ditemukan");
+
+  await kanji.update(data);
+  return kanji;
+}
+
 export async function getAllKanji() {
   const kanji = await Kanji.findAll({ attributes: ["id", "kanji", "meaning", "level", "example_words", "word", "romaji"], order: [["id", "ASC"]] });
   return {

@@ -5,6 +5,7 @@ import {
   getVocabById,
   getVocabByLevel,
   deleteVocab,
+  updateVocab,
 } from "../controllers/vocabController";
 import { validateDto } from "../middleware/validateDto";
 import { CreateVocabDto } from "../dtos/vocabDto";
@@ -12,6 +13,7 @@ import { CreateVocabDto } from "../dtos/vocabDto";
 const router = Router();
 
 router.post("/", validateDto(CreateVocabDto), createVocab);
+router.put("/:id", validateDto(CreateVocabDto), updateVocab);
 router.get("/", getAllVocab);
 router.get("/level/:level", getVocabByLevel); // taruh sebelum :id
 router.get("/:id", getVocabById);

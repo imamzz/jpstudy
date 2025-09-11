@@ -27,7 +27,16 @@ class Kanji extends Model<KanjiAttributes, KanjiCreationAttributes>
 Kanji.init(
   {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    level: { type: DataTypes.STRING(10), allowNull: false },
+    level: {
+      type: DataTypes.STRING(10),
+      allowNull: false,
+      validate: {
+        isIn: {
+          args: [["N1","N2","N3","N4","N5"]],
+          msg: "Level harus salah satu dari N1, N2, N3, N4, N5"
+        }
+      }
+    },   
     kanji: { type: DataTypes.STRING(10), allowNull: false },
     meaning: { type: DataTypes.STRING(255), allowNull: false },
     example_words: { type: DataTypes.TEXT },

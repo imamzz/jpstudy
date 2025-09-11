@@ -11,6 +11,14 @@ export async function createVocab(data: any) {
     };
 }
 
+export async function updateVocab(id: string, data: any) {
+    const vocab = await Vocab.findByPk(id);
+    if (!vocab) throw new Error("Vocab not found");
+
+    await vocab.update(data);
+    return vocab;
+}
+
 export async function getAllVocab() {
     const vocab = await Vocab.findAll({ attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {

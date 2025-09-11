@@ -12,6 +12,16 @@ export async function createKanji(req: Request, res: Response, next: NextFunctio
     }
 }
 
+export async function updateKanji(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const kanji = await kanjiService.updateKanji(id, req.body);
+      res.status(200).json(successResponse("Kanji berhasil diperbarui", kanji));
+    } catch (error: any) {
+      res.status(400).json(errorResponse(error.message));
+    }
+}
+
 export async function getAllKanji(req: Request, res: Response, next: NextFunction) {
     try {
         const kanjiData = await kanjiService.getAllKanji();

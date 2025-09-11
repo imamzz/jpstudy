@@ -11,6 +11,14 @@ export async function createReview(data: any) {
   };
 }
 
+export async function updateReview(id: string, data: any) {
+  const review = await Review.findByPk(id);
+  if (!review) throw new Error("Review not found");
+
+  await review.update(data);
+  return review;
+}
+
 export async function getAllReview() {
   const review = await Review.findAll({ attributes: ["id", "item_id", "item_type", "review_date", "next_review", "attempt_count", "correct"], order: [["id", "ASC"]] });
   return {

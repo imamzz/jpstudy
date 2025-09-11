@@ -11,6 +11,14 @@ export async function createGrammar(data: any) {
   };
 }
 
+export async function updateGrammar(id: string, data: any) {
+  const grammar = await Grammar.findByPk(id);
+  if (!grammar) throw new Error("Grammar not found");
+
+  await grammar.update(data);
+  return grammar;
+}
+
 export async function getAllGrammar() {
   const grammar = await Grammar.findAll({ attributes: ["id", "pattern", "meaning", "example"], order: [["id", "ASC"]] });
   return {

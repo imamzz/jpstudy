@@ -1,33 +1,33 @@
-import { IsString, IsOptional, IsIn, Length, IsNotEmpty } from "class-validator";
+import { IsString, IsOptional, IsIn, Length } from "class-validator";
 import { Transform } from "class-transformer";
 
 const LEVELS = ["N5", "N4", "N3", "N2", "N1"];
 
-export class CreateVocabDto {
-  @IsString({ message: "Word wajib berupa string" })
-  @IsNotEmpty({ message: "Word wajib diisi" })
-  @Length(1, 100, { message: "Word maksimal 100 karakter" })
-  word!: string;
-
-  @IsString({ message: "Kanji wajib berupa string" })
+export class UpdateVocabDto {
   @IsOptional()
+  @IsString({ message: "Word wajib berupa string" })
+  @Length(1, 100, { message: "Word maksimal 100 karakter" })
+  word?: string;
+
+  @IsOptional()
+  @IsString({ message: "Kanji wajib berupa string" })
   kanji?: string;
 
-  @IsString({ message: "Romaji harus berupa string" })
-  @IsNotEmpty({ message: "Romaji wajib diisi" })
-  romaji!: string;
-
-  @IsString({ message: "Meaning harus berupa string" })
-  @IsNotEmpty({ message: "Meaning wajib diisi" })
-  meaning!: string;
-
-  @IsString({ message: "Example harus berupa string" })
   @IsOptional()
+  @IsString({ message: "Romaji harus berupa string" })
+  romaji?: string;
+
+  @IsOptional()
+  @IsString({ message: "Meaning harus berupa string" })
+  meaning?: string;
+
+  @IsOptional()
+  @IsString({ message: "Example harus berupa string" })
   example?: string;
 
+  @IsOptional()
   @Transform(({ value }) => (value ? String(value).toUpperCase() : value))
   @IsString({ message: "Level wajib berupa string" })
-  @IsNotEmpty({ message: "Level wajib diisi" })
   @IsIn(LEVELS, { message: `Level harus salah satu dari ${LEVELS.join(", ")}` })
-  level!: string;
+  level?: string;
 }

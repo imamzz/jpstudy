@@ -12,6 +12,16 @@ export async function createGrammar(req: Request, res: Response, next: NextFunct
     }
 }
 
+export async function updateGrammar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const grammar = await grammarService.updateGrammar(id, req.body);
+      res.status(200).json(successResponse("Grammar berhasil diperbarui", grammar));
+    } catch (error: any) {
+      res.status(400).json(errorResponse(error.message));
+    }
+}
+
 export async function getAllGrammar(req: Request, res: Response, next: NextFunction) {
     try {
         const grammar = await grammarService.getAllGrammar();
