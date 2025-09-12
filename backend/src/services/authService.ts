@@ -2,7 +2,7 @@ import bcrypt from "bcryptjs";
 import User from "../models/User";
 import { signToken } from "../utils/jwt";
 
-export async function registerUser(username: string, email: string, password: string) {
+export async function registerUser(username: string, email: string, password: string, role: "user" | "admin") {
   const existingUser = await User.findOne({ where: { email } });
   if (existingUser) {
     throw new Error("Email sudah terdaftar");
@@ -10,10 +10,13 @@ export async function registerUser(username: string, email: string, password: st
 
   const hashedPassword = await bcrypt.hash(password, 10);
 
-  const user = await User.create({ username, email, password: hashedPassword });
+  const user = await User.create({ username, email, password: hashedPassword, role });
 
   return {
-    user: { id: user.id, username: user.username, email: user.email },
+    id: user.id,
+    username: user.username,
+    email: user.email,
+    role: user.role,
   };
 }
 
@@ -28,10 +31,19 @@ export async function loginUser(email: string, password: string) {
     throw new Error("Password salah");
   }
 
-  const token = signToken({ id: user.id, username: user.username, email: user.email, role: user.role });
+  const token = signToken({
+    id: user.id,
+    email: user.email,
+    role: user.role,
+  });
 
   return {
     token,
-    user: { id: user.id, username: user.username, email: user.email, role: user.role },
+    user: {
+      id: user.id,
+      username: user.username,
+      email: user.email,
+      role: user.role,
+    },
   };
 }

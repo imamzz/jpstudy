@@ -7,11 +7,12 @@ import {
 } from "../controllers/reviewController";
 import { validateDto } from "../middleware/validateDto";
 import { CreateReviewDto } from "../dtos/reviewDto";
+import { UpdateReviewDto } from "../dtos/updateReviewDto";
 
 const router = Router();
 
 router.post("/", validateDto(CreateReviewDto), createReview);
-router.put("/:id", validateDto(CreateReviewDto), updateReview);
+router.put("/:id", validateDto(UpdateReviewDto), updateReview);
 router.get("/", getAllReview);
 router.get("/:id", getReviewById);
 

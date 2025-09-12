@@ -39,3 +39,11 @@ export async function getGrammarByLevel(level: string) {
     grammar: grammar,
   };
 }
+
+export async function deleteGrammar(id: string) {
+    const grammar = await Grammar.findByPk(id);
+    if (!grammar) throw new Error("Grammar not found");
+
+    await grammar.destroy();
+    return grammar;
+}

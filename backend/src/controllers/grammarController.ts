@@ -50,3 +50,13 @@ export async function getGrammarByLevel(req: Request, res: Response, next: NextF
         return res.status(400).json(errorResponse(error.message));
     }
 }
+
+export async function deleteGrammar(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+      const grammar = await grammarService.deleteGrammar(id);
+      res.status(200).json(successResponse("Grammar berhasil dihapus", grammar));
+    } catch (error: any) {
+      res.status(400).json(errorResponse(error.message));
+    }
+}
