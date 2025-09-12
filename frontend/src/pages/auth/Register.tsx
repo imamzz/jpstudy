@@ -7,7 +7,6 @@ import { useFormValidation } from "../../hooks/useFormValidation";
 import knowledge from "../../assets/undraw_knowledge.svg";
 import Input from "../../components/atoms/Input";
 import Button from "../../components/atoms/Button";
-import clsx from "clsx";
 
 interface RegisterForm {
   username: string;

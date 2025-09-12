@@ -22,14 +22,21 @@ export async function updateVocab(req: Request, res: Response) {
     }
   }
 
-export async function getAllVocab(req: Request, res: Response, next: NextFunction) {
+  export async function getAllVocab(req: Request, res: Response, next: NextFunction) {
     try {
-        const vocab = await vocabService.getAllVocab();
-        res.status(200).json(successResponse("Vocab berhasil diambil", vocab));
+      const { search, level } = req.query; // ✅ ambil query params
+  
+      const vocab = await vocabService.getAllVocab(
+        search as string,
+        level as string
+      );
+  
+      res.status(200).json(successResponse("Vocab berhasil diambil", vocab));
     } catch (error: any) {
-        return res.status(400).json(errorResponse(error.message));
+      return res.status(400).json(errorResponse(error.message));
     }
-}
+  }
+  
 
 export async function getVocabById(req: Request, res: Response, next: NextFunction) {
     try {

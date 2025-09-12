@@ -1,3 +1,4 @@
+import { Op } from "sequelize";
 import Vocab from "../models/Vocab";
 
 export async function createVocab(data: any) {
@@ -19,12 +20,32 @@ export async function updateVocab(id: string, data: any) {
     return vocab;
 }
 
-export async function getAllVocab() {
-    const vocab = await Vocab.findAll({ attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
-    return {
-        vocab: vocab,
-    };
-}
+export async function getAllVocab(search?: string, level?: string) {
+    const where: any = {};
+  
+    // ✅ filter level
+    if (level) {
+      where.level = level;
+    }
+  
+    // ✅ search word, romaji, meaning, atau kanji
+    if (search) {
+      where[Op.or] = [
+        { word: { [Op.iLike]: `%${search}%` } },     // postgres iLike → case-insensitive
+        { romaji: { [Op.iLike]: `%${search}%` } },
+        { meaning: { [Op.iLike]: `%${search}%` } },
+        { kanji: { [Op.iLike]: `%${search}%` } },
+      ];
+    }
+  
+    const vocab = await Vocab.findAll({
+      attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"],
+      where,
+      order: [["id", "ASC"]],
+    });
+  
+    return { vocab };
+  }
 
 export async function getVocabById(id: string) {
     const vocab = await Vocab.findByPk(id, { attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
