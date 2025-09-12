@@ -13,6 +13,7 @@ const app = express();
 // Middleware
 app.use(express.json());
 
+// ✅ CORS (sesuaikan origin sesuai frontend kamu)
 app.use(
   cors({
     origin: "http://localhost:5173",
@@ -22,7 +23,7 @@ app.use(
 
 // ✅ Routes
 app.use("/api/auth", authRoutes);   // /api/auth/register, /api/auth/login
-app.use("/api/users", userRoutes);  // /api/users/profile
+app.use("/api/users", userRoutes);  // /api/users/me
 app.use("/api/grammar", grammarRoutes);  // /api/grammar/create, /api/grammar/all, /api/grammar/:id, /api/grammar/level/:level
 app.use("/api/kanji", kanjiRoutes);  // /api/kanji/create, /api/kanji/all, /api/kanji/:id, /api/kanji/level/:level
 app.use("/api/vocab", vocabRoutes);  // /api/vocab/create, /api/vocab/all, /api/vocab/:id, /api/vocab/level/:level

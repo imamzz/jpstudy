@@ -21,7 +21,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   useEffect(() => {
     if (token) {
       api
-        .get("/auth/profile", {
+        .get("/users/me", {
           headers: { Authorization: `Bearer ${token}` },
         })
         .then((res) => {

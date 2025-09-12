@@ -33,10 +33,10 @@ function Dashboard() {
 
   const fetchWords = () => {
     api
-      .get("/words")
+      .get("/vocab")
       .then((res) => {
-        const list = Array.isArray(res.data) ? res.data : res.data.data;
-        setWords(list);
+        const list = res.data?.data ?? []; // ambil langsung dari "data"
+        setWords(Array.isArray(list) ? list : []); // pastikan array
         setLoading(false);
       })
       .catch((err) => {
@@ -44,6 +44,7 @@ function Dashboard() {
         setLoading(false);
       });
   };
+  
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -55,7 +56,7 @@ function Dashboard() {
 
     try {
       if (editId) {
-        const res = await api.put(`/words/${editId}`, {
+        const res = await api.put(`/vocab/${editId}`, {
           kanji,
           kana,
           romaji,
@@ -64,7 +65,7 @@ function Dashboard() {
         setWords(words.map((w) => (w.id === editId ? res.data.data : w)));
         setEditId(null);
       } else {
-        const res = await api.post("/words", {
+        const res = await api.post("/vocab", {
           kanji,
           kana,
           romaji,
@@ -86,7 +87,7 @@ function Dashboard() {
     if (!deleteId) return;
 
     try {
-      await api.delete(`/words/${deleteId}`);
+      await api.delete(`/vocab/${deleteId}`);
       setWords(words.filter((w) => w.id !== deleteId));
     } catch (err) {
       console.error("Error deleting word:", err);

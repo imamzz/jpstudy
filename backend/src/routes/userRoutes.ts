@@ -4,6 +4,6 @@ import { authMiddleware } from "../middleware/authMiddleware";
 
 const router = Router();
 
-router.get("/profile", authMiddleware, profile);
+router.get("/me", authMiddleware, profile);
 
 export default router;
