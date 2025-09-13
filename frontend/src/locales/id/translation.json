@@ -1,0 +1,12 @@
+{
+    "home": {
+      "title": "Beranda",
+      "progress": "Ringkasan Progres Belajar"
+    },
+    "vocab": {
+      "title": "Kosakata",
+      "startLearning": "Mulai Belajar",
+      "wordsLearned": "Kata yang sudah dihafal: {{count}}"
+    }
+  }
+  

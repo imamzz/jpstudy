@@ -5,8 +5,8 @@ import ProtectedRoute from "./ProtectedRoute";
 import LoadingSpinner from "../components/atoms/LoaderSpinner";
 
 // ✅ Lazy imports
-const AdminLayout = lazy(() => import("../components/layouts/AdminLayout"));
-const Dashboard = lazy(() => import("../pages/admin/Dashboard/Dashboard"));
+const AdminLayout = lazy(() => import("../layouts/AdminLayout"));
+const Dashboard = lazy(() => import("../pages/admin/dashboard/Dashboard"));
 
 export default function AdminRoutes() {
   return (

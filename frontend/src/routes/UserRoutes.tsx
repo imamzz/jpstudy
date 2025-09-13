@@ -4,55 +4,35 @@ import { Suspense, lazy } from "react";
 import ProtectedRoute from "./ProtectedRoute";
 import LoadingSpinner from "../components/atoms/LoaderSpinner";
 
-const UserLayout = lazy(() => import("../components/layouts/UserLayout"));
-const Home = lazy(() => import("../pages/user/Home/Home"));
-const VocabList = lazy(() => import("../pages/user/Vocab/VocabList"));
-const VocabDetail = lazy(() => import("../pages/user/Vocab/VocabDetail"));
-// const VocabStudy = lazy(() => import("../pages/user/Vocab/VocabStudy"));
+const UserLayout = lazy(() => import("../layouts/UserLayout"));
+
+// Daftar routes user
+const userPages = [
+  { path: "/home", component: lazy(() => import("../pages/user/home/HomePage")) },
+  { path: "/vocab", component: lazy(() => import("../pages/user/vocab/VocabPage")) },
+  { path: "/vocab/study", component: lazy(() => import("../pages/user/vocab/VocabStudy")) },
+  { path: "/grammar", component: lazy(() => import("../pages/user/grammar/GrammarPage")) },
+  { path: "/kanji", component: lazy(() => import("../pages/user/kanji/KanjiPage")) },
+  { path: "/review", component: lazy(() => import("../pages/user/review/ReviewPage")) },
+  { path: "/profile", component: lazy(() => import("../pages/user/profile/ProfilePage")) },
+];
 
 export default function UserRoutes() {
   return (
     <Route element={<ProtectedRoute allowedRoles={["user"]} />}>
-      <Route
-        path="/home"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <UserLayout>
-              <Home />
-            </UserLayout>
-          </Suspense>
-        }
-      />
-      <Route
-        path="/vocab"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <UserLayout>
-              <VocabList />
-            </UserLayout>
-          </Suspense>
-        }
-      />
-      <Route
-        path="/user/vocab/:id"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <UserLayout>
-              <VocabDetail />
-            </UserLayout>
-          </Suspense>
-        }
-      />
-      {/* <Route
-        path="/user/vocab/study"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <UserLayout>
-              <VocabStudy />
-            </UserLayout>
-          </Suspense>
-        }
-      /> */}
+      {userPages.map(({ path, component: Component }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <UserLayout>
+                <Component />
+              </UserLayout>
+            </Suspense>
+          }
+        />
+      ))}
     </Route>
   );
 }

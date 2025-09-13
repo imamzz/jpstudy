@@ -1,6 +1,6 @@
-import Sidebar from "../organisms/Sidebar";
-import Topbar from "../organisms/Topbar";
-import Footer from "../organisms/Footer";
+import Sidebar from "../components/organisms/Sidebar";
+import Topbar from "../components/organisms/Topbar";
+import Footer from "../components/organisms/Footer";
 
 const AdminLayout = ({ children }: { children: React.ReactNode }) => {
   return (

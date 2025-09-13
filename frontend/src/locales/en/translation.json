@@ -1,0 +1,12 @@
+{
+    "home": {
+      "title": "Home",
+      "progress": "Study Progress Summary"
+    },
+    "vocab": {
+      "title": "Vocabulary",
+      "startLearning": "Start Learning",
+      "wordsLearned": "Words learned: {{count}}"
+    }
+  }
+  

@@ -1,12 +1,34 @@
 import { useEffect, useState } from "react";
-import { getAllVocab, type Vocab } from "../../../api/vocab";
+import { getAllVocab, type Vocab } from "../../../../api/vocab";
 import { BookOpen, Search } from "lucide-react";
+import Select from "../../../../components/atoms/Select";
+import type { BadgeVariant } from "../../../../components/atoms/Badge";
+import Badge from "../../../../components/atoms/Badge";
 
 function VocabList() {
   const [vocab, setVocab] = useState<Vocab[]>([]);
   const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState("");
   const [level, setLevel] = useState("");
+
+  const getVariant = (level?: string): BadgeVariant => {
+    if (!level) return "default";
+    switch (level.toLowerCase()) {
+      case "n5":
+        return "n5";
+      case "n4":
+        return "n4";
+      case "n3":
+        return "n3";
+      case "n2":
+        return "n2";
+      case "n1":
+        return "n1";
+      default:
+        return "default";
+    }
+  };
+
 
   useEffect(() => {
     fetchVocabs();
@@ -48,18 +70,16 @@ function VocabList() {
           <Search className="absolute left-3 top-2.5 text-gray-400" size={18} />
         </div>
 
-        <select
-          value={level}
-          onChange={(e) => setLevel(e.target.value)}
-          className="border border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none shadow-sm"
-        >
-          <option value="">Semua Level</option>
-          <option value="N5">N5</option>
-          <option value="N4">N4</option>
-          <option value="N3">N3</option>
-          <option value="N2">N2</option>
-          <option value="N1">N1</option>
-        </select>
+        {/* select level */}
+        <Select options={[
+          { value: "", label: "Semua Level" },
+          { value: "N5", label: "N5" },
+          { value: "N4", label: "N4" },
+          { value: "N3", label: "N3" },
+          { value: "N2", label: "N2" },
+          { value: "N1", label: "N1" },
+        ]} value={level} 
+        onChange={(value) => setLevel(value)} />
       </div>
 
       {/* Content */}
@@ -92,12 +112,10 @@ function VocabList() {
                   <td className="p-3 text-gray-600">{word.romaji}</td>
                   <td className="p-3">{word.meaning}</td>
                   <td className="p-3">
-                    <span className="px-2 py-1 rounded-md bg-blue-100 text-blue-700 text-sm font-medium">
-                      {word.level || "-"}
-                    </span>
+                  <Badge variant={getVariant(word.level)}>{word.level || "-"}</Badge>
                   </td>
                 </tr>
-              ))}
+              ))} 
             </tbody>
           </table>
         </div>

@@ -1,0 +1,12 @@
+{
+    "home": {
+      "title": "ホーム",
+      "progress": "学習進捗概要"
+    },
+    "vocab": {
+      "title": "語彙",
+      "startLearning": "学習を始める",
+      "wordsLearned": "覚えた単語: {{count}}"
+    }
+  }
+  

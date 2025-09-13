@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useParams, Link } from "react-router-dom";
-import { getVocabById, type Vocab } from "../../../api/vocab";
+import { getVocabById, type Vocab } from "../../../../api/vocab";
 import { ArrowLeft, BookOpen } from "lucide-react";
 
 function VocabDetail() {

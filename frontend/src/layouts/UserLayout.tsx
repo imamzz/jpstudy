@@ -1,6 +1,6 @@
-import Topbar from "../organisms/Topbar";
-import Footer from "../organisms/Footer";
-import Sidebar from "../organisms/Sidebar";
+import Topbar from "../components/organisms/Topbar";
+import Footer from "../components/organisms/Footer";
+import Sidebar from "../components/organisms/Sidebar";
 
 const UserLayout = ({ children }: { children: React.ReactNode }) => {
     return (

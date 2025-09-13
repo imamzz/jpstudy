@@ -1,4 +1,3 @@
-// components/atoms/Input.tsx
 import React, { forwardRef } from "react";
 import clsx from "clsx";
 
