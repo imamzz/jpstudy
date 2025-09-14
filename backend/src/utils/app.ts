@@ -7,12 +7,12 @@ import kanjiRoutes from "../routes/kanjiRoutes";
 import vocabRoutes from "../routes/vocabRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
 import bookmarkRoutes from "../routes/bookmarkRoutes";
+import cookieParser from "cookie-parser";
 
 const app = express();
 
-// Middleware
-app.use(express.json());
 
+app.use(cookieParser());
 // ✅ CORS (sesuaikan origin sesuai frontend kamu)
 app.use(
   cors({
@@ -20,6 +20,9 @@ app.use(
     credentials: true,
   })
 );
+// Middleware
+app.use(express.json());
+
 
 // ✅ Routes
 app.use("/api/auth", authRoutes);   // /api/auth/register, /api/auth/login

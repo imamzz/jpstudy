@@ -21,22 +21,24 @@ const initialState: AuthState = {
 };
 
 const userSlice = createSlice({
-  name: "user",
-  initialState,
-  reducers: {
-    login: (state, action: PayloadAction<{ token: string; user: User }>) => {
-      state.accessToken = action.payload.token;
-      state.user = action.payload.user;
-      state.role = action.payload.user.role;
+    name: "user",
+    initialState,
+    reducers: {
+      login: (state, action: PayloadAction<{ token: string; user: User }>) => {
+        state.accessToken = action.payload.token;
+        state.user = action.payload.user;
+        state.role = action.payload.user.role;
+      },
+      refreshToken: (state, action: PayloadAction<string>) => {
+        state.accessToken = action.payload;
+      },
+      logout: (state) => {
+        state.accessToken = null;
+        state.user = null;
+        state.role = null;
+      },
     },
-    logout: (state) => {
-      state.accessToken = null;
-      state.user = null;
-      state.role = null;
-    },
-  },
-});
+  });
 
-
-export const { login, logout } = userSlice.actions;
+export const { login, refreshToken, logout } = userSlice.actions;
 export default userSlice.reducer;
