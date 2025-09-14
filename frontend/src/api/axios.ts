@@ -1,13 +1,15 @@
 import axios from "axios";
+import { store } from "@/app/store";
 
 const api = axios.create({
-  baseURL: "http://localhost:5000/api", // sesuaikan dengan backend kamu
+  baseURL: "http://localhost:5000/api", // ganti sesuai backend Anda
+  withCredentials: true, // penting! supaya cookie HttpOnly ikut terkirim
 });
 
-// Interceptor untuk attach token jika ada
+// Interceptor untuk inject Authorization
 api.interceptors.request.use((config) => {
-  const token = localStorage.getItem("token");
-  if (token) {
+  const token = store.getState().user.accessToken;
+  if (token && config.headers) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

@@ -1,4 +1,3 @@
-// src/routes/UserRoutes.tsx
 import { Route } from "react-router-dom";
 import { Suspense, lazy } from "react";
 import ProtectedRoute from "./ProtectedRoute";

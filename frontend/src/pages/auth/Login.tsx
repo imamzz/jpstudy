@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";
-import { handleApiError } from "../../utils/handleApiError";
-import { useAuth } from "../../hooks/useAuth";
-import { useFormValidation } from "../../hooks/useFormValidation";
+import { useAppDispatch } from "@/app/hooks";
+import { login } from "@/features/user/userSlice";
+import { authApi } from "@/api/auth";
+import { handleApiError } from "@/utils/handleApiError";
 
-import knowledge from "../../assets/undraw_knowledge.svg";
-import Input from "../../components/atoms/Input";
-import Button from "../../components/atoms/Button";
+import knowledge from "@/assets/undraw_knowledge.svg";
+import Input from "@/components/atoms/Input";
+import Button from "@/components/atoms/Button";
 import clsx from "clsx";
+import { useFormValidation } from "@/hooks/useFormValidation";
 
 interface LoginForm {
   email: string;
@@ -16,7 +17,7 @@ interface LoginForm {
 }
 
 const Login: React.FC = () => {
-  const { login } = useAuth();
+  const dispatch = useAppDispatch();
   const navigate = useNavigate();
   const [serverError, setServerError] = useState("");
 
@@ -35,32 +36,32 @@ const Login: React.FC = () => {
       }
     );
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setServerError("");
-
-    if (!validateForm()) return;
-
-    try {
-      const res = await api.post("/auth/login", {
-        email: values.email,
-        password: values.password,
-      });
-
-      const { token, user } = res.data.data;
-
-      login(token, user.role, user);
-
-      if (user.role === "admin") {
-        navigate("/dashboard");
-      } else {
-        navigate("/home");
+    const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+      e.preventDefault();
+      setServerError("");
+    
+      if (!validateForm()) return;
+    
+      try {
+        const res = await authApi.login(values.email, values.password);
+        const { token, user } = res.data.data;
+    
+        // simpan Redux
+        dispatch(login({ token, user }));
+    
+        // cek role dari user
+        if (user.role === "admin") {
+          navigate("/dashboard");
+        } else {
+          navigate("/home");
+        }
+      } catch (error: unknown) {
+        const msg = handleApiError(error, "Login failed, please try again.");
+        setServerError(msg);
       }
-    } catch (error: unknown) {
-      const msg = handleApiError(error, "Login failed, please try again.");
-      setServerError(msg);
-    }
-  };
+    };
+    
+    
 
   return (
     <div className="min-h-screen flex">

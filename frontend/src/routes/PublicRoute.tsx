@@ -1,18 +1,15 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAppSelector } from "@/app/hooks";
 
-interface PublicRouteProps {
-  restricted?: boolean; // jika true -> user login tidak boleh masuk
-}
+const PublicRoute = ({ restricted = true }) => {
+  const { accessToken, role } = useAppSelector((state) => state.user);
 
-const PublicRoute = ({ restricted = true }: PublicRouteProps) => {
-  const { token, role } = useAuth();
-
-  if (restricted && token) {
-    if (role === "admin") {
-      return <Navigate to="/dashboard" replace />;
-    }
-    return <Navigate to="/home" replace />;
+  if (restricted && accessToken) {
+    return role === "admin" ? (
+      <Navigate to="/dashboard" replace />
+    ) : (
+      <Navigate to="/home" replace />
+    );
   }
 
   return <Outlet />;

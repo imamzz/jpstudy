@@ -1,8 +1,8 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../../hooks/useAuth";
+import { useAppSelector } from "@/app/hooks";
 
 const Sidebar = () => {
-  const { role } = useAuth();
+  const { role } = useAppSelector((state) => state.user);
   return (
     <aside className="w-64 bg-gray-800 text-white min-h-screen p-4">
       <h2 className="text-xl font-bold mb-6">JPStudy</h2>

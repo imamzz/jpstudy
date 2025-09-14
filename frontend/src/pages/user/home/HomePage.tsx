@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
-import { useAuth } from "../../../hooks/useAuth";
+import { useAppSelector } from "@/app/hooks";
+
 
 function Home() {
-  const { user } = useAuth();
+  const { user } = useAppSelector((state) => state.user);
 
   return (
     <div className="p-6 max-w-5xl mx-auto">

@@ -1,7 +1,8 @@
-import { useAuth } from "../../hooks/useAuth";
+import { useAppSelector } from "@/app/hooks";
+import { logout } from "@/features/user/userSlice";
 import { useTranslation } from "react-i18next";
 const Topbar = () => {
-  const { logout, user } = useAuth();
+  const { user } = useAppSelector((state) => state.user);
   const { t, i18n } = useTranslation();
 
   const changeLanguage = (lang: string) => {
@@ -15,7 +16,7 @@ const Topbar = () => {
       <button onClick={() => changeLanguage("ja")}>{t("ja")}</button>
         <p className="text-lg font-semibold">{user?.username}</p>
         <button
-          onClick={logout}
+          onClick={() => logout()}
           className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
         >
           Logout

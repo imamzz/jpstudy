@@ -1,9 +1,9 @@
 // src/pages/user/vocab/VocabStudy.tsx
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useVocab } from "./store/vocabContext";
-import WordDisplay from "./components/WordDisplay";
-import StudyTimer from "./components/StudyTimer";
+import { useVocab } from "./store/vocabProvider";
+import WordDisplay from "../../../features/vocab/components/WordDisplay";
+import StudyTimer from "../../../features/vocab/components/StudyTimer";
 
 interface Config {
   wordsPerSet: number;

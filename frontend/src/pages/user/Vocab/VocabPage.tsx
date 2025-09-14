@@ -1,49 +1,32 @@
-// src/pages/user/vocab/VocabPage.tsx
-import { useState } from "react";
-import { useVocab } from "./store/vocabContext";
-import VocabTable from "./components/VocabTable";
-import VocabProgress from "./components/VocabProgress";
-import VocabConfigForm from "./components/VocabConfigForm";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { markAsLearned, markAsLearning } from "@/features/vocab/vocabSlice";      
 
 export default function VocabPage() {
-  const { words } = useVocab();
-  const [selectedLevel, setSelectedLevel] = useState<
-    "All" | "N5" | "N4" | "N3" | "N2" | "N1"
-  >("N5");
-
-  // 🔹 Jika "All" → tampilkan semua kosakata
-  const filteredWords =
-    selectedLevel === "All" ? words : words.filter((w) => w.level === selectedLevel);
+  const dispatch = useAppDispatch();
+  const words = useAppSelector((state) => state.vocab.words);
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-2xl font-bold">
-        Kosakata {selectedLevel === "All" ? "(Semua Level)" : `(${selectedLevel})`}
-      </h1>
-
-      {/* Tab Level */}
-      <div className="flex flex-wrap gap-2 mb-4">
-        {["All", "N5", "N4", "N3", "N2", "N1"].map((level) => (
-          <button
-            key={level}
-            onClick={() => setSelectedLevel(level as any)}
-            className={`px-4 py-2 rounded ${
-              selectedLevel === level
-                ? "bg-blue-600 text-white"
-                : "bg-gray-200 text-gray-700 hover:bg-gray-300"
-            }`}
-          >
-            {level}
-          </button>
+    <div className="p-4">
+      <h1 className="text-xl font-bold mb-4">Kosakata</h1>
+      <ul>
+        {words.map((w) => (
+          <li key={w.id} className="mb-2">
+            {w.kanji} ({w.arti}) - <span className="italic">{w.status}</span>
+            <button
+              className="ml-2 px-2 py-1 bg-blue-500 text-white rounded"
+              onClick={() => dispatch(markAsLearning(w.id))}
+            >
+              Mulai Belajar
+            </button>
+            <button
+              className="ml-2 px-2 py-1 bg-green-500 text-white rounded"
+              onClick={() => dispatch(markAsLearned(w.id))}
+            >
+              Tandai Selesai
+            </button>
+          </li>
         ))}
-      </div>
-
-      {/* Progress & Table */}
-      <VocabProgress words={filteredWords} />
-      <VocabTable words={filteredWords} />
-
-      {/* Config Form */}
-      <VocabConfigForm selectedLevel={selectedLevel === "All" ? "All" : selectedLevel} />
+      </ul>
     </div>
   );
 }

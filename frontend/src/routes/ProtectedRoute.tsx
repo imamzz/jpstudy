@@ -1,20 +1,18 @@
 import { Navigate, Outlet } from "react-router-dom";
-import { useAuth } from "../hooks/useAuth";
+import { useAppSelector } from "@/app/hooks";
 
 interface ProtectedRouteProps {
-  allowedRoles?: string[]; // contoh: ["admin"] atau ["user"]
+  allowedRoles?: string[];
 }
 
 const ProtectedRoute = ({ allowedRoles }: ProtectedRouteProps) => {
-  const { token, role } = useAuth();
+  const { accessToken, role } = useAppSelector((state) => state.user);
 
-  if (!token) {
-    // belum login
+  if (!accessToken) {
     return <Navigate to="/login" replace />;
   }
 
   if (allowedRoles && !allowedRoles.includes(role || "")) {
-    // role tidak diizinkan
     return role === "admin" ? (
       <Navigate to="/dashboard" replace />
     ) : (

@@ -1,5 +1,4 @@
-// src/pages/user/vocab/components/VocabTable.tsx
-import { useVocab } from "../store/vocabContext";
+import { useVocab } from "../../../pages/user/vocab/store/vocabProvider";
 
 export default function VocabTable() {
   const { words, markAsLearned } = useVocab();

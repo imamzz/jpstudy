@@ -1,4 +1,4 @@
-import { useVocab } from "../store/vocabContext";
+import { useVocab } from "../../../pages/user/vocab/store/vocabProvider";
 
 export default function VocabProgress() {
   const { words } = useVocab();

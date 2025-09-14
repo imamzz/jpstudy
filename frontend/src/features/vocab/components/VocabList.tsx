@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
-import { getAllVocab, type Vocab } from "../../../../api/vocab";
+import { getAllVocab, type Vocab } from "../../../api/vocab";
 import { BookOpen, Search } from "lucide-react";
-import Select from "../../../../components/atoms/Select";
-import type { BadgeVariant } from "../../../../components/atoms/Badge";
-import Badge from "../../../../components/atoms/Badge";
+import Select from "../../../components/atoms/Select";
+import type { BadgeVariant } from "../../../components/atoms/Badge";
+import Badge from "../../../components/atoms/Badge";
 
 function VocabList() {
   const [vocab, setVocab] = useState<Vocab[]>([]);
