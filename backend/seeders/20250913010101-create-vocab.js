@@ -5,7 +5,7 @@ module.exports = {
     return queryInterface.bulkInsert("vocab", [
       // N5
       {
-        word: "犬",
+        kana: "犬",
         kanji: "犬",
         romaji: "inu",
         example: "犬が好きです。",
@@ -15,7 +15,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        word: "水",
+        kana: "水",
         kanji: "水",
         romaji: "mizu",
         example: "水を飲みます。",
@@ -26,7 +26,7 @@ module.exports = {
       },
       // N4
       {
-        word: "卒業",
+        kana: "卒業",
         kanji: "卒業",
         romaji: "sotsugyō",
         example: "大学を卒業しました。",
@@ -36,7 +36,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        word: "経験",
+        kana: "経験",
         kanji: "経験",
         romaji: "keiken",
         example: "仕事の経験があります。",
@@ -47,7 +47,7 @@ module.exports = {
       },
       // N3
       {
-        word: "影響",
+        kana: "影響",
         kanji: "影響",
         romaji: "eikyō",
         example: "彼の考えに影響を受けました。",
@@ -57,7 +57,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        word: "環境",
+        kana: "環境",
         kanji: "環境",
         romaji: "kankyō",
         example: "環境を守りましょう。",
@@ -68,7 +68,7 @@ module.exports = {
       },
       // N2
       {
-        word: "改善",
+        kana: "改善",
         kanji: "改善",
         romaji: "kaizen",
         example: "生活を改善したいです。",
@@ -78,7 +78,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        word: "尊重",
+        kana: "尊重",
         kanji: "尊重",
         romaji: "sonchō",
         example: "意見を尊重するべきです。",
@@ -89,7 +89,7 @@ module.exports = {
       },
       // N1
       {
-        word: "抽象",
+        kana: "抽象",
         kanji: "抽象",
         romaji: "chūshō",
         example: "抽象的な概念を理解する。",
@@ -99,7 +99,7 @@ module.exports = {
         updatedAt: new Date(),
       },
       {
-        word: "矛盾",
+        kana: "矛盾",
         kanji: "矛盾",
         romaji: "mujun",
         example: "彼の話には矛盾がある。",

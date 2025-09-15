@@ -17,26 +17,50 @@ dist/
 build/
 frontend/build/
 backend/build/
+coverage/
 
 # =========================================================
 # Environment & secrets
 # =========================================================
 .env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
+.env.*
+!.env.example   # kecuali file contoh env
+secrets.json
+*.pem
+*.key
 
 # =========================================================
 # Logs
 # =========================================================
-logs
+logs/
 *.log
 *.log.*
 pids
 *.pid
 *.seed
 *.pid.lock
+
+# =========================================================
+# Database
+# =========================================================
+*.sqlite
+*.sqlite3
+*.db
+*.db-journal
+dump.sql
+
+# =========================================================
+# Sequelize / ORM
+# =========================================================
+.sequelize/
+.sequelize-cli/
+migrations/*.js
+seeders/*.js
+
+# Catatan:
+# Jika kamu generate migration/seed dengan JS lalu convert manual ke TS, 
+# biar yang masuk git hanya versi TS saja.
+# Kalau memang butuh simpan JS hasil compile, hapus rule ini.
 
 # =========================================================
 # OS generated
@@ -55,8 +79,8 @@ Thumbs.db
 # =========================================================
 # Testing
 # =========================================================
-coverage/
 *.lcov
+jest-coverage/
 
 # =========================================================
 # Misc

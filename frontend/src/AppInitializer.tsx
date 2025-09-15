@@ -12,11 +12,11 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        const hasRefresh = document.cookie.includes("refreshToken="); // contoh check cookie
-        if (!hasRefresh) {
-          setLoading(false);
-          return;
-        }
+        // const hasRefresh = document.cookie.includes("refreshToken="); // contoh check cookie
+        // if (!hasRefresh) {
+        //   setLoading(false);
+        //   return;
+        // }
   
         const res = await api.post("/auth/refresh");
         const { token, user } = res.data.data;

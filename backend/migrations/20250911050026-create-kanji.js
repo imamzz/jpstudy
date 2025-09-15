@@ -1,4 +1,4 @@
-'use strict';
+"use strict";
 
 /** @type {import('sequelize-cli').Migration} */
 "use strict";
@@ -27,7 +27,7 @@ module.exports = {
       example_words: {
         type: Sequelize.TEXT,
       },
-      word: {
+      kana: {
         type: Sequelize.STRING(255),
       },
       romaji: {

@@ -10,6 +10,9 @@ interface ReviewAttributes {
   next_review: Date;
   attempt_count: number;
   correct: boolean;
+  ease_factor: number;
+  interval_days: number;
+  repetition_count: number;
 }
 
 interface ReviewCreationAttributes extends Optional<ReviewAttributes, "id"> {}
@@ -24,6 +27,9 @@ class Review extends Model<ReviewAttributes, ReviewCreationAttributes>
   public next_review!: Date;
   public attempt_count!: number;
   public correct!: boolean;
+  public ease_factor!: number;
+  public interval_days!: number;
+  public repetition_count!: number;
 }
 
 Review.init(
@@ -36,6 +42,9 @@ Review.init(
     next_review: { type: DataTypes.DATE, allowNull: false },
     attempt_count: { type: DataTypes.INTEGER, defaultValue: 0 },
     correct: { type: DataTypes.BOOLEAN, defaultValue: false },
+    ease_factor: { type: DataTypes.FLOAT, defaultValue: 2.5 },
+    interval_days: { type: DataTypes.INTEGER, defaultValue: 1 },
+    repetition_count: { type: DataTypes.INTEGER, defaultValue: 0 },
   },
   { sequelize, tableName: "reviews", timestamps: true, underscored: false }
 );

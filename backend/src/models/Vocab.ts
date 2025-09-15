@@ -3,7 +3,7 @@ import sequelize from "../config/database";
 
 interface VocabAttributes {
   id: number;
-  word: string;
+  kana: string;
   kanji: string;
   romaji: string;
   meaning: string;
@@ -16,7 +16,7 @@ interface VocabCreationAttributes extends Optional<VocabAttributes, "id"> {}
 class Vocab extends Model<VocabAttributes, VocabCreationAttributes>
   implements VocabAttributes {
   public id!: number;
-  public word!: string;
+  public kana!: string;
   public kanji!: string;
   public romaji!: string;
   public meaning!: string;
@@ -27,7 +27,7 @@ class Vocab extends Model<VocabAttributes, VocabCreationAttributes>
 Vocab.init(
   {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-    word: { type: DataTypes.STRING, allowNull: false },
+    kana: { type: DataTypes.STRING, allowNull: false },
     kanji: { type: DataTypes.STRING, allowNull: false },
     romaji: { type: DataTypes.STRING, allowNull: false },
     meaning: { type: DataTypes.STRING, allowNull: false },

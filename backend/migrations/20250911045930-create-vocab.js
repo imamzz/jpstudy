@@ -6,7 +6,7 @@ module.exports = {
   async up(queryInterface, Sequelize) {
     await queryInterface.createTable("vocab", {
       id: { type: Sequelize.INTEGER, autoIncrement: true, primaryKey: true },
-      word: { type: Sequelize.STRING(255), allowNull: false },
+      kana: { type: Sequelize.STRING(255), allowNull: false },
       kanji: {type: Sequelize.STRING(255), allowNull: false},
       romaji: {type: Sequelize.STRING(255), allowNull: false},
       meaning: { type: Sequelize.STRING(255), allowNull: false },
