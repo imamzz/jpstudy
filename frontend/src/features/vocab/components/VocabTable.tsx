@@ -1,4 +1,5 @@
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import Badge, { type BadgeVariant } from "@/components/atoms/Badge";
 import { markAsLearned } from "@/features/vocab/vocabSlice";
 
 export default function VocabTable() {
@@ -23,7 +24,7 @@ export default function VocabTable() {
   }
 
   return (
-    <div className="overflow-x-auto border rounded-xl shadow-md bg-white">
+    <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-md bg-white">
       <table className="min-w-full text-sm">
         <thead className="bg-gray-50">
           <tr className="text-left text-gray-600">
@@ -31,6 +32,7 @@ export default function VocabTable() {
             <th className="px-4 py-2">Kana</th>
             <th className="px-4 py-2">Romaji</th>
             <th className="px-4 py-2">Arti</th>
+            <th className="px-4 py-2">Level</th>
             <th className="px-4 py-2">Status</th>
             <th className="px-4 py-2 text-center">Aksi</th>
           </tr>
@@ -42,6 +44,11 @@ export default function VocabTable() {
               <td className="px-4 py-2">{word.kana}</td>
               <td className="px-4 py-2 italic text-gray-500">{word.romaji}</td>
               <td className="px-4 py-2">{word.arti}</td>
+              <td className="px-4 py-2">
+                <Badge variant={word.level.toLowerCase() as BadgeVariant}>
+                  {word.level}
+                </Badge>
+              </td>
               <td className="px-4 py-2">
                 <span
                   className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusStyle(

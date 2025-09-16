@@ -12,7 +12,7 @@ export default function VocabList() {
       {words.map((w) => (
         <li
           key={w.id}
-          className="p-3 border rounded-xl shadow hover:shadow-md transition bg-white"
+          className="p-3 border border-gray-200 rounded-lg shadow hover:shadow-md transition bg-white"
         >
           <p className="font-bold text-lg">{w.kanji}</p>
           <p className="text-gray-600">{w.kana} ({w.romaji})</p>

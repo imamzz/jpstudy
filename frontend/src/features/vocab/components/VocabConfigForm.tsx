@@ -1,4 +1,6 @@
 import Button from "@/components/atoms/Button";
+import Input from "@/components/atoms/Input";
+import Select from "@/components/atoms/Select";
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
@@ -27,82 +29,70 @@ export default function VocabConfigForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-gray-50 border rounded-xl shadow space-y-3"
+      className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow space-y-3"
     >
       <h2 className="font-bold text-gray-700">⚙️ Pengaturan Belajar</h2>
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-600">
-            Jumlah Kata per Set
-          </label>
-          <input
+          <Input
+            label="Jumlah Kata per Set"
             type="number"
             name="wordsPerSet"
             value={limit}
+            variant="default"
             onChange={(e) => setLimit(Number(e.target.value))}
-            className="w-full border px-2 py-1 rounded"
           />
         </div>
 
         <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-600">
-            Jumlah Set
-          </label>
-          <input
+          <Input
+            label="Jumlah Set"
             type="number"
             name="totalSets"
             value={totalSets}
+            variant="default"
             onChange={(e) => setTotalSets(Number(e.target.value))}
-            className="w-full border px-2 py-1 rounded"
           />
         </div>
       </div>
 
       <div className="flex gap-3">
         <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-600">
-            Durasi per Kata (detik)
-          </label>
-          <input
+          <Input
+            label="Durasi per Kata (detik)"
             type="number"
             name="duration"
             value={duration}
+            variant="default"
             onChange={(e) => setDuration(Number(e.target.value))}
-            className="w-full border px-2 py-1 rounded"
           />
         </div>
 
         <div className="flex-1">
-          <label className="block text-sm font-semibold text-gray-600">
-            Durasi istirahat (detik)
-          </label>
-          <input
+          <Input
+            label="Durasi istirahat (detik)"
             type="number"
             name="breakDuration"
             value={breakDuration}
+            variant="default"
             onChange={(e) => setBreakDuration(Number(e.target.value))}
-            className="w-full px-2 py-1 border rounded-lg"
           />
         </div>
       </div>
       <div className="flex gap-4">
         <div className="flex-3">
-          <label className="block text-sm font-semibold text-gray-600">
-            Level
-          </label>
-          <select
-            name="level"
+          <Select
+            options={[
+              { value: "All", label: "Semua Level" },
+              { value: "N5", label: "N5" },
+              { value: "N4", label: "N4" },
+              { value: "N3", label: "N3" },
+              { value: "N2", label: "N2" },
+              { value: "N1", label: "N1" },
+            ]}
             value={level}
-            onChange={(e) => setLevel(e.target.value as any)}
-            className="px-2 py-1 border rounded-lg"
-          >
-            <option value="All">Semua Level</option>
-            <option value="N5">N5</option>
-            <option value="N4">N4</option>
-            <option value="N3">N3</option>
-            <option value="N2">N2</option>
-            <option value="N1">N1</option>
-          </select>
+            onChange={(value) => setLevel(value as "All" | "N5" | "N4" | "N3" | "N2" | "N1")}
+          />
         </div>
         <div className="flex-1 flex justify-end">
           <Button type="submit" variant="primary" size="lg" onClick={handleSubmit}>

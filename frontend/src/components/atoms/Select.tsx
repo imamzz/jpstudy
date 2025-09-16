@@ -17,7 +17,7 @@ const Select = ({
         onChange(value);
     };
 
-    const baseStyle = "border border-gray-200 px-4 py-2 rounded-xl focus:ring-2 focus:ring-blue-400 outline-none shadow-sm";
+    const baseStyle = "border border-gray-200 px-4 py-2 rounded-lg focus:ring-2 focus:ring-blue-400 outline-none";
 
     return (
         <select value={selectedValue} onChange={handleChange} className={baseStyle}>

@@ -1,11 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
 import userReducer from "../features/user/userSlice";
 import vocabReducer from "../features/vocab/vocabSlice";
+import grammarReducer from "../features/grammar/grammarSlice";
 
 export const store = configureStore({
   reducer: {
     user: userReducer,
-    vocab: vocabReducer, // <── daftarin vocab reducer di sini
+    vocab: vocabReducer,
+    grammar: grammarReducer,
   },
 });
 

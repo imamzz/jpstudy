@@ -1,52 +1,68 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import type { GrammarPoint } from "./grammarTypes";
-import api from "../../api/axios";
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+export type GrammarStatus = "new" | "learning" | "mastered";
+
+export interface GrammarPoint {
+  id: number;
+  title: string;       // bentuk grammar, contoh: 〜ている
+  meaning: string;     // arti singkat
+  level: "N5" | "N4" | "N3" | "N2" | "N1";
+  examples: string[];  // contoh kalimat
+  status: GrammarStatus;
+}
 
 interface GrammarState {
   points: GrammarPoint[];
-  loading: boolean;
-  error: string | null;
 }
 
 const initialState: GrammarState = {
-  points: [],
-  loading: false,
-  error: null,
+  points: [
+    {
+      id: 1,
+      title: "〜ている",
+      meaning: "sedang melakukan",
+      level: "N5",
+      examples: ["私は本を読んでいる。"],
+      status: "new",
+    },
+    {
+      id: 2,
+      title: "〜たい",
+      meaning: "ingin melakukan",
+      level: "N5",
+      examples: ["日本へ行きたい。"],
+      status: "new",
+    },
+    {
+      id: 3,
+      title: "〜なければならない",
+      meaning: "harus",
+      level: "N4",
+      examples: ["勉強しなければならない。"],
+      status: "new",
+    },
+  ],
 };
-
-export const fetchGrammar = createAsyncThunk("grammar/fetchGrammar", async () => {
-  const response = await api.get("/grammar");
-  return response.data as GrammarPoint[];
-});
 
 const grammarSlice = createSlice({
   name: "grammar",
   initialState,
   reducers: {
-    markGrammarLearning(state, action: PayloadAction<number>) {
-      const point = state.points.find((g) => g.id === action.payload);
-      if (point) point.status = "learning";
+    setGrammar: (state, action: PayloadAction<GrammarPoint[]>) => {
+      state.points = action.payload;
     },
-    markGrammarMastered(state, action: PayloadAction<number>) {
-      const point = state.points.find((g) => g.id === action.payload);
-      if (point) point.status = "mastered";
+    markGrammarLearning: (state, action: PayloadAction<number>) => {
+      const gp = state.points.find((g) => g.id === action.payload);
+      if (gp) gp.status = "learning";
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchGrammar.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchGrammar.fulfilled, (state, action) => {
-        state.points = action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchGrammar.rejected, (state, action) => {
-        state.error = action.error.message || "Failed to fetch grammar";
-        state.loading = false;
-      });
+    markGrammarMastered: (state, action: PayloadAction<number>) => {
+      const gp = state.points.find((g) => g.id === action.payload);
+      if (gp) gp.status = "mastered";
+    },
   },
 });
 
-export const { markGrammarLearning, markGrammarMastered } = grammarSlice.actions;
+export const { setGrammar, markGrammarLearning, markGrammarMastered } =
+  grammarSlice.actions;
 export default grammarSlice.reducer;
