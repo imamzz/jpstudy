@@ -1,19 +1,23 @@
 // src/pages/user/vocab/VocabStudy.tsx
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import { useVocab } from "./store/vocabProvider";
-import WordDisplay from "../../../features/vocab/components/WordDisplay";
-import StudyTimer from "../../../features/vocab/components/StudyTimer";
+import { useAppDispatch, useAppSelector } from "@/app/hooks";
+import { markAsLearned } from "@/features/vocab/vocabSlice";
+import WordDisplay from "@/features/vocab/components/WordDisplay";
+import StudyTimer from "@/features/vocab/components/StudyTimer";
 
 interface Config {
   wordsPerSet: number;
   totalSets: number;
   duration: number;
   level: "All" | "N5" | "N4" | "N3" | "N2" | "N1";
+  breakDuration: number;
 }
 
 export default function VocabStudy() {
-  const { words, markAsLearned } = useVocab();
+  const dispatch = useAppDispatch();
+  const words = useAppSelector((state) => state.vocab.words); // ✅ ambil dari redux
+
   const location = useLocation();
   const navigate = useNavigate();
 
@@ -22,6 +26,7 @@ export default function VocabStudy() {
     totalSets: 2,
     duration: 10,
     level: "N5",
+    breakDuration: 5,
   };
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -42,7 +47,7 @@ export default function VocabStudy() {
   // 🔹 Filter kata sesuai level
   const levelWords =
     config.level === "All"
-      ? shuffleArray(words) // kalau All → acak
+      ? shuffleArray(words)
       : words.filter((w) => w.level === config.level);
 
   const sessionWords = levelWords.slice(0, config.wordsPerSet * config.totalSets);
@@ -84,15 +89,13 @@ export default function VocabStudy() {
   };
 
   const handleMarkLearned = () => {
-    if (currentWord) markAsLearned(currentWord.id);
+    if (currentWord) dispatch(markAsLearned(currentWord.id)); // ✅ redux action
     handleNext();
   };
 
   // 🔹 Helper format detik → mm:ss
   const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60)
-      .toString()
-      .padStart(2, "0");
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
     const s = (seconds % 60).toString().padStart(2, "0");
     return `${m}:${s}`;
   };
@@ -106,9 +109,7 @@ export default function VocabStudy() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <div className="max-w-md w-full bg-white rounded-xl shadow p-6 text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">
-            🎉 Sesi Belajar Selesai!
-          </h2>
+          <h2 className="text-2xl font-bold text-gray-800">🎉 Sesi Belajar Selesai!</h2>
           <p className="text-gray-600">
             Kamu sudah mempelajari <b>{totalWords}</b> kata dalam{" "}
             <b>{config.totalSets}</b> set.
@@ -116,23 +117,14 @@ export default function VocabStudy() {
 
           {/* Statistik detail */}
           <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2">
-            <p className="text-green-600 font-medium">
-              ✅ {learnedCount} kata ditandai hafal
-            </p>
-            <p className="text-red-600 font-medium">
-              ❌ {notLearnedCount} kata belum ditandai hafal
-            </p>
-            <p className="text-blue-600 font-medium">
-              ⏰ Total waktu belajar: {formatTime(totalTime)}
-            </p>
+            <p className="text-green-600 font-medium">✅ {learnedCount} kata ditandai hafal</p>
+            <p className="text-red-600 font-medium">❌ {notLearnedCount} kata belum ditandai hafal</p>
+            <p className="text-blue-600 font-medium">⏰ Total waktu belajar: {formatTime(totalTime)}</p>
           </div>
 
           {/* Progress bar full */}
           <div className="w-full bg-gray-200 rounded-full h-3">
-            <div
-              className="bg-blue-500 h-3 rounded-full"
-              style={{ width: "100%" }}
-            ></div>
+            <div className="bg-blue-500 h-3 rounded-full" style={{ width: "100%" }}></div>
           </div>
 
           <div className="flex space-x-4 justify-center mt-6">
@@ -173,8 +165,7 @@ export default function VocabStudy() {
       {/* Progress bar per set */}
       <div className="w-full">
         <p className="text-sm text-gray-600 mb-1">
-          Set {currentSet}/{config.totalSets} • Kata{" "}
-          {(currentIndex % config.wordsPerSet) + 1}/{config.wordsPerSet}
+          Set {currentSet}/{config.totalSets} • Kata {(currentIndex % config.wordsPerSet) + 1}/{config.wordsPerSet}
         </p>
         <div className="w-full bg-gray-200 rounded-full h-2">
           <div
@@ -184,10 +175,8 @@ export default function VocabStudy() {
         </div>
       </div>
 
-      {/* Indikator total waktu belajar (real-time) */}
-      <p className="text-blue-600 font-medium">
-        ⏱ Total waktu belajar: {formatTime(totalTime)}
-      </p>
+      {/* Indikator total waktu belajar */}
+      <p className="text-blue-600 font-medium">⏱ Total waktu belajar: {formatTime(totalTime)}</p>
 
       {/* Timer per kata */}
       <StudyTimer

@@ -1,63 +1,63 @@
-import { useVocab } from "../../../pages/user/vocab/store/vocabProvider";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { markAsLearned } from "@/features/vocab/vocabSlice";
 
 export default function VocabTable() {
-  const { words, markAsLearned } = useVocab();
+  const words = useAppSelector((state) => state.vocab.words);
+  const dispatch = useAppDispatch();
 
-  const getStatusColor = (status: string) => {
+  const getStatusStyle = (status: string) => {
     switch (status) {
       case "new":
-        return "bg-gray-200 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
       case "learning":
-        return "bg-yellow-200 text-yellow-800";
+        return "bg-yellow-100 text-yellow-700 border border-yellow-200";
       case "mastered":
-        return "bg-green-200 text-green-800";
+        return "bg-emerald-100 text-emerald-700 border border-emerald-200";
       default:
-        return "bg-gray-200 text-gray-800";
+        return "bg-gray-100 text-gray-700 border border-gray-200";
     }
   };
 
   if (words.length === 0) {
-    return <p className="text-gray-500">Belum ada kosakata.</p>;
+    return <p className="text-gray-500">📭 Belum ada kosakata.</p>;
   }
 
   return (
-    <div className="overflow-x-auto border rounded-lg shadow-sm">
-      <table className="min-w-full border-collapse text-sm">
-        <thead className="bg-gray-100">
-          <tr>
-            <th className="border px-3 py-2 text-left">Kanji</th>
-            <th className="border px-3 py-2 text-left">Kana</th>
-            <th className="border px-3 py-2 text-left">Romaji</th>
-            <th className="border px-3 py-2 text-left">Arti</th>
-            <th className="border px-3 py-2 text-left">Status</th>
-            <th className="border px-3 py-2 text-center">Aksi</th>
+    <div className="overflow-x-auto border rounded-xl shadow-md bg-white">
+      <table className="min-w-full text-sm">
+        <thead className="bg-gray-50">
+          <tr className="text-left text-gray-600">
+            <th className="px-4 py-2">Kanji</th>
+            <th className="px-4 py-2">Kana</th>
+            <th className="px-4 py-2">Romaji</th>
+            <th className="px-4 py-2">Arti</th>
+            <th className="px-4 py-2">Status</th>
+            <th className="px-4 py-2 text-center">Aksi</th>
           </tr>
         </thead>
-        <tbody>
+        <tbody className="divide-y divide-gray-100">
           {words.map((word) => (
-            <tr key={word.id} className="hover:bg-gray-50">
-              <td className="border px-3 py-2 font-medium">{word.kanji}</td>
-              <td className="border px-3 py-2">{word.kana}</td>
-              <td className="border px-3 py-2 italic text-gray-600">
-                {word.romaji}
-              </td>
-              <td className="border px-3 py-2">{word.arti}</td>
-              <td className="border px-3 py-2">
+            <tr key={word.id} className="hover:bg-gray-50 transition">
+              <td className="px-4 py-2 font-medium text-lg">{word.kanji}</td>
+              <td className="px-4 py-2">{word.kana}</td>
+              <td className="px-4 py-2 italic text-gray-500">{word.romaji}</td>
+              <td className="px-4 py-2">{word.arti}</td>
+              <td className="px-4 py-2">
                 <span
-                  className={`px-2 py-1 rounded text-xs font-medium ${getStatusColor(
+                  className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusStyle(
                     word.status
                   )}`}
                 >
                   {word.status}
                 </span>
               </td>
-              <td className="border px-3 py-2 text-center">
+              <td className="px-4 py-2 text-center">
                 {word.status !== "mastered" && (
                   <button
-                    onClick={() => markAsLearned(word.id)}
-                    className="px-3 py-1 text-xs bg-green-500 text-white rounded hover:bg-green-600"
+                    onClick={() => dispatch(markAsLearned(word.id))}
+                    className="px-3 py-1.5 text-xs bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-sm transition"
                   >
-                    Tandai Hafal
+                    ✅ Tandai Hafal
                   </button>
                 )}
               </td>

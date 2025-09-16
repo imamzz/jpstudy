@@ -4,8 +4,8 @@ import { successResponse, errorResponse } from "../utils/response";
 
 export async function createVocab(req: Request, res: Response, next: NextFunction) {
     try {
-        const { word, kanji, romaji, meaning, level } = req.body;
-        const vocab = await vocabService.createVocab({word, kanji, romaji, meaning, level});
+        const { kana, kanji, romaji, meaning, level } = req.body;
+        const vocab = await vocabService.createVocab({kana, kanji, romaji, meaning, level});
         res.status(201).json(successResponse("Vocab berhasil dibuat", vocab));
     } catch (error: any) {
         return res.status(400).json(errorResponse(error.message));

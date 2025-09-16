@@ -4,10 +4,10 @@ import { Transform } from "class-transformer";
 const LEVELS = ["N5", "N4", "N3", "N2", "N1"];
 
 export class CreateVocabDto {
-  @IsString({ message: "Word wajib berupa string" })
-  @IsNotEmpty({ message: "Word wajib diisi" })
-  @Length(1, 100, { message: "Word maksimal 100 karakter" })
-  word!: string;
+  @IsString({ message: "Kana wajib berupa string" })
+  @IsNotEmpty({ message: "Kana wajib diisi" })
+  @Length(1, 100, { message: "Kana maksimal 100 karakter" })
+  kana!: string;
 
   @IsString({ message: "Kanji wajib berupa string" })
   @IsOptional()

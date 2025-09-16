@@ -2,13 +2,13 @@ import { Op } from "sequelize";
 import Vocab from "../models/Vocab";
 
 export async function createVocab(data: any) {
-    const existingVocab = await Vocab.findOne({ where: { word: data.word } });
+    const existingVocab = await Vocab.findOne({ where: { kana: data.kana } });
     if (existingVocab) {
         throw new Error("Vocab already exists");
     }
     const vocab = await Vocab.create(data);
     return {
-        vocab: { id: vocab.id, word: vocab.word, meaning: vocab.meaning, example: vocab.example, kanji: vocab.kanji, romaji: vocab.romaji, level: vocab.level },
+        vocab: { id: vocab.id, word: vocab.kana, meaning: vocab.meaning, example: vocab.example, kanji: vocab.kanji, romaji: vocab.romaji, level: vocab.level },
     };
 }
 
@@ -31,7 +31,7 @@ export async function getAllVocab(search?: string, level?: string) {
     // ✅ search word, romaji, meaning, atau kanji
     if (search) {
       where[Op.or] = [
-        { word: { [Op.iLike]: `%${search}%` } },     // postgres iLike → case-insensitive
+        { kana: { [Op.iLike]: `%${search}%` } },     // postgres iLike → case-insensitive
         { romaji: { [Op.iLike]: `%${search}%` } },
         { meaning: { [Op.iLike]: `%${search}%` } },
         { kanji: { [Op.iLike]: `%${search}%` } },
@@ -39,7 +39,7 @@ export async function getAllVocab(search?: string, level?: string) {
     }
   
     const vocab = await Vocab.findAll({
-      attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"],
+      attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"],
       where,
       order: [["id", "ASC"]],
     });
@@ -48,14 +48,14 @@ export async function getAllVocab(search?: string, level?: string) {
   }
 
 export async function getVocabById(id: string) {
-    const vocab = await Vocab.findByPk(id, { attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
+    const vocab = await Vocab.findByPk(id, { attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {
         vocab: vocab,
     };
 }
 
 export async function getVocabByLevel(level: string) {
-    const vocab = await Vocab.findAll({ where: { level }, attributes: ["id", "word", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
+    const vocab = await Vocab.findAll({ where: { level }, attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
     return {
         vocab: vocab,
     };

@@ -1,6 +1,6 @@
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { logout as logoutAction } from "@/features/user/userSlice";
-import { authApi } from "@/api/auth"; // ✅ panggil API logout
+import { authService } from "@/services/authService"; // ✅ panggil API logout  
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 
@@ -17,7 +17,7 @@ const Topbar = () => {
   const handleLogout = async () => {
     try {
       // 1. Panggil backend untuk hapus refresh token cookie
-      await authApi.logout();
+      await authService.logout();
 
       // 2. Clear redux state
       

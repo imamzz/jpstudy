@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/app/hooks";
 import { login } from "@/features/user/userSlice";
-import { authApi } from "@/api/auth";
 import { handleApiError } from "@/utils/handleApiError";
+import { authService } from "@/services/authService";
 
 import knowledge from "@/assets/undraw_knowledge.svg";
 import Input from "@/components/atoms/Input";
@@ -43,7 +43,7 @@ const Login: React.FC = () => {
       if (!validateForm()) return;
     
       try {
-        const res = await authApi.login(values.email, values.password);
+        const res = await authService.login(values.email, values.password);
         const { token, user } = res.data.data;
     
         // simpan Redux

@@ -8,9 +8,9 @@ export class CreateKanjiDto {
   @IsNotEmpty({ message: "Kanji wajib diisi" })
   kanji!: string;
 
-  @IsString({ message: "Word wajib berupa string" })
-  @IsNotEmpty({ message: "Word wajib diisi" })
-  word!: string;
+  @IsString({ message: "Kana wajib berupa string" })
+  @IsNotEmpty({ message: "Kana wajib diisi" })
+  kana!: string;
 
   @IsString({ message: "Meaning wajib berupa string" })
   @IsNotEmpty({ message: "Meaning wajib diisi" })

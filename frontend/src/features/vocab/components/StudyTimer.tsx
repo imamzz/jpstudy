@@ -1,8 +1,7 @@
-// src/pages/user/vocab/components/StudyTimer.tsx
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 
 interface StudyTimerProps {
-  duration: number; // detik per kata
+  duration: number; // detik
   paused: boolean;
   onTimeUp: () => void;
 }
@@ -11,22 +10,38 @@ export default function StudyTimer({ duration, paused, onTimeUp }: StudyTimerPro
   const [timeLeft, setTimeLeft] = useState(duration);
 
   useEffect(() => {
-    if (paused) return;
-    if (timeLeft <= 0) {
-      onTimeUp();
-      return;
-    }
+    if (paused || timeLeft <= 0) return;
 
-    const interval = setInterval(() => {
-      setTimeLeft((t) => t - 1);
+    const timer = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev <= 1) {
+          clearInterval(timer);
+          onTimeUp();
+          return 0;
+        }
+        return prev - 1;
+      });
     }, 1000);
 
-    return () => clearInterval(interval);
+    return () => clearInterval(timer);
   }, [paused, timeLeft, onTimeUp]);
 
+  useEffect(() => {
+    setTimeLeft(duration);
+  }, [duration]);
+
+  // format detik → mm:ss
+  const formatTime = (seconds: number) => {
+    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
+    const s = (seconds % 60).toString().padStart(2, "0");
+    return `${m}:${s}`;
+  };
+
   return (
-    <div className="text-xl font-bold">
-      ⏱ {timeLeft}s
+    <div className="text-center">
+      <p className="text-lg font-semibold text-red-600">
+        ⏳ {formatTime(timeLeft)}
+      </p>
     </div>
   );
 }

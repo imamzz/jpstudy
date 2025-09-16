@@ -1,24 +1,16 @@
-import { useVocab } from "../../../pages/user/vocab/store/vocabProvider";
+import { useAppSelector } from "@/app/hooks";
 
 export default function VocabProgress() {
-  const { words } = useVocab();
+  const words = useAppSelector((state) => state.vocab.words);
 
-  const total = words.length;
-  const learned = words.filter((w) => w.status === "mastered").length;
-  const percent = total > 0 ? Math.round((learned / total) * 100) : 0;
+  const mastered = words.filter((w) => w.status === "mastered").length;
+  const learning = words.filter((w) => w.status === "learning").length;
 
   return (
-    <div className="w-full p-4 border rounded-lg shadow-sm bg-white">
-      <h2 className="text-lg font-semibold mb-2">Progres Kosakata</h2>
-      <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
-        <div
-          className="h-4 bg-green-500 transition-all duration-500"
-          style={{ width: `${percent}%` }}
-        />
-      </div>
-      <p className="mt-2 text-sm text-gray-600">
-        {learned} dari {total} kata ({percent}%)
-      </p>
+    <div className="p-4 bg-blue-50 border border-blue-200 rounded-xl shadow">
+      <h2 className="font-bold text-blue-600 mb-2">📈 Progress Belajar</h2>
+      <p className="text-gray-700">Kosakata dikuasai: {mastered}</p>
+      <p className="text-gray-700">Sedang dipelajari: {learning}</p>
     </div>
   );
 }
