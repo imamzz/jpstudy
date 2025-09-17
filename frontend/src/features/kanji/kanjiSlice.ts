@@ -1,52 +1,114 @@
-import { createSlice, createAsyncThunk, type PayloadAction } from "@reduxjs/toolkit";
-import type { KanjiWord } from "./kanjiTypes";
-import api from "../../api/axios";
+// src/features/kanji/kanjiSlice.ts
+import { createSlice } from "@reduxjs/toolkit";
+import type { PayloadAction } from "@reduxjs/toolkit";
+
+export type KanjiStatus = "new" | "learning" | "mastered";
+
+export interface Kanji {
+  id: number;
+  kanji: string;
+  onyomi?: string[];   // contoh: ["ニチ","ジツ"]
+  kunyomi?: string[];  // contoh: ["ひ", "か"]
+  meaning: string;
+  examples?: string[]; // contoh kata/kalimat
+  level: "N5" | "N4" | "N3" | "N2" | "N1";
+  status: KanjiStatus;
+}
 
 interface KanjiState {
-  kanjis: KanjiWord[];
-  loading: boolean;
-  error: string | null;
+  items: Kanji[];
 }
 
 const initialState: KanjiState = {
-  kanjis: [],
-  loading: false,
-  error: null,
+  items: [
+    {
+      id: 1,
+      kanji: "日",
+      onyomi: ["ニチ", "ジツ"],
+      kunyomi: ["ひ", "か"],
+      meaning: "hari / matahari",
+      examples: ["日本 (にほん) - Jepang", "休日 (きゅうじつ) - hari libur"],
+      level: "N5",
+      status: "new",
+    },
+    {
+      id: 2,
+      kanji: "人",
+      onyomi: ["ジン", "ニン"],
+      kunyomi: ["ひと"],
+      meaning: "orang",
+      examples: ["日本人 (にほんじん) - orang Jepang", "人々 (ひとびと) - orang-orang"],
+      level: "N5",
+      status: "new",
+    },
+    {
+      id: 3,
+      kanji: "大",
+      onyomi: ["ダイ", "タイ"],
+      kunyomi: ["おお(きい)"],
+      meaning: "besar",
+      examples: ["大学 (だいがく) - universitas", "大きい (おおきい) - besar"],
+      level: "N5",
+      status: "new",
+    },
+    {
+      id: 4,
+      kanji: "学",
+      onyomi: ["ガク"],
+      kunyomi: ["まな(ぶ)"],
+      meaning: "belajar, ilmu",
+      examples: ["学生 (がくせい) - pelajar", "学校 (がっこう) - sekolah"],
+      level: "N5",
+      status: "new",
+    },
+    {
+      id: 5,
+      kanji: "行",
+      onyomi: ["コウ", "ギョウ"],
+      kunyomi: ["い(く)", "ゆ(く)"],
+      meaning: "pergi",
+      examples: ["行く (いく) - pergi", "銀行 (ぎんこう) - bank"],
+      level: "N5",
+      status: "new",
+    },
+    // tambahkan entri lainnya sesuai kebutuhan...
+  ],
 };
-
-export const fetchKanji = createAsyncThunk("kanji/fetchKanji", async () => {
-  const response = await api.get("/kanji");
-  return response.data as KanjiWord[];
-});
 
 const kanjiSlice = createSlice({
   name: "kanji",
   initialState,
   reducers: {
-    markKanjiLearning(state, action: PayloadAction<number>) {
-      const k = state.kanjis.find((x) => x.id === action.payload);
+    setKanji: (state, action: PayloadAction<Kanji[]>) => {
+      state.items = action.payload;
+    },
+    markKanjiLearning: (state, action: PayloadAction<number>) => {
+      const k = state.items.find((it) => it.id === action.payload);
       if (k) k.status = "learning";
     },
-    markKanjiMastered(state, action: PayloadAction<number>) {
-      const k = state.kanjis.find((x) => x.id === action.payload);
+    markKanjiMastered: (state, action: PayloadAction<number>) => {
+      const k = state.items.find((it) => it.id === action.payload);
       if (k) k.status = "mastered";
     },
-  },
-  extraReducers: (builder) => {
-    builder
-      .addCase(fetchKanji.pending, (state) => {
-        state.loading = true;
-      })
-      .addCase(fetchKanji.fulfilled, (state, action) => {
-        state.kanjis = action.payload;
-        state.loading = false;
-      })
-      .addCase(fetchKanji.rejected, (state, action) => {
-        state.error = action.error.message || "Failed to fetch kanji";
-        state.loading = false;
-      });
+    updateKanji: (state, action: PayloadAction<{ id: number; patch: Partial<Kanji> }>) => {
+      const { id, patch } = action.payload;
+      const idx = state.items.findIndex((it) => it.id === id);
+      if (idx >= 0) {
+        state.items[idx] = { ...state.items[idx], ...patch };
+      }
+    },
+    resetKanjiState: (state) => {
+      state.items = initialState.items;
+    },
   },
 });
 
-export const { markKanjiLearning, markKanjiMastered } = kanjiSlice.actions;
+export const {
+  setKanji,
+  markKanjiLearning,
+  markKanjiMastered,
+  updateKanji,
+  resetKanjiState,
+} = kanjiSlice.actions;
+
 export default kanjiSlice.reducer;
