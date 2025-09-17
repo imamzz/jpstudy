@@ -5,7 +5,7 @@ import { ArrowLeft } from "lucide-react";
 
 export default function KanjiDetail() {
     const { id } = useParams<{ id: string }>();
-    const kanji = useAppSelector((state) => state.kanji.kanjis.find((k) => k.id === Number(id)));
+    const kanji = useAppSelector((state) => state.kanji.items.find((k) => k.id === Number(id)));
 
     if(!kanji) return <p>Kanji tidak ditemukan</p>;
 
@@ -16,17 +16,17 @@ export default function KanjiDetail() {
             </Link>
             <div className="flex justify-between">
                 <h1>{kanji.kanji}</h1>
-                <p>{kanji.arti}</p>
+                <p>{kanji.meaning}</p>
                 <p>{kanji.level}</p>
                 <p>{kanji.status}</p>
             </div>
             <div className="flex justify-between">
                 <h2>Penjelasan</h2>
-                <p>{kanji.penjelasan}</p>
+                <p>{kanji.meaning}</p>
             </div>
             <div className="flex justify-between">
                 <h2>Contoh</h2>
-                <p>{kanji.contoh}</p>
+                <p>{kanji.examples}</p>
             </div>
             <div className="flex justify-between">
                 <h2>Stroke Order</h2>

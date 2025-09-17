@@ -14,9 +14,11 @@ const userPages = [
   { path: "/grammar/study", component: lazy(() => import("../pages/user/grammar/GrammarStudy")) },
   { path: "/grammar/exercise", component: lazy(() => import("../pages/user/grammar/ExercisePage")) },
   { path: "/kanji", component: lazy(() => import("../pages/user/kanji/KanjiPage")) },
+  { path: "/kanji/:id", component: lazy(() => import("../pages/user/kanji/KanjiDetail")) },
   { path: "/kanji/study", component: lazy(() => import("../pages/user/kanji/KanjiStudy")) },
   { path: "/kanji/exercise", component: lazy(() => import("../pages/user/kanji/KanjiExercise")) },
   { path: "/review", component: lazy(() => import("../pages/user/review/ReviewPage")) },
+  { path: "/review/study", component: lazy(() => import("../pages/user/review/ReviewStudy")) },
   { path: "/profile", component: lazy(() => import("../pages/user/profile/ProfilePage")) },
 ];
 

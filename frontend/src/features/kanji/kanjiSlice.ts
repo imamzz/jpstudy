@@ -13,6 +13,7 @@ export interface Kanji {
   examples?: string[]; // contoh kata/kalimat
   level: "N5" | "N4" | "N3" | "N2" | "N1";
   status: KanjiStatus;
+  masteredAt?: string;
 }
 
 interface KanjiState {
@@ -84,11 +85,17 @@ const kanjiSlice = createSlice({
     },
     markKanjiLearning: (state, action: PayloadAction<number>) => {
       const k = state.items.find((it) => it.id === action.payload);
-      if (k) k.status = "learning";
+      if (k) {
+        k.status = "learning";
+        k.masteredAt = new Date().toISOString();
+      }
     },
     markKanjiMastered: (state, action: PayloadAction<number>) => {
       const k = state.items.find((it) => it.id === action.payload);
-      if (k) k.status = "mastered";
+      if (k) {
+        k.status = "mastered";
+        k.masteredAt = new Date().toISOString();
+      }
     },
     updateKanji: (state, action: PayloadAction<{ id: number; patch: Partial<Kanji> }>) => {
       const { id, patch } = action.payload;

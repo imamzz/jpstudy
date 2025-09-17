@@ -1,3 +1,4 @@
+// src/features/grammar/grammarSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -5,12 +6,12 @@ export type GrammarStatus = "new" | "learning" | "mastered";
 
 export interface GrammarPoint {
   id: number;
-  title: string;       // bentuk grammar, contoh: 〜ている
-  meaning: string;     // arti singkat
+  title: string;
+  meaning: string;
   level: "N5" | "N4" | "N3" | "N2" | "N1";
-  examples: string[];  // contoh kalimat
+  examples: string[];
   status: GrammarStatus;
-  masteredAt?: string;
+  masteredAt?: string; // ⬅️ tambah timestamp
 }
 
 interface GrammarState {
@@ -55,16 +56,13 @@ const grammarSlice = createSlice({
     },
     markGrammarLearning: (state, action: PayloadAction<number>) => {
       const gp = state.points.find((g) => g.id === action.payload);
-      if (gp) {
-        gp.status = "learning";
-        gp.masteredAt = new Date().toISOString();
-      }
+      if (gp) gp.status = "learning";
     },
     markGrammarMastered: (state, action: PayloadAction<number>) => {
       const gp = state.points.find((g) => g.id === action.payload);
       if (gp) {
         gp.status = "mastered";
-        gp.masteredAt = new Date().toISOString();
+        gp.masteredAt = new Date().toISOString(); // ⬅️ simpan waktu
       }
     },
   },

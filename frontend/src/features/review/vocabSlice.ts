@@ -1,3 +1,4 @@
+// src/features/vocab/vocabSlice.ts
 import { createSlice } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 
@@ -11,7 +12,7 @@ export interface Word {
   arti: string;
   level: "N5" | "N4" | "N3" | "N2" | "N1";
   status: WordStatus;
-  masteredAt?: string;
+  masteredAt?: string; // ⬅️ tanggal saat di-mastered
 }
 
 interface VocabState {
@@ -20,12 +21,16 @@ interface VocabState {
 
 const initialState: VocabState = {
   words: [
-    { id: 1, kanji: "猫", kana: "ねこ", romaji: "neko", arti: "kucing", level: "N5", status: "new" },
-    { id: 2, kanji: "水", kana: "みず", romaji: "mizu", arti: "air", level: "N5", status: "new" },
-    { id: 3, kanji: "学校", kana: "がっこう", romaji: "gakkou", arti: "sekolah", level: "N4", status: "new" },
-    { id: 4, kanji: "経済", kana: "けいざい", romaji: "keizai", arti: "ekonomi", level: "N3", status: "new" },
-    { id: 5, kanji: "議論", kana: "ぎろん", romaji: "giron", arti: "diskusi", level: "N2", status: "new" },
-    { id: 6, kanji: "憲法", kana: "けんぽう", romaji: "kenpou", arti: "konstitusi", level: "N1", status: "new" },
+    {
+      id: 1,
+      kanji: "猫",
+      kana: "ねこ",
+      romaji: "neko",
+      arti: "kucing",
+      level: "N5",
+      status: "new",
+    },
+    // ...
   ],
 };
 
@@ -37,17 +42,16 @@ const vocabSlice = createSlice({
       state.words = action.payload;
     },
     markAsLearned: (state, action: PayloadAction<number>) => {
-      const word = state.words.find(w => w.id === action.payload);
+      const word = state.words.find((w) => w.id === action.payload);
       if (word) {
         word.status = "mastered";
-        word.masteredAt = new Date().toISOString();
+        word.masteredAt = new Date().toISOString(); // ⬅️ simpan waktu
       }
     },
     markAsLearning: (state, action: PayloadAction<number>) => {
-      const word = state.words.find(w => w.id === action.payload);
+      const word = state.words.find((w) => w.id === action.payload);
       if (word) {
         word.status = "learning";
-        word.masteredAt = new Date().toISOString();
       }
     },
   },

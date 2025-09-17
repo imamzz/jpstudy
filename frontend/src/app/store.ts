@@ -3,6 +3,7 @@ import userReducer from "../features/user/userSlice";
 import vocabReducer from "../features/vocab/vocabSlice";
 import grammarReducer from "../features/grammar/grammarSlice";
 import kanjiReducer from "../features/kanji/kanjiSlice";
+import reviewReducer from "../features/review/reviewSlice";
 
 export const store = configureStore({
   reducer: {
@@ -10,6 +11,7 @@ export const store = configureStore({
     vocab: vocabReducer,
     grammar: grammarReducer,
     kanji: kanjiReducer,
+    review: reviewReducer,
   },
 });
 

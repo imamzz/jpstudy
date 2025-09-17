@@ -5,6 +5,7 @@ import {
   markKanjiMastered,
 } from "@/features/kanji/kanjiSlice";
 import Badge from "@/components/atoms/Badge";
+import { Link } from "react-router-dom";
 
 export default function KanjiList() {
   const dispatch = useAppDispatch();
@@ -41,7 +42,7 @@ export default function KanjiList() {
           />
           <select
             value={levelFilter}
-            onChange={(e) => setLevelFilter(e.target.value as any)}
+            onChange={(e) => setLevelFilter(e.target.value as "All" | "N5" | "N4" | "N3" | "N2" | "N1")}
             className="border border-gray-200 rounded-lg px-3 py-1 text-sm focus:ring-2 focus:ring-blue-500"
           >
             <option value="All">Semua Level</option>
@@ -82,12 +83,13 @@ export default function KanjiList() {
                 </td>
                 <td className="border border-gray-200 px-4 py-2">{k.meaning}</td>
                 <td className="border border-gray-200 px-4 py-2 text-center">
-                  <Badge variant={k.level.toLowerCase() as any}>{k.level}</Badge>
+                  <Badge variant={k.level.toLowerCase() as "n5" | "n4" | "n3" | "n2" | "n1"}>{k.level}</Badge>
                 </td>
                 <td className="border border-gray-200 px-4 py-2 text-center italic">
                   {k.status}
                 </td>
                 <td className="border border-gray-200 px-4 py-2 text-center space-x-2">
+                  <Link to={`/kanji/${k.id}`}>Detail</Link>
                   <button
                     onClick={() => dispatch(markKanjiLearning(k.id))}
                     className="px-3 py-1 bg-blue-500 text-white text-sm rounded hover:bg-blue-600"
