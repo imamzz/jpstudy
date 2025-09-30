@@ -6,11 +6,11 @@ export type BadgeVariant =
   | "error"
   | "warning"
   | "info"
-  | "n5"
-  | "n4"
-  | "n3"
-  | "n2"
-  | "n1";
+  | "N5"
+  | "N4"
+  | "N3"
+  | "N2"
+  | "N1";
 
 export type BadgeSize = "sm" | "md" | "lg";
 
@@ -34,11 +34,11 @@ const variantStyles: Record<BadgeVariant, string> = {
   error: "bg-red-100 text-red-800",
   warning: "bg-yellow-100 text-yellow-800",
   info: "bg-blue-100 text-blue-800",
-  n5: "bg-green-100 text-green-800",
-  n4: "bg-lime-100 text-lime-800",
-  n3: "bg-yellow-100 text-yellow-800",
-  n2: "bg-orange-100 text-orange-800",
-  n1: "bg-red-100 text-red-800",
+  N5: "bg-green-100 text-green-800",
+  N4: "bg-lime-100 text-lime-800",
+  N3: "bg-yellow-100 text-yellow-800",
+  N2: "bg-orange-100 text-orange-800",
+  N1: "bg-red-100 text-red-800",
 };
 
 const Badge: React.FC<BadgeProps> = ({

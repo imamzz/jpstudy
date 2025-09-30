@@ -1,10 +1,15 @@
-// src/pages/user/vocab/VocabStudy.tsx
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { markAsLearned } from "@/features/vocab/vocabSlice";
+import { useState, useEffect, useCallback } from "react";
+import { useLocation } from "react-router-dom";
+import { useAppSelector } from "@/app/hooks";
+// import { markAsLearned } from "@/features/vocab/vocabSlice";
+
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import StudyTimer from "@/features/vocab/components/StudyTimer";
+import Badge, { type BadgeVariant } from "@/components/atoms/Badge";
+import VocabStudyProgress from "@/features/vocab/components/VocabStudyProgress";
+import VocabStudySummary from "@/features/vocab/components/VocabStudySummary";
+import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
+import { shuffleArray } from "@/utils/vocabHelpers";
 
 interface Config {
   wordsPerSet: number;
@@ -15,11 +20,8 @@ interface Config {
 }
 
 export default function VocabStudy() {
-  const dispatch = useAppDispatch();
-  const words = useAppSelector((state) => state.vocab.words); // ✅ ambil dari redux
-
+  const words = useAppSelector((state) => state.vocab.words);
   const location = useLocation();
-  const navigate = useNavigate();
 
   const config = (location.state as Config) || {
     wordsPerSet: 10,
@@ -29,194 +31,154 @@ export default function VocabStudy() {
     breakDuration: 5,
   };
 
-  const [currentIndex, setCurrentIndex] = useState(0);
+  // 🔹 State utama
+  const [currentSet, setCurrentSet] = useState(1);
+  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [finished, setFinished] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
+  const [transitioning, setTransitioning] = useState(false); // anti-duplikasi
 
-  // 🔹 Fungsi shuffle array
-  const shuffleArray = <T,>(array: T[]): T[] => {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
-  };
-
-  // 🔹 Filter kata sesuai level
+  // 🔹 Siapkan kata sesuai level
   const levelWords =
     config.level === "All"
       ? shuffleArray(words)
       : words.filter((w) => w.level === config.level);
 
-  const sessionWords = levelWords.slice(0, config.wordsPerSet * config.totalSets);
+  // 🔹 Ambil kata untuk satu set (acak di awal setiap set)
+  const [setWords, setSetWords] = useState(() =>
+    levelWords.slice(0, config.wordsPerSet)
+  );
 
-  const totalWords = sessionWords.length;
-  const currentSet = Math.floor(currentIndex / config.wordsPerSet) + 1;
-  const currentWord = sessionWords[currentIndex];
+  // 🔹 Kata saat ini
+  const currentWord = setWords[currentWordIndex];
 
-  // progress
-  const totalProgress = ((currentIndex + 1) / totalWords) * 100;
-  const setProgress =
-    (((currentIndex % config.wordsPerSet) + 1) / config.wordsPerSet) * 100;
+  // 🔹 Progress bar
+  const setProgress = (currentSet / config.totalSets) * 100;
+  const totalKataProgress = ((currentWordIndex + 1) / config.wordsPerSet) * 100;
 
-  // 🔹 Timer global untuk total waktu belajar
+  // 🔹 Timer global (total durasi belajar)
   useEffect(() => {
     if (finished || paused) return;
-
-    const interval = setInterval(() => {
-      setTotalTime((prev) => prev + 1);
-    }, 1000);
-
+    const interval = setInterval(() => setTotalTime((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, [finished, paused]);
 
-  const handleTimeUp = () => {
-    if (currentIndex < totalWords - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      setFinished(true);
-    }
-  };
+  // 🔹 Fungsi utama berpindah kata
+  const handleNextWord = useCallback(() => {
+    // jika sedang transisi, abaikan
+    if (transitioning || finished) return;
+    setTransitioning(true);
 
+    // pindah kata dalam set
+    if (currentWordIndex < config.wordsPerSet - 1) {
+      setCurrentWordIndex((prev) => prev + 1);
+    } else {
+      // jika semua kata dalam set sudah selesai
+      if (currentSet < config.totalSets) {
+        // naik ke set berikut & reset kata ke awal
+        setCurrentSet((prev) => prev + 1);
+        setCurrentWordIndex(0);
+        // acak ulang kata untuk set baru
+        setSetWords(shuffleArray(levelWords).slice(0, config.wordsPerSet));
+      } else {
+        // semua set selesai
+        setFinished(true);
+      }
+    }
+
+    // reset flag setelah sedikit jeda agar klik ganda tidak menggandakan increment
+    setTimeout(() => setTransitioning(false), 200);
+  }, [
+    transitioning,
+    finished,
+    currentWordIndex,
+    currentSet,
+    config.wordsPerSet,
+    config.totalSets,
+    levelWords,
+  ]);
+
+  // 🔹 Callback ketika timer habis
+  const handleTimeUp = useCallback(() => {
+    if (!transitioning && !paused && !finished) {
+      handleNextWord();
+    }
+  }, [transitioning, paused, finished, handleNextWord]);
+
+  // 🔹 Tombol Next manual
   const handleNext = () => {
-    if (currentIndex < totalWords - 1) {
-      setCurrentIndex((prev) => prev + 1);
-    } else {
-      setFinished(true);
+    if (!transitioning && !finished) {
+      handleNextWord();
     }
-  };
-
-  const handleMarkLearned = () => {
-    if (currentWord) dispatch(markAsLearned(currentWord.id)); // ✅ redux action
-    handleNext();
-  };
-
-  // 🔹 Helper format detik → mm:ss
-  const formatTime = (seconds: number) => {
-    const m = Math.floor(seconds / 60).toString().padStart(2, "0");
-    const s = (seconds % 60).toString().padStart(2, "0");
-    return `${m}:${s}`;
   };
 
   // 🔹 Hitung statistik hafalan
-  const learnedCount = sessionWords.filter((w) => w.status === "mastered").length;
+  const learnedCount = levelWords.filter((w) => w.status === "mastered").length;
+  const totalWords = config.wordsPerSet * config.totalSets;
   const notLearnedCount = totalWords - learnedCount;
 
-  // 🔹 Ringkasan selesai
+  // 🔹 Jika sesi selesai
   if (finished) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-screen p-6">
-        <div className="max-w-md w-full bg-white rounded-xl shadow p-6 text-center space-y-4">
-          <h2 className="text-2xl font-bold text-gray-800">🎉 Sesi Belajar Selesai!</h2>
-          <p className="text-gray-600">
-            Kamu sudah mempelajari <b>{totalWords}</b> kata dalam{" "}
-            <b>{config.totalSets}</b> set.
-          </p>
-
-          {/* Statistik detail */}
-          <div className="bg-gray-50 rounded-lg p-4 text-left space-y-2">
-            <p className="text-green-600 font-medium">✅ {learnedCount} kata ditandai hafal</p>
-            <p className="text-red-600 font-medium">❌ {notLearnedCount} kata belum ditandai hafal</p>
-            <p className="text-blue-600 font-medium">⏰ Total waktu belajar: {formatTime(totalTime)}</p>
-          </div>
-
-          {/* Progress bar full */}
-          <div className="w-full bg-gray-200 rounded-full h-3">
-            <div className="bg-blue-500 h-3 rounded-full" style={{ width: "100%" }}></div>
-          </div>
-
-          <div className="flex space-x-4 justify-center mt-6">
-            <button
-              onClick={() => navigate("/vocab/study", { state: config })}
-              className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-            >
-              🔁 Ulangi Sesi
-            </button>
-            <button
-              onClick={() => navigate("/vocab")}
-              className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition"
-            >
-              ✅ Kembali ke Vocab
-            </button>
-          </div>
-        </div>
-      </div>
+      <VocabStudySummary
+        totalWords={totalWords}
+        totalSets={config.totalSets}
+        learnedCount={learnedCount}
+        notLearnedCount={notLearnedCount}
+        totalTime={totalTime}
+        config={config}
+      />
     );
   }
 
-  // 🔹 Tampilan belajar
+  // 🔹 Tampilan utama
   return (
-    <div className="p-6 flex flex-col items-center space-y-6 w-full max-w-2xl mx-auto">
-      {/* Progress bar total */}
-      <div className="w-full">
-        <p className="text-sm text-gray-600 mb-1">
-          Progres Total: {currentIndex + 1}/{totalWords}
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-3">
-          <div
-            className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${totalProgress}%` }}
-          ></div>
+    <div className="py-6 flex flex-col items-center space-y-6 w-full mx-auto gap-30">
+      <div className="flex w-full max-w-6xl flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <p className="font-medium text-gray-700">Vocab Study</p>
+          <Badge variant={config.level as BadgeVariant} size="md">
+            {config.level}
+          </Badge>
         </div>
-      </div>
 
-      {/* Progress bar per set */}
-      <div className="w-full">
-        <p className="text-sm text-gray-600 mb-1">
-          Set {currentSet}/{config.totalSets} • Kata {(currentIndex % config.wordsPerSet) + 1}/{config.wordsPerSet}
-        </p>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-green-500 h-2 rounded-full transition-all duration-300"
-            style={{ width: `${setProgress}%` }}
-          ></div>
-        </div>
-      </div>
-
-      {/* Indikator total waktu belajar */}
-      <p className="text-blue-600 font-medium">⏱ Total waktu belajar: {formatTime(totalTime)}</p>
-
-      {/* Timer per kata */}
-      <StudyTimer
-        key={currentIndex}
-        paused={paused}
-        duration={config.duration}
-        onTimeUp={handleTimeUp}
-      />
-
-      {/* Kata */}
-      {currentWord && (
-        <WordDisplay
-          kanji={currentWord.kanji}
-          kana={currentWord.kana}
-          romaji={currentWord.romaji}
-          arti={currentWord.arti}
+        {/* Progress */}
+        <VocabStudyProgress
+          currentSet={currentSet}
+          totalSets={config.totalSets}
+          currentIndex={currentWordIndex}
+          wordsPerSet={config.wordsPerSet}
+          setProgress={setProgress}
+          totalKataProgress={totalKataProgress}
         />
-      )}
-
-      {/* Kontrol */}
-      <div className="flex space-x-4 mt-4">
-        <button
-          onClick={() => setPaused(!paused)}
-          className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-        >
-          {paused ? "Resume" : "Pause"}
-        </button>
-        <button
-          onClick={handleMarkLearned}
-          className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition"
-        >
-          Tandai Hafal
-        </button>
-        <button
-          onClick={handleNext}
-          className="px-4 py-2 rounded bg-gray-500 text-white hover:bg-gray-600 transition"
-        >
-          Next
-        </button>
       </div>
+
+      {/* Word + Timer */}
+      <div className="flex space-x-4 mt-4 w-full max-w-6xl justify-center">
+        {currentWord && (
+          <WordDisplay
+            kanji={currentWord.kanji}
+            kana={currentWord.kana}
+            romaji={currentWord.romaji}
+            arti={currentWord.arti}
+          />
+        )}
+        <StudyTimer
+          key={`${currentSet}-${currentWordIndex}`}
+          paused={paused}
+          duration={config.duration}
+          onTimeUp={handleTimeUp}
+          totalDuration={totalTime}
+        />
+      </div>
+
+      {/* Controls */}
+      <VocabStudyControls
+        paused={paused}
+        onPauseToggle={() => setPaused(!paused)}
+        onNext={handleNext}
+      />
     </div>
   );
 }
