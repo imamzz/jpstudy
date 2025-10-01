@@ -54,7 +54,7 @@ export default function StudyTimer({
         <img src={clock} alt="Timer" />
       </div>
       <div className="text flex flex-col items-center">
-        <h1 className="count-time text-xl font-bold text-red-600">
+        <h1 className="count-time text-8xl font-bold text-red-600">
           {formatTime(timeLeft)}
         </h1>
         <p className="total-time text-md text-gray-500">

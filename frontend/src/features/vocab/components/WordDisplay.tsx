@@ -14,12 +14,12 @@ export default function WordDisplay({ kanji, kana, romaji, arti }: WordDisplayPr
         <input className="mark-as-learned w-4 h-4" type="checkbox" />
       </div>
       <div className="flex flex-col items-center gap-4 align-self-stretch w-full">
-        <h2 className="text-2xl font-bold text-gray-600">{kana}</h2>
+        <h2 className="text-13xl font-bold text-gray-600">{kana}</h2>
         <div className="audio">
           <img src={audio} alt="audio" />
         </div>
-        <div className="flex flex-col items-start gap-1 align-self-stretch">
-          <div className="flex justify-center items-center gap-1 align-self-stretch w-full">
+        <div className="flex flex-col items-center gap-1 align-self-stretch">
+          <div className="flex justify-center items-center gap-1 align-self-stretch">
             <p className="text-center text-gray-500">{kanji}</p>
             <p className="text-center text-gray-500">({romaji})</p>
           </div>

@@ -25,7 +25,7 @@ export default function BreakScreen({
 
   return (
     <div className="flex flex-col items-center justify-center space-y-4 px-12 py-12 border rounded-lg shadow bg-white border-gray-200">
-      <h2 className="text-lg font-semibold text-gray-800">
+      <h2 className="text-3xl font-semibold text-gray-800">
         Istirahat sebentar 🧘‍♂️
       </h2>
       <p className="text-md text-gray-600">
