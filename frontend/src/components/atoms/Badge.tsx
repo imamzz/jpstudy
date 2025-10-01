@@ -12,7 +12,7 @@ export type BadgeVariant =
   | "N2"
   | "N1";
 
-export type BadgeSize = "sm" | "md" | "lg";
+export type BadgeSize = "sm" | "md" | "lg" | "xl";
 
 export interface BadgeProps {
   children: React.ReactNode;
@@ -23,10 +23,11 @@ export interface BadgeProps {
 const sizeStyles: Record<BadgeSize, string> = {
   sm: "text-xs px-2 py-0.5",
   md: "text-sm px-2 py-1",
-  lg: "text-base px-3 py-1.5",
+  lg: "text-md px-3.5 py-2.5",
+  xl: "text-lg px-4 py-2",
 };
 
-const baseStyle = "rounded-md inline-flex px-2 py-1 items-center text-sm justify-center font-medium transition-colors";
+const baseStyle = "rounded-md inline-flex items-center text-sm justify-center font-medium transition-colors";
 
 const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-gray-100 text-gray-800",

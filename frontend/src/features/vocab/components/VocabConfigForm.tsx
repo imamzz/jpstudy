@@ -95,7 +95,7 @@ export default function VocabConfigForm() {
           />
         </div>
         <div className="flex-1 flex justify-end">
-          <Button type="submit" variant="primary" size="lg" onClick={handleSubmit}>
+          <Button type="submit" variant="primary" size="md" onClick={handleSubmit}>
             Mulai Belajar
           </Button>
         </div>

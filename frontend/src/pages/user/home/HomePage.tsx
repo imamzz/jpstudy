@@ -14,7 +14,7 @@ function Home() {
 
       {/* Sapaan User */}
       <div className="mb-6">
-        <p className="text-lg text-gray-700">
+        <p className="text-md text-gray-700">
           Selamat datang kembali, <span className="font-semibold">{user?.username}!</span> 👋
         </p>
         <p className="text-sm text-gray-500">

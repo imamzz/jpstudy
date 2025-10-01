@@ -1,53 +1,38 @@
-import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { logout as logoutAction } from "@/features/user/userSlice";
-import { authService } from "@/services/authService"; // ✅ panggil API logout  
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import Select from "../atoms/Select"; 
+import IconNotification from "@/assets/icon/fire-svgrepo-com 1.png";
+import IconFire from "@/assets/icon/notification.png";
 
 const Topbar = () => {
-  const { user } = useAppSelector((state) => state.user);
-  const dispatch = useAppDispatch();
-  const navigate = useNavigate();
-  const { t, i18n } = useTranslation();
+  const { i18n } = useTranslation();
 
   const changeLanguage = (lang: string) => {
     i18n.changeLanguage(lang);
   };
 
-  const handleLogout = async () => {
-    try {
-      // 1. Panggil backend untuk hapus refresh token cookie
-      await authService.logout();
-
-      // 2. Clear redux state
-      
-    } catch (err) {
-      console.error("Logout gagal:", err);
-    } finally {
-      // ✅ clear redux state dulu
-      dispatch(logoutAction());
-  
-      // ✅ redirect cepat ke login
-      navigate("/login", { replace: true });
-    }
-  };
-
-
   return (
-    <header className="w-full bg-white shadow p-4 flex justify-end">
+    <header className="w-full p-4 flex justify-end">
       <div className="flex items-center gap-2">
-        <button onClick={() => changeLanguage("id")}>{t("id")}</button>
-        <button onClick={() => changeLanguage("en")}>{t("en")}</button>
-        <button onClick={() => changeLanguage("ja")}>{t("ja")}</button>
 
-        <p className="text-lg font-semibold">{user?.username}</p>
+        <Select
+          options={[
+            { value: "id", label: "Bahasa Indonesia" },
+            { value: "en", label: "English" },
+            { value: "ja", label: "Bahasa Jepang" },
+          ]}
+          value={i18n.language}
+          onChange={(value) => changeLanguage(value)}
+        />
 
-        <button
-          onClick={handleLogout}
-          className="bg-red-500 text-white px-4 py-1 rounded hover:bg-red-600"
-        >
-          Logout
-        </button>
+        {/* icon notification dan fire */}
+        <div className="flex items-center gap-2">
+          <div className="w-6 h-6 cursor-pointer">
+            <img src={IconNotification} alt="IconNotification" />
+          </div>
+          <div className="w-6 h-6 cursor-pointer">
+            <img src={IconFire} alt="IconFire" />
+          </div>
+        </div>
       </div>
     </header>
   );

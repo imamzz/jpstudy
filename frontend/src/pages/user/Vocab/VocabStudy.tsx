@@ -1,15 +1,16 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
-// import { markAsLearned } from "@/features/vocab/vocabSlice";
 
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import StudyTimer from "@/features/vocab/components/StudyTimer";
+import BreakScreen from "@/features/vocab/components/BreakScreen";
 import Badge, { type BadgeVariant } from "@/components/atoms/Badge";
 import VocabStudyProgress from "@/features/vocab/components/VocabStudyProgress";
 import VocabStudySummary from "@/features/vocab/components/VocabStudySummary";
 import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
 import { shuffleArray } from "@/utils/vocabHelpers";
+import Button from "@/components/atoms/Button";
 
 interface Config {
   wordsPerSet: number;
@@ -28,98 +29,98 @@ export default function VocabStudy() {
     totalSets: 2,
     duration: 10,
     level: "N5",
-    breakDuration: 5,
+    breakDuration: 90,
   };
 
-  // 🔹 State utama
+  // === STATE ===
   const [currentSet, setCurrentSet] = useState(1);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [finished, setFinished] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
-  const [transitioning, setTransitioning] = useState(false); // anti-duplikasi
+  const [isBreak, setIsBreak] = useState(false);
+  const [breakTimeLeft, setBreakTimeLeft] = useState(config.breakDuration);
 
-  // 🔹 Siapkan kata sesuai level
+  // === PILIH KATA SESUAI LEVEL & SET ===
   const levelWords =
     config.level === "All"
       ? shuffleArray(words)
       : words.filter((w) => w.level === config.level);
 
-  // 🔹 Ambil kata untuk satu set (acak di awal setiap set)
-  const [setWords, setSetWords] = useState(() =>
-    levelWords.slice(0, config.wordsPerSet)
-  );
-
-  // 🔹 Kata saat ini
+  const setWords = levelWords.slice(0, config.wordsPerSet);
   const currentWord = setWords[currentWordIndex];
 
-  // 🔹 Progress bar
+  // === PROGRESS BAR ===
   const setProgress = (currentSet / config.totalSets) * 100;
   const totalKataProgress = ((currentWordIndex + 1) / config.wordsPerSet) * 100;
 
-  // 🔹 Timer global (total durasi belajar)
+  // === TIMER GLOBAL (total waktu belajar) ===
   useEffect(() => {
-    if (finished || paused) return;
+    if (finished || paused || isBreak) return;
     const interval = setInterval(() => setTotalTime((t) => t + 1), 1000);
     return () => clearInterval(interval);
-  }, [finished, paused]);
+  }, [finished, paused, isBreak]);
 
-  // 🔹 Fungsi utama berpindah kata
-  const handleNextWord = useCallback(() => {
-    // jika sedang transisi, abaikan
-    if (transitioning || finished) return;
-    setTransitioning(true);
+  // === TIMER UNTUK BREAK (hanya hitung mundur, tanpa auto-lanjut) ===
+  useEffect(() => {
+    if (!isBreak) return;
+    if (breakTimeLeft > 0) {
+      const timer = setTimeout(() => {
+        setBreakTimeLeft((t) => t - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    }
+  }, [isBreak, breakTimeLeft]);
 
-    // pindah kata dalam set
+  // === HANDLER: LANJUT KE KATA BERIKUT ===
+  const handleNextWord = () => {
+    // Masih ada kata tersisa di set sekarang
     if (currentWordIndex < config.wordsPerSet - 1) {
       setCurrentWordIndex((prev) => prev + 1);
-    } else {
-      // jika semua kata dalam set sudah selesai
-      if (currentSet < config.totalSets) {
-        // naik ke set berikut & reset kata ke awal
-        setCurrentSet((prev) => prev + 1);
-        setCurrentWordIndex(0);
-        // acak ulang kata untuk set baru
-        setSetWords(shuffleArray(levelWords).slice(0, config.wordsPerSet));
-      } else {
-        // semua set selesai
-        setFinished(true);
-      }
+      return;
     }
 
-    // reset flag setelah sedikit jeda agar klik ganda tidak menggandakan increment
-    setTimeout(() => setTransitioning(false), 200);
-  }, [
-    transitioning,
-    finished,
-    currentWordIndex,
-    currentSet,
-    config.wordsPerSet,
-    config.totalSets,
-    levelWords,
-  ]);
-
-  // 🔹 Callback ketika timer habis
-  const handleTimeUp = useCallback(() => {
-    if (!transitioning && !paused && !finished) {
-      handleNextWord();
+    // Sudah selesai satu set
+    if (currentSet < config.totalSets) {
+      // Masuk ke fase istirahat
+      setPaused(true);
+      setIsBreak(true);
+      setBreakTimeLeft(config.breakDuration);
+      return;
     }
-  }, [transitioning, paused, finished, handleNextWord]);
 
-  // 🔹 Tombol Next manual
-  const handleNext = () => {
-    if (!transitioning && !finished) {
-      handleNextWord();
-    }
+    // Semua set selesai
+    setFinished(true);
   };
 
-  // 🔹 Hitung statistik hafalan
-  const learnedCount = levelWords.filter((w) => w.status === "mastered").length;
-  const totalWords = config.wordsPerSet * config.totalSets;
-  const notLearnedCount = totalWords - learnedCount;
+  // === HANDLER: SAAT TIMER HABIS ===
+  const handleTimeUp = () => {
+    if (isBreak || finished) return; // Hindari trigger ganda
+    handleNextWord();
+  };
 
-  // 🔹 Jika sesi selesai
+  // === HANDLER: NEXT BUTTON ===
+  const handleNext = () => {
+    if (isBreak || finished) return;
+    handleNextWord();
+  };
+
+  // === HANDLER: BREAK SELESAI (manual / otomatis) ===
+  const handleBreakEnd = () => {
+    console.log("Break end triggered");
+    setIsBreak(false);
+    setPaused(false);
+    setCurrentSet((prev) => prev + 1);
+    setCurrentWordIndex(0);
+    setBreakTimeLeft(config.breakDuration);
+  };
+
+  // === KETIKA SEMUA SET SELESAI ===
   if (finished) {
+    const totalWords = config.wordsPerSet * config.totalSets;
+    const learnedCount = levelWords.filter((w) => w.status === "mastered").length;
+    const notLearnedCount = totalWords - learnedCount;
+
     return (
       <VocabStudySummary
         totalWords={totalWords}
@@ -132,9 +133,9 @@ export default function VocabStudy() {
     );
   }
 
-  // 🔹 Tampilan utama
+  // === RENDER ===
   return (
-    <div className="py-6 flex flex-col items-center space-y-6 w-full mx-auto gap-30">
+    <div className="py-12 flex flex-col items-center space-y-6 w-full mx-auto min-h-[calc(100vh)] max-h-[calc(100vh)] justify-between">
       <div className="flex w-full max-w-6xl flex-col">
         <div className="flex items-center justify-between mb-4">
           <p className="font-medium text-gray-700">Vocab Study</p>
@@ -143,7 +144,6 @@ export default function VocabStudy() {
           </Badge>
         </div>
 
-        {/* Progress */}
         <VocabStudyProgress
           currentSet={currentSet}
           totalSets={config.totalSets}
@@ -154,31 +154,54 @@ export default function VocabStudy() {
         />
       </div>
 
-      {/* Word + Timer */}
-      <div className="flex space-x-4 mt-4 w-full max-w-6xl justify-center">
-        {currentWord && (
-          <WordDisplay
-            kanji={currentWord.kanji}
-            kana={currentWord.kana}
-            romaji={currentWord.romaji}
-            arti={currentWord.arti}
+      {/* === FASE ISTIRAHAT === */}
+      {isBreak ? (
+        <>
+          <BreakScreen
+            timeLeft={breakTimeLeft}
+            setTimeLeft={setBreakTimeLeft}
+            onStartNow={handleBreakEnd} // hanya di sini auto-lanjut
           />
-        )}
-        <StudyTimer
-          key={`${currentSet}-${currentWordIndex}`}
-          paused={paused}
-          duration={config.duration}
-          onTimeUp={handleTimeUp}
-          totalDuration={totalTime}
-        />
-      </div>
+          <div className="w-full flex justify-center items-center flex-col">
+      <hr className="w-full mb-12 border border-gray-200" />
+      <div className="flex space-x-2 justify-between w-full max-w-6xl items-center">
+        <Button disabled={paused} variant="disabled" size="md" className="self-start w-[100px] border border-gray-200">
+          Skip
+        </Button>
 
-      {/* Controls */}
-      <VocabStudyControls
-        paused={paused}
-        onPauseToggle={() => setPaused(!paused)}
-        onNext={handleNext}
-      />
+        <Button onClick={handleBreakEnd} variant="primary" size="md" className="self-end ">
+          Mulai Sekarang
+        </Button>
+      </div>
+    </div>
+        </>
+      ) : (
+        <>
+          <div className="flex space-x-10 mt-4 w-full max-w-6xl justify-center">
+            {currentWord && (
+              <WordDisplay
+                kanji={currentWord.kanji}
+                kana={currentWord.kana}
+                romaji={currentWord.romaji}
+                arti={currentWord.arti}
+              />
+            )}
+            <StudyTimer
+              key={`${currentSet}-${currentWordIndex}`}
+              paused={paused}
+              duration={config.duration}
+              onTimeUp={handleTimeUp}
+              totalDuration={totalTime}
+            />
+          </div>
+
+          <VocabStudyControls
+            paused={paused}
+            onPauseToggle={() => setPaused(!paused)}
+            onNext={handleNext}
+          />
+        </>
+      )}
     </div>
   );
 }

@@ -14,7 +14,7 @@ export default function VocabStudyControls({
 }: VocabStudyControlsProps) {
   return (
     <div className="w-full flex justify-center items-center flex-col">
-      <hr className="w-full mb-6" />
+      <hr className="w-full mb-12 border border-gray-200" />
       <div className="flex space-x-2 justify-between w-full max-w-6xl items-center">
         <Button onClick={onNext} variant="outline" size="md" className="self-start w-[100px]">
           Skip

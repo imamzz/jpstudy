@@ -6,7 +6,11 @@ interface BreakScreenProps {
   onStartNow: () => void;
 }
 
-export default function BreakScreen({ timeLeft, setTimeLeft, onStartNow }: BreakScreenProps) {
+export default function BreakScreen({
+  timeLeft,
+  setTimeLeft,
+  onStartNow,
+}: BreakScreenProps) {
   // Timer otomatis berkurang setiap detik
   useEffect(() => {
     if (timeLeft <= 0) {
@@ -20,17 +24,13 @@ export default function BreakScreen({ timeLeft, setTimeLeft, onStartNow }: Break
   }, [timeLeft, onStartNow, setTimeLeft]);
 
   return (
-    <div className="flex flex-col items-center justify-center space-y-4 p-8 border rounded-lg shadow bg-white">
-      <h2 className="text-2xl font-semibold text-gray-800">Istirahat sebentar 🧘‍♂️</h2>
-      <p className="text-lg text-gray-600">
+    <div className="flex flex-col items-center justify-center space-y-4 px-12 py-12 border rounded-lg shadow bg-white border-gray-200">
+      <h2 className="text-lg font-semibold text-gray-800">
+        Istirahat sebentar 🧘‍♂️
+      </h2>
+      <p className="text-md text-gray-600">
         Set berikutnya akan dimulai dalam <b>{timeLeft}</b> detik.
       </p>
-      <button
-        onClick={onStartNow}
-        className="bg-blue-600 hover:bg-blue-700 text-white font-medium px-5 py-2 rounded-lg transition-all"
-      >
-        Mulai Sekarang
-      </button>
     </div>
   );
 }
