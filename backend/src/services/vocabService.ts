@@ -20,32 +20,39 @@ export async function updateVocab(id: string, data: any) {
     return vocab;
 }
 
-export async function getAllVocab(search?: string, level?: string) {
-    const where: any = {};
-  
-    // ✅ filter level
-    if (level) {
-      where.level = level;
-    }
-  
-    // ✅ search word, romaji, meaning, atau kanji
-    if (search) {
-      where[Op.or] = [
-        { kana: { [Op.iLike]: `%${search}%` } },     // postgres iLike → case-insensitive
-        { romaji: { [Op.iLike]: `%${search}%` } },
-        { meaning: { [Op.iLike]: `%${search}%` } },
-        { kanji: { [Op.iLike]: `%${search}%` } },
-      ];
-    }
-  
-    const vocab = await Vocab.findAll({
-      attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"],
-      where,
-      order: [["id", "ASC"]],
-    });
-  
-    return { vocab };
+export async function getAllVocab(search?: string, level?: string, page = 1, pageSize = 10) {
+  const where: any = {};
+
+  if (level) where.level = level;
+  if (search) {
+    where[Op.or] = [
+      { kana: { [Op.iLike]: `%${search}%` } },
+      { romaji: { [Op.iLike]: `%${search}%` } },
+      { meaning: { [Op.iLike]: `%${search}%` } },
+      { kanji: { [Op.iLike]: `%${search}%` } },
+    ];
   }
+
+  const offset = (page - 1) * pageSize;
+
+  const { rows, count } = await Vocab.findAndCountAll({
+    attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"],
+    where,
+    limit: pageSize,
+    offset,
+    order: [["id", "ASC"]],
+  });
+
+  return {
+    data: rows,
+    meta: {
+      total: count,
+      page,
+      pageSize,
+      totalPages: Math.ceil(count / pageSize),
+    },
+  };
+}
 
 export async function getVocabById(id: string) {
     const vocab = await Vocab.findByPk(id, { attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });

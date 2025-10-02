@@ -1,77 +1,106 @@
+import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import Badge, { type BadgeVariant } from "@/components/atoms/Badge";
-import { markAsLearned } from "@/features/vocab/vocabSlice";
+import { fetchVocab, setPage } from "@/features/vocab/vocabSlice";
+import Button from "@/components/atoms/Button";
+import VocabDetailModal from "./VocabDetailModal";
+import Input from "@/components/atoms/Input";
 
 export default function VocabTable() {
-  const words = useAppSelector((state) => state.vocab.words);
   const dispatch = useAppDispatch();
+  const { words, loading, error, page, pageSize, totalPages, total } = useAppSelector(
+    (state) => state.vocab
+  );
 
-  const getStatusStyle = (status: string) => {
-    switch (status) {
-      case "new":
-        return "bg-gray-100 text-gray-700 border border-gray-200";
-      case "learning":
-        return "bg-yellow-100 text-yellow-700 border border-yellow-200";
-      case "mastered":
-        return "bg-emerald-100 text-emerald-700 border border-emerald-200";
-      default:
-        return "bg-gray-100 text-gray-700 border border-gray-200";
-    }
-  };
+  const [searchQuery, setSearchQuery] = useState("");
+  const [selectedWord, setSelectedWord] = useState<any | null>(null);
 
-  if (words.length === 0) {
-    return <p className="text-gray-500">📭 Belum ada kosakata.</p>;
-  }
+  // 🔹 Fetch data setiap kali page / search berubah
+  useEffect(() => {
+    dispatch(fetchVocab({ page, pageSize, search: searchQuery || undefined }));
+  }, [dispatch, page, pageSize, searchQuery]);
+
+  if (loading) return <p>⏳ Sedang memuat kosakata...</p>;
+  if (error) return <p className="text-red-500">❌ {error}</p>;
+  if (words.length === 0) return <p className="text-gray-500">📭 Tidak ada kosakata.</p>;
 
   return (
-    <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-md bg-white">
-      <table className="min-w-full text-sm">
-        <thead className="bg-gray-50">
-          <tr className="text-left text-gray-600">
-            <th className="px-4 py-2">Kanji</th>
-            <th className="px-4 py-2">Kana</th>
-            <th className="px-4 py-2">Romaji</th>
-            <th className="px-4 py-2">Arti</th>
-            <th className="px-4 py-2">Level</th>
-            <th className="px-4 py-2">Status</th>
-            <th className="px-4 py-2 text-center">Aksi</th>
-          </tr>
-        </thead>
-        <tbody className="divide-y divide-gray-100">
-          {words.map((word) => (
-            <tr key={word.id} className="hover:bg-gray-50 transition">
-              <td className="px-4 py-2 font-medium text-lg">{word.kanji}</td>
-              <td className="px-4 py-2">{word.kana}</td>
-              <td className="px-4 py-2 italic text-gray-500">{word.romaji}</td>
-              <td className="px-4 py-2">{word.arti}</td>
-              <td className="px-4 py-2">
-                <Badge variant={word.level.toLowerCase() as BadgeVariant}>
-                  {word.level}
-                </Badge>
-              </td>
-              <td className="px-4 py-2">
-                <span
-                  className={`px-2 py-1 rounded-full text-xs font-semibold ${getStatusStyle(
-                    word.status
-                  )}`}
-                >
-                  {word.status}
-                </span>
-              </td>
-              <td className="px-4 py-2 text-center">
-                {word.status !== "mastered" && (
-                  <button
-                    onClick={() => dispatch(markAsLearned(word.id))}
-                    className="px-3 py-1.5 text-xs bg-emerald-500 hover:bg-emerald-600 text-white rounded-lg shadow-sm transition"
-                  >
-                    ✅ Tandai Hafal
-                  </button>
-                )}
-              </td>
+    <div className="space-y-4">
+      {/* Search bar */}
+      <div className="flex justify-between items-center">
+        <Input
+          type="text"
+          placeholder="Cari kosakata..."
+          value={searchQuery}
+          onChange={(e) => {
+            setSearchQuery(e.target.value);
+            dispatch(setPage(1)); // reset ke halaman 1 saat search
+          }}
+        />
+      </div>
+
+      {/* Table */}
+      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-md bg-white">
+        <table className="min-w-full text-sm">
+          <thead className="bg-gray-50">
+            <tr className="text-left text-gray-600">
+              <th className="px-4 py-2 w-10 text-center">No</th>
+              <th className="px-4 py-2 text-center">Kanji</th>
+              <th className="px-4 py-2 text-center">Kana</th>
+              <th className="px-4 py-2 text-center">Romaji</th>
+              <th className="px-4 py-2 text-center">Arti</th>
+              <th className="px-4 py-2 text-center">Aksi</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody className="divide-y divide-gray-100">
+            {words.map((word) => (
+              <tr key={word.id} className="hover:bg-gray-50 transition">
+                <td className="px-4 py-2 w-10 text-center">{word.id}</td>
+                <td className="px-4 py-2 font-medium text-lg text-center">{word.kanji}</td>
+                <td className="px-4 py-2 text-center">{word.kana}</td>
+                <td className="px-4 py-2 italic text-gray-500 text-center">{word.romaji}</td>
+                <td className="px-4 py-2 text-center">{word.meaning}</td>
+                <td className="px-4 py-2 text-center">
+                  <Button variant="primary" size="sm" onClick={() => setSelectedWord(word)}>
+                    Lihat
+                  </Button>
+                </td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+
+      {/* Pagination */}
+      <div className="flex justify-between items-center text-sm">
+        <span>
+          Halaman {page} dari {totalPages} (total {total} kosakata)
+        </span>
+        <div className="flex gap-2">
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={page === 1}
+            onClick={() => dispatch(setPage(page - 1))}
+          >
+            « Prev
+          </Button>
+          <Button
+            variant="secondary"
+            size="sm"
+            disabled={page === totalPages}
+            onClick={() => dispatch(setPage(page + 1))}
+          >
+            Next »
+          </Button>
+        </div>
+      </div>
+
+      {/* Modal detail */}
+      <VocabDetailModal
+        isOpen={!!selectedWord}
+        onClose={() => setSelectedWord(null)}
+        word={selectedWord}
+      />
     </div>
   );
 }

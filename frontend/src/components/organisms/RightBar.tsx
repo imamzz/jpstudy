@@ -1,6 +1,6 @@
 import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
-import ConfigForm from "../molecules/ConfigForm";
+import StartLearning from "../molecules/StartLearning";
 import { useLocation } from "react-router-dom";
 
 const RightBar = () => {
@@ -14,7 +14,7 @@ const RightBar = () => {
                 </div>
                 <Reminder />    
                 {location.pathname === "/home" && <ShortCut />}
-                {location.pathname === "/vocab" && <ConfigForm />}
+                {location.pathname === "/vocab" && <StartLearning />}
             </aside>
         </>
     )

@@ -16,12 +16,12 @@ export default function VocabList() {
         >
           <p className="font-bold text-lg">{w.kanji}</p>
           <p className="text-gray-600">{w.kana} ({w.romaji})</p>
-          <p className="text-sm text-gray-500 italic">{w.arti}</p>
+          <p className="text-sm text-gray-500 italic">{w.meaning}</p>
           <span className="inline-block mt-2 px-2 py-1 text-xs rounded bg-gray-100 text-gray-700">
             {w.status}
           </span>
         </li>
-      ))}
+      ))} 
     </ul>
   );
 }
