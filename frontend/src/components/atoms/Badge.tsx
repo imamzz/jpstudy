@@ -23,8 +23,8 @@ export interface BadgeProps {
 const sizeStyles: Record<BadgeSize, string> = {
   sm: "text-xs px-2 py-0.5",
   md: "text-sm px-2 py-1",
-  lg: "text-md px-3.5 py-2.5",
-  xl: "text-lg px-4 py-2",
+  lg: "text-lg px-3 py-1.5",
+  xl: "text-xl px-4 py-2",
 };
 
 const baseStyle = "rounded-md inline-flex items-center text-sm justify-center font-medium transition-colors";
@@ -34,12 +34,12 @@ const variantStyles: Record<BadgeVariant, string> = {
   success: "bg-green-100 text-green-800",
   error: "bg-red-100 text-red-800",
   warning: "bg-yellow-100 text-yellow-800",
-  info: "bg-blue-100 text-blue-800",
-  N5: "bg-green-100 text-green-800",
-  N4: "bg-lime-100 text-lime-800",
-  N3: "bg-yellow-100 text-yellow-800",
-  N2: "bg-orange-100 text-orange-800",
-  N1: "bg-red-100 text-red-800",
+  info: "bg-blue-100 text-white",
+  N5: "bg-green-400 text-white",
+  N4: "bg-lime-400 text-white",
+  N3: "bg-yellow-400 text-white",
+  N2: "bg-orange-400 text-white",
+  N1: "bg-red-400 text-white",
 };
 
 const Badge: React.FC<BadgeProps> = ({

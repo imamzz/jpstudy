@@ -183,7 +183,7 @@ export default function VocabStudy() {
                 kanji={currentWord.kanji}
                 kana={currentWord.kana}
                 romaji={currentWord.romaji}
-                arti={currentWord.arti}
+                meaning={currentWord.meaning}
               />
             )}
             <StudyTimer

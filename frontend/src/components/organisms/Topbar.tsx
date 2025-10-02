@@ -1,20 +1,20 @@
-import { useTranslation } from "react-i18next";
-import Select from "../atoms/Select"; 
+// import { useTranslation } from "react-i18next";
+// import Select from "../atoms/Select"; 
 import IconNotification from "@/assets/icon/fire-svgrepo-com 1.png";
 import IconFire from "@/assets/icon/notification.png";
 
 const Topbar = () => {
-  const { i18n } = useTranslation();
+  // const { i18n } = useTranslation();
 
-  const changeLanguage = (lang: string) => {
-    i18n.changeLanguage(lang);
-  };
+  // const changeLanguage = (lang: string) => {
+  //   i18n.changeLanguage(lang);
+  // };
 
   return (
     <header className="w-full p-4 flex justify-end">
       <div className="flex items-center gap-2">
 
-        <Select
+        {/* <Select
           options={[
             { value: "id", label: "Bahasa Indonesia" },
             { value: "en", label: "English" },
@@ -22,7 +22,7 @@ const Topbar = () => {
           ]}
           value={i18n.language}
           onChange={(value) => changeLanguage(value)}
-        />
+        /> */}
 
         {/* icon notification dan fire */}
         <div className="flex items-center gap-2">

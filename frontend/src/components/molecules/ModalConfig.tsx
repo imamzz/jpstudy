@@ -1,7 +1,3 @@
-import IconBook from "@/assets/icon/book.svg?react";
-import IconRepeat from "@/assets/icon/repeat.svg?react";
-import IconTimer from "@/assets/icon/timer.svg?react";
-import IconTimerPause from "@/assets/icon/timer-pause.svg?react";
 import Input from "../atoms/Input";
 import Button from "../atoms/Button";
 import { useState } from "react";
@@ -19,6 +15,17 @@ export default function ModalConfig({ isOpen, title, description, onClose }: Mod
   const [duration, setDuration] = useState(10);
   const [breakDuration, setBreakDuration] = useState(30);
 
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    const config = {
+      limit,
+      totalSets,
+      duration,
+      breakDuration,    
+    };
+    onClose();
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -30,25 +37,11 @@ export default function ModalConfig({ isOpen, title, description, onClose }: Mod
         </div>
 
         <div className="px-6 py-4">
-          <form className="flex flex-col gap-3">
-            <div className="grid grid-cols-2 gap-3">
-              <div className="flex items-center gap-2">
-                <IconBook className="w-5 h-5 text-gray-500" />
-                <Input type="number" value={limit} onChange={(e) => setLimit(Number(e.target.value))} />
-              </div>
-              <div className="flex items-center gap-2">
-                <IconRepeat className="w-5 h-5 text-gray-500" />
-                <Input type="number" value={totalSets} onChange={(e) => setTotalSets(Number(e.target.value))} />
-              </div>
-              <div className="flex items-center gap-2">
-                <IconTimer className="w-5 h-5 text-gray-500" />
-                <Input type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
-              </div>
-              <div className="flex items-center gap-2">
-                <IconTimerPause className="w-5 h-5 text-gray-500" />
-                <Input type="number" value={breakDuration} onChange={(e) => setBreakDuration(Number(e.target.value))} />
-              </div>
-            </div>
+          <form onSubmit={handleSubmit} className="flex flex-col gap-3">
+            <Input name="limit" label="Word per set" type="number" value={limit} onChange={(e) => setLimit(Number(e.target.value))} />
+            <Input name="totalSets" label="Total Sets" type="number" value={totalSets} onChange={(e) => setTotalSets(Number(e.target.value))} />
+            <Input name="duration" label="Duration" type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} />
+            <Input name="breakDuration" label="Break Duration" type="number" value={breakDuration} onChange={(e) => setBreakDuration(Number(e.target.value))} />
           </form>
         </div>
 
@@ -56,7 +49,7 @@ export default function ModalConfig({ isOpen, title, description, onClose }: Mod
           <Button variant="secondary" size="md" onClick={onClose}>
             Batal
           </Button>
-          <Button variant="primary" size="md" onClick={onClose}>
+          <Button variant="primary" size="md" type="submit">
             Simpan
           </Button>
         </div>

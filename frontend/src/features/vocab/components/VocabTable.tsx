@@ -44,22 +44,22 @@ export default function VocabTable() {
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-600">
               <th className="px-4 py-2 w-10 text-center">No</th>
-              <th className="px-4 py-2 text-center">Kanji</th>
-              <th className="px-4 py-2 text-center">Kana</th>
-              <th className="px-4 py-2 text-center">Romaji</th>
-              <th className="px-4 py-2 text-center">Arti</th>
-              <th className="px-4 py-2 text-center">Aksi</th>
+              <th className="px-4 py-2 w-10 text-center">Kanji</th>
+              <th className="px-4 py-2 w-10 text-center">Kana</th>
+              <th className="px-4 py-2 w-10 text-center">Romaji</th>
+              <th className="px-4 py-2 w-50 text-center">Arti</th>
+              <th className="px-4 py-2 w-10 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {words.map((word) => (
+            {words.map((word, index) => (
               <tr key={word.id} className="hover:bg-gray-50 transition">
-                <td className="px-4 py-2 w-10 text-center">{word.id}</td>
-                <td className="px-4 py-2 font-medium text-lg text-center">{word.kanji}</td>
-                <td className="px-4 py-2 text-center">{word.kana}</td>
-                <td className="px-4 py-2 italic text-gray-500 text-center">{word.romaji}</td>
-                <td className="px-4 py-2 text-center">{word.meaning}</td>
-                <td className="px-4 py-2 text-center">
+                <td className="px-4 py-2 w-10 text-center">{index + 1 + (page - 1) * pageSize}</td>
+                <td className="px-4 py-2 w-10 font-medium text-lg text-center">{word.kanji}</td>
+                <td className="px-4 py-2 w-10 text-center">{word.kana}</td>
+                <td className="px-4 py-2 w-10 italic text-gray-500 text-center">{word.romaji}</td>
+                <td className="px-4 py-2 w-50 text-center">{word.meaning}</td>
+                <td className="px-4 py-2 w-10 text-center">
                   <Button variant="primary" size="sm" onClick={() => setSelectedWord(word)}>
                     Lihat
                   </Button>
@@ -84,6 +84,7 @@ export default function VocabTable() {
           >
             « Prev
           </Button>
+          <span>{page}</span>
           <Button
             variant="secondary"
             size="sm"

@@ -4,10 +4,10 @@ interface WordDisplayProps {
   kanji: string;
   kana: string;
   romaji: string;
-  arti: string;
+  meaning: string;
 }
 
-export default function WordDisplay({ kanji, kana, romaji, arti }: WordDisplayProps) {
+export default function WordDisplay({ kanji, kana, romaji, meaning }: WordDisplayProps) {
   return (
     <div className=" w-[450px] flex flex-col items-end p-3 border border-gray-200 rounded-xl">
       <div className="flex items-center gap-15">
@@ -21,9 +21,9 @@ export default function WordDisplay({ kanji, kana, romaji, arti }: WordDisplayPr
         <div className="flex flex-col items-center gap-1 align-self-stretch">
           <div className="flex justify-center items-center gap-1 align-self-stretch">
             <p className="text-center text-gray-500">{kanji}</p>
-            <p className="text-center text-gray-500">({romaji})</p>
+            <p className="text-center text-gray-500">({romaji}romaji)</p>
           </div>
-          <p className="definition text-md text-center">{arti}</p>
+          <p className="definition text-md text-center">{meaning}</p>
         </div>
       </div>
     </div>
