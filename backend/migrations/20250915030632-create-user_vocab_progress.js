@@ -10,7 +10,8 @@ module.exports = {
       vocab_id: { type: Sequelize.INTEGER, allowNull: false },
       status: { type: Sequelize.ENUM("learned", "review", "mastered"), allowNull: false },
       last_studied: { type: Sequelize.DATE, allowNull: false },
-      times_reviewed: { type: Sequelize.INTEGER, allowNull: false },
+      times_reviewed: { type: Sequelize.INTEGER, allowNull: true },
+      mastered_at: { type: Sequelize.DATE, allowNull: true },
       createdAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn("NOW") },
       updatedAt: { type: Sequelize.DATE, defaultValue: Sequelize.fn("NOW") },
     });

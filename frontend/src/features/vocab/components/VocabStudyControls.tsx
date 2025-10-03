@@ -1,16 +1,17 @@
 import Button from "@/components/atoms/Button";
-import React from "react";
 
 interface VocabStudyControlsProps {
   paused: boolean;
   onPauseToggle: () => void;
   onNext: () => void;
+  onMastered: () => void;
 }
 
 export default function VocabStudyControls({
   paused,
   onPauseToggle,
   onNext,
+  onMastered,
 }: VocabStudyControlsProps) {
   return (
     <div className="w-full flex justify-center items-center flex-col">
@@ -22,6 +23,9 @@ export default function VocabStudyControls({
 
         <Button onClick={onPauseToggle} variant="primary" size="md" className="self-end w-[100px]">
           {paused ? "Resume" : "Pause"}
+        </Button>
+        <Button onClick={onMastered} variant="primary" size="md" className="self-end w-[100px]">
+          Mastered
         </Button>
       </div>
     </div>

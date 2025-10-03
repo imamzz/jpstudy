@@ -10,6 +10,7 @@ import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
 import { shuffleArray } from "@/utils/vocabHelpers";
 import Button from "@/components/atoms/Button";
 import type { LevelVariant } from "@/types/common";
+import { saveVocabProgress } from "@/features/vocab/vocabProgressApi";
 
 export default function VocabStudy() {
   const words = useAppSelector((state) => state.vocab.words);
@@ -63,7 +64,16 @@ export default function VocabStudy() {
   }, [isBreak, breakTimeLeft]);
 
   // === NEXT WORD ===
-  const handleNextWord = () => {
+  const handleNextWord = async () => {
+    if (currentWord) {
+      try {
+        // default kalau lanjut → status "learned"
+        await saveVocabProgress(currentWord.id, "learned");
+      } catch (err) {
+        console.error("Failed to save progress", err);
+      }
+    }
+  
     if (currentWordIndex < studyConfig.wordsPerSet - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       return;
@@ -76,18 +86,31 @@ export default function VocabStudy() {
     }
     setFinished(true);
   };
+  
 
-  const handleTimeUp = () => {
+  const handleMarkMastered = async () => {
+    if (currentWord) {
+      try {
+        await saveVocabProgress(currentWord.id, "mastered");
+      } catch (err) {
+        console.error("Failed to save mastered progress", err);
+      }
+    }
+    await handleNextWord(); // langsung lanjut ke kata berikutnya
+  };
+  
+
+  const handleTimeUp = async () => {
     if (isBreak || finished) return;
-    handleNextWord();
+    await handleNextWord();
   };
 
-  const handleNext = () => {
+  const handleNext = async () => {
     if (isBreak || finished) return;
-    handleNextWord();
+    await handleNextWord();
   };
 
-  const handleBreakEnd = () => {
+  const handleBreakEnd = async () => {
     setIsBreak(false);
     setPaused(false);
     setCurrentSet((prev) => prev + 1);
@@ -178,6 +201,7 @@ export default function VocabStudy() {
             paused={paused}
             onPauseToggle={() => setPaused(!paused)}
             onNext={handleNext}
+            onMastered={handleMarkMastered} // tambahkan props baru
           />
         </>
       )}
