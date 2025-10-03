@@ -10,7 +10,7 @@ export type BadgeVariant =
   | "N4"
   | "N3"
   | "N2"
-  | "N1";
+  | "N1"
 
 export type BadgeSize = "sm" | "md" | "lg" | "xl";
 

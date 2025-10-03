@@ -1,5 +1,5 @@
-import React from "react";
 import { useNavigate } from "react-router-dom";
+import type { StudyConfig } from "@/types/study";
 
 interface VocabStudySummaryProps {
   totalWords: number;
@@ -7,13 +7,7 @@ interface VocabStudySummaryProps {
   learnedCount: number;
   notLearnedCount: number;
   totalTime: number;
-  config: {
-    wordsPerSet: number;
-    totalSets: number;
-    duration: number;
-    level: "All" | "N5" | "N4" | "N3" | "N2" | "N1";
-    breakDuration: number;
-  };
+  config: StudyConfig;
 }
 
 export default function VocabStudySummary({
@@ -25,6 +19,14 @@ export default function VocabStudySummary({
   config,
 }: VocabStudySummaryProps) {
   const navigate = useNavigate();
+
+  const studyConfig = {
+    wordsPerSet: config.wordsPerSet,
+    totalSets: config.totalSets,
+    duration: config.duration,
+    level: config.level,
+    breakDuration: config.breakDuration,
+  };
 
   // Helper: format waktu jadi mm:ss
   const formatTime = (seconds: number) => {
@@ -62,16 +64,13 @@ export default function VocabStudySummary({
 
         {/* Progress bar full */}
         <div className="w-full bg-gray-200 rounded-full h-3">
-          <div
-            className="bg-blue-500 h-3 rounded-full"
-            style={{ width: "100%" }}
-          />
+          <div className="bg-blue-500 h-3 rounded-full" style={{ width: "100%" }} />
         </div>
 
         {/* Tombol aksi */}
         <div className="flex space-x-4 justify-center mt-6">
           <button
-            onClick={() => navigate("/vocab/study", { state: config })}
+            onClick={() => navigate("/vocab/study"  , { state: studyConfig })}
             className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
           >
             🔁 Ulangi Sesi

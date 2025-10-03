@@ -17,12 +17,12 @@ export default function ModalConfig({ isOpen, title, description, onClose }: Mod
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const config = {
-      limit,
-      totalSets,
-      duration,
-      breakDuration,    
-    };
+    // const config = {
+    //   limit,
+    //   totalSets,
+    //   duration,
+    //   breakDuration,    
+    // };
     onClose();
   };
 

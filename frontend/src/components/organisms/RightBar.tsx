@@ -28,13 +28,11 @@ const RightBar = () => {
             <ReminderReview totalVocab={50} totalReview={10} />
           </>
         )}
-        {location.pathname === "/review" && <ReminderReview totalVocab={50} totalReview={10} />}
+        {location.pathname === "/review" && (
+          <ReminderReview totalVocab={50} totalReview={10} />
+        )}
         <StartLearning
-          level="N5"
-          limit={10}
-          totalSets={2}
-          duration={10}
-          breakDuration={30}
+          userId={3}
         />
       </aside>
     </>

@@ -7,6 +7,7 @@ import kanjiRoutes from "../routes/kanjiRoutes";
 import vocabRoutes from "../routes/vocabRoutes";
 import reviewRoutes from "../routes/reviewRoutes";
 import bookmarkRoutes from "../routes/bookmarkRoutes";
+import userSettingRoutes from "../routes/userSettingRoutes";
 import cookieParser from "cookie-parser";
 
 const app = express();
@@ -32,6 +33,7 @@ app.use("/api/kanji", kanjiRoutes);  // /api/kanji/create, /api/kanji/all, /api/
 app.use("/api/vocab", vocabRoutes);  // /api/vocab/create, /api/vocab/all, /api/vocab/:id, /api/vocab/level/:level
 app.use("/api/review", reviewRoutes);  // /api/review/create, /api/review/all, /api/review/:id, /api/review/level/:level
 app.use("/api/bookmark", bookmarkRoutes);  // /api/bookmark/create, /api/bookmark/all, /api/bookmark/:id, /api/bookmark/level/:level
+app.use("/api/user-settings", userSettingRoutes);  // /api/user-settings/:id
 
 // ✅ Health check (opsional, best practice untuk monitoring)
 app.get("/health", (_, res) => {

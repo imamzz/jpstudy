@@ -55,7 +55,7 @@ export const selectRecentReviews = (state: RootState): ReviewItem[] => {
           id: w.id,
           type: "vocab",
           content: w.kanji || w.kana,
-          meaning: w.arti,
+          meaning: w.meaning,
           examples: [],
           masteredAt: w.masteredAt,
         });

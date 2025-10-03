@@ -1,7 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
-
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import StudyTimer from "@/features/vocab/components/StudyTimer";
 import BreakScreen from "@/features/vocab/components/BreakScreen";
@@ -11,25 +9,19 @@ import VocabStudySummary from "@/features/vocab/components/VocabStudySummary";
 import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
 import { shuffleArray } from "@/utils/vocabHelpers";
 import Button from "@/components/atoms/Button";
-
-interface Config {
-  wordsPerSet: number;
-  totalSets: number;
-  duration: number;
-  level: "All" | "N5" | "N4" | "N3" | "N2" | "N1";
-  breakDuration: number;
-}
+import type { LevelVariant } from "@/types/common";
 
 export default function VocabStudy() {
   const words = useAppSelector((state) => state.vocab.words);
-  const location = useLocation();
+  const { config } = useAppSelector((state) => state.config);
 
-  const config = (location.state as Config) || {
-    wordsPerSet: 10,
-    totalSets: 2,
-    duration: 10,
-    level: "N5",
-    breakDuration: 90,
+  // mapping config dari Redux → schema lokal
+  const studyConfig = {
+    wordsPerSet: config.limit || 10,
+    totalSets: config.totalSets || 2,
+    duration: config.duration || 10,
+    level: (config.targetLevel as LevelVariant) || "N5",
+    breakDuration: config.breakDuration || 90,
   };
 
   // === STATE ===
@@ -39,96 +31,84 @@ export default function VocabStudy() {
   const [finished, setFinished] = useState(false);
   const [totalTime, setTotalTime] = useState(0);
   const [isBreak, setIsBreak] = useState(false);
-  const [breakTimeLeft, setBreakTimeLeft] = useState(config.breakDuration);
+  const [breakTimeLeft, setBreakTimeLeft] = useState(studyConfig.breakDuration);
 
-  // === PILIH KATA SESUAI LEVEL & SET ===
+  // === PILIH KATA SESUAI LEVEL ===
   const levelWords =
-    config.level === "All"
+    studyConfig.level === "All"
       ? shuffleArray(words)
-      : words.filter((w) => w.level === config.level);
+      : words.filter((w) => w.level === studyConfig.level);
 
-  const setWords = levelWords.slice(0, config.wordsPerSet);
+  const setWords = levelWords.slice(0, studyConfig.wordsPerSet);
   const currentWord = setWords[currentWordIndex];
 
   // === PROGRESS BAR ===
-  const setProgress = (currentSet / config.totalSets) * 100;
-  const totalKataProgress = ((currentWordIndex + 1) / config.wordsPerSet) * 100;
+  const setProgress = (currentSet / studyConfig.totalSets) * 100;
+  const totalKataProgress = ((currentWordIndex + 1) / studyConfig.wordsPerSet) * 100;
 
-  // === TIMER GLOBAL (total waktu belajar) ===
+  // === TIMER GLOBAL ===
   useEffect(() => {
     if (finished || paused || isBreak) return;
     const interval = setInterval(() => setTotalTime((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, [finished, paused, isBreak]);
 
-  // === TIMER UNTUK BREAK (hanya hitung mundur, tanpa auto-lanjut) ===
+  // === TIMER BREAK ===
   useEffect(() => {
     if (!isBreak) return;
     if (breakTimeLeft > 0) {
-      const timer = setTimeout(() => {
-        setBreakTimeLeft((t) => t - 1);
-      }, 1000);
+      const timer = setTimeout(() => setBreakTimeLeft((t) => t - 1), 1000);
       return () => clearTimeout(timer);
     }
   }, [isBreak, breakTimeLeft]);
 
-  // === HANDLER: LANJUT KE KATA BERIKUT ===
+  // === NEXT WORD ===
   const handleNextWord = () => {
-    // Masih ada kata tersisa di set sekarang
-    if (currentWordIndex < config.wordsPerSet - 1) {
+    if (currentWordIndex < studyConfig.wordsPerSet - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       return;
     }
-
-    // Sudah selesai satu set
-    if (currentSet < config.totalSets) {
-      // Masuk ke fase istirahat
+    if (currentSet < studyConfig.totalSets) {
       setPaused(true);
       setIsBreak(true);
-      setBreakTimeLeft(config.breakDuration);
+      setBreakTimeLeft(studyConfig.breakDuration);
       return;
     }
-
-    // Semua set selesai
     setFinished(true);
   };
 
-  // === HANDLER: SAAT TIMER HABIS ===
   const handleTimeUp = () => {
-    if (isBreak || finished) return; // Hindari trigger ganda
+    if (isBreak || finished) return;
     handleNextWord();
   };
 
-  // === HANDLER: NEXT BUTTON ===
   const handleNext = () => {
     if (isBreak || finished) return;
     handleNextWord();
   };
 
-  // === HANDLER: BREAK SELESAI (manual / otomatis) ===
   const handleBreakEnd = () => {
-    console.log("Break end triggered");
     setIsBreak(false);
     setPaused(false);
     setCurrentSet((prev) => prev + 1);
     setCurrentWordIndex(0);
-    setBreakTimeLeft(config.breakDuration);
+    setBreakTimeLeft(studyConfig.breakDuration);
   };
 
-  // === KETIKA SEMUA SET SELESAI ===
+  // === SUMMARY ===
   if (finished) {
-    const totalWords = config.wordsPerSet * config.totalSets;
+    const totalWords = studyConfig.wordsPerSet * studyConfig.totalSets;
     const learnedCount = levelWords.filter((w) => w.status === "mastered").length;
     const notLearnedCount = totalWords - learnedCount;
 
     return (
       <VocabStudySummary
         totalWords={totalWords}
-        totalSets={config.totalSets}
+        totalSets={studyConfig.totalSets}
         learnedCount={learnedCount}
         notLearnedCount={notLearnedCount}
         totalTime={totalTime}
-        config={config}
+        config={studyConfig}
       />
     );
   }
@@ -139,16 +119,16 @@ export default function VocabStudy() {
       <div className="flex w-full max-w-6xl flex-col">
         <div className="flex items-center justify-between mb-4">
           <p className="font-medium text-gray-700">Vocab Study</p>
-          <Badge variant={config.level as BadgeVariant} size="md">
-            {config.level}
+          <Badge variant={studyConfig.level as BadgeVariant} size="md">
+            {studyConfig.level}
           </Badge>
         </div>
 
         <VocabStudyProgress
           currentSet={currentSet}
-          totalSets={config.totalSets}
+          totalSets={studyConfig.totalSets}
           currentIndex={currentWordIndex}
-          wordsPerSet={config.wordsPerSet}
+          wordsPerSet={studyConfig.wordsPerSet}
           setProgress={setProgress}
           totalKataProgress={totalKataProgress}
         />
@@ -160,20 +140,19 @@ export default function VocabStudy() {
           <BreakScreen
             timeLeft={breakTimeLeft}
             setTimeLeft={setBreakTimeLeft}
-            onStartNow={handleBreakEnd} // hanya di sini auto-lanjut
+            onStartNow={handleBreakEnd}
           />
           <div className="w-full flex justify-center items-center flex-col">
-      <hr className="w-full mb-12 border border-gray-200" />
-      <div className="flex space-x-2 justify-between w-full max-w-6xl items-center">
-        <Button disabled={paused} variant="disabled" size="md" className="self-start w-[100px] border border-gray-200">
-          Skip
-        </Button>
-
-        <Button onClick={handleBreakEnd} variant="primary" size="md" className="self-end ">
-          Mulai Sekarang
-        </Button>
-      </div>
-    </div>
+            <hr className="w-full mb-12 border border-gray-200" />
+            <div className="flex space-x-2 justify-between w-full max-w-6xl items-center">
+              <Button disabled={paused} variant="disabled" size="md" className="self-start w-[100px] border border-gray-200">
+                Skip
+              </Button>
+              <Button onClick={handleBreakEnd} variant="primary" size="md">
+                Mulai Sekarang
+              </Button>
+            </div>
+          </div>
         </>
       ) : (
         <>
@@ -189,7 +168,7 @@ export default function VocabStudy() {
             <StudyTimer
               key={`${currentSet}-${currentWordIndex}`}
               paused={paused}
-              duration={config.duration}
+              duration={studyConfig.duration}
               onTimeUp={handleTimeUp}
               totalDuration={totalTime}
             />

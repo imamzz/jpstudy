@@ -8,6 +8,8 @@ interface UserSettingsAttributes {
     seconds_per_word: number;
     target_level: "N5" | "N4" | "N3" | "N2" | "N1";
     dark_mode: boolean;
+    break_per_set: number;
+    total_set: number;
 }
 
 interface UserSettingsCreationAttributes extends Optional<UserSettingsAttributes, "id"> {}
@@ -19,6 +21,8 @@ class UserSettings extends Model<UserSettingsAttributes, UserSettingsCreationAtt
     public seconds_per_word!: number;
     public target_level!: "N5" | "N4" | "N3" | "N2" | "N1";
     public dark_mode!: boolean;
+    public break_per_set!: number;
+    public total_set!: number;
 }
 
 UserSettings.init(
@@ -29,6 +33,8 @@ UserSettings.init(
         seconds_per_word: { type: DataTypes.INTEGER, allowNull: false },
         target_level: { type: DataTypes.ENUM("N5", "N4", "N3", "N2", "N1"), allowNull: false },
         dark_mode: { type: DataTypes.BOOLEAN, allowNull: false },
+        break_per_set: { type: DataTypes.INTEGER, allowNull: false },
+        total_set: { type: DataTypes.INTEGER, allowNull: false },
     },
     {
         sequelize,

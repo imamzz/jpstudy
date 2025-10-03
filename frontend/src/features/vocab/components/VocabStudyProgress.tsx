@@ -1,5 +1,3 @@
-import React from "react";
-
 interface VocabStudyProgressProps {
   currentSet: number;
   totalSets: number;
