@@ -34,7 +34,7 @@ Vocab.init(
     example: { type: DataTypes.TEXT },
     level: { type: DataTypes.STRING(10), allowNull: false },
   },
-  { sequelize, tableName: "vocab", timestamps: true, underscored: false }
+  { sequelize, tableName: "vocab", timestamps: true }
 );
 
 export default Vocab;

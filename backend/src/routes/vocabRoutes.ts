@@ -15,13 +15,15 @@ import { UpdateVocabDto } from "../dtos/updateVocabDto";
 const router = Router();
 
 // hanya admin yang boleh create, update, delete
-router.post("/", authMiddleware, authorize("admin"), validateDto(CreateVocabDto), createVocab);
-router.put("/:id", authMiddleware, authorize("admin"), validateDto(UpdateVocabDto), updateVocab);
-router.delete("/:id", authMiddleware, authorize("admin"), deleteVocab);
+router.post("/", authMiddleware, authorize("admin", "user"), validateDto(CreateVocabDto), createVocab);
+router.put("/:id", authMiddleware, authorize("admin", "user"), validateDto(UpdateVocabDto), updateVocab);
+router.delete("/:id", authMiddleware, authorize("admin", "user"), deleteVocab);
 
 // public
-router.get("/", getAllVocab);
-router.get("/level/:level", getVocabByLevel); // taruh sebelum :id
-router.get("/:id", getVocabById);
+// IZINKAN ADMIN & USER
+router.get("/", authMiddleware, authorize("user", "admin"), getAllVocab);
+router.get("/level/:level", authMiddleware, authorize("user", "admin"), getVocabByLevel);
+router.get("/:id", authMiddleware, authorize("user", "admin"), getVocabById);
+
 
 export default router;

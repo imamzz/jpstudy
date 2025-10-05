@@ -40,7 +40,10 @@ export default function VocabStudy() {
       ? shuffleArray(words)
       : words.filter((w) => w.level === studyConfig.level);
 
-  const setWords = levelWords.slice(0, studyConfig.wordsPerSet);
+      // exclude kata yang sudah punya status
+  const newWords = levelWords.filter((w) => !w.status);
+
+  const setWords = newWords.slice(0, studyConfig.wordsPerSet);
   const currentWord = setWords[currentWordIndex];
 
   // === PROGRESS BAR ===
@@ -120,8 +123,8 @@ export default function VocabStudy() {
 
   // === SUMMARY ===
   if (finished) {
-    const totalWords = studyConfig.wordsPerSet * studyConfig.totalSets;
-    const learnedCount = levelWords.filter((w) => w.status === "mastered").length;
+    const totalWords = studyConfig.wordsPerSet;
+    const learnedCount = levelWords.filter((w) => w.status === "learned").length;
     const notLearnedCount = totalWords - learnedCount;
 
     return (

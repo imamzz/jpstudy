@@ -1,5 +1,7 @@
 import { Op } from "sequelize";
-import Vocab from "../models/Vocab";
+import { Vocab } from "../models";
+import { AuthRequest } from "../middleware/authMiddleware";
+import sequelize from "../config/database";
 
 export async function createVocab(data: any) {
     const existingVocab = await Vocab.findOne({ where: { kana: data.kana } });
@@ -20,7 +22,7 @@ export async function updateVocab(id: string, data: any) {
     return vocab;
 }
 
-export async function getAllVocab(search?: string, level?: string, page = 1, pageSize = 10) {
+export async function getAllVocab(req: AuthRequest, search?: string, level?: string, page = 1, pageSize = 10) {
   const where: any = {};
 
   if (level) where.level = level;
@@ -37,7 +39,15 @@ export async function getAllVocab(search?: string, level?: string, page = 1, pag
 
   const { rows, count } = await Vocab.findAndCountAll({
     attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"],
-    where,
+    where: {
+      ...where,
+      id: {
+        // ❌ Exclude vocab_id yang sudah ada di user_vocab_progress user ini
+        [Op.notIn]: sequelize.literal(`(
+          SELECT vocab_id FROM user_vocab_progress WHERE user_id = ${req.user.id}
+        )`),
+      },
+    },
     limit: pageSize,
     offset,
     order: [["id", "ASC"]],

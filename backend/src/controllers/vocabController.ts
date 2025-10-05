@@ -27,18 +27,19 @@ export async function updateVocab(req: Request, res: Response) {
       const { search, level, page = "1", pageSize = "10" } = req.query;
   
       const result = await vocabService.getAllVocab(
+        req, // ✅ kirim request ke service agar req.user terbaca
         search as string,
         level as string,
         parseInt(page as string, 10),
         parseInt(pageSize as string, 10)
       );
   
-      // ✅ gunakan response baru
       return res.status(200).json(successResponse(result.data, result.meta, "Vocab berhasil diambil"));
     } catch (error: any) {
+      console.error("❌ getAllVocab error:", error);
       return res
         .status(400)
-        .json(errorResponse("VOCAB_FETCH_ERROR", error.message, error.errors));
+        .json(errorResponse("VOCAB_FETCH_ERROR", error.message || "Gagal mengambil vocab"));
     }
   }
   

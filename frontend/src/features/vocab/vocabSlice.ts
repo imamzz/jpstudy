@@ -1,9 +1,9 @@
 // src/features/vocab/vocabSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
-import axios from "axios";
+import privateApi from "@/base/privateApi";
 
-export type WordStatus = "new" | "learning" | "mastered";
+export type WordStatus = "learned" | "review" | "mastered";
 
 export interface Word {
   id: number;
@@ -37,17 +37,15 @@ const initialState: VocabState = {
   totalPages: 1,
 };
 
-// 🔹 Async Thunk untuk fetch data vocab dari backend
 export const fetchVocab = createAsyncThunk(
   "vocab/fetchVocab",
   async ({ page, pageSize, search, level }: { page: number; pageSize: number; search?: string; level?: string }) => {
-    const res = await axios.get("http://localhost:5000/api/vocab", {
+    const res = await privateApi.get("/vocab", {
       params: { page, pageSize, search, level },
     });
     return res.data; // { success, message, data, meta }
   }
 );
-
 const vocabSlice = createSlice({
   name: "vocab",
   initialState,
@@ -61,17 +59,17 @@ const vocabSlice = createSlice({
     setPageSize: (state, action: PayloadAction<number>) => {
       state.pageSize = action.payload;
     },
-    markAsLearned: (state, action: PayloadAction<number>) => {
+    markAsMastered: (state, action: PayloadAction<number>) => {
       const word = state.words.find((w) => w.id === action.payload);
       if (word) {
         word.status = "mastered";
         word.masteredAt = new Date().toISOString();
       }
     },
-    markAsLearning: (state, action: PayloadAction<number>) => {
+    markAsReview: (state, action: PayloadAction<number>) => {
       const word = state.words.find((w) => w.id === action.payload);  
       if (word) {
-        word.status = "learning";
+        word.status = "review";
         word.masteredAt = new Date().toISOString();
       }
     },
@@ -84,7 +82,17 @@ const vocabSlice = createSlice({
       })
       .addCase(fetchVocab.fulfilled, (state, action) => {
         state.loading = false;
-        state.words = action.payload.data;   // ✅ langsung array
+        state.words = action.payload.data.map((v: any) => ({
+          id: v.id,
+          kanji: v.kanji,
+          kana: v.kana,
+          romaji: v.romaji,
+          meaning: v.meaning,
+          level: v.level,
+          example: v.example,
+          status: v.UserVocabProgress?.status || null,   // default null = belum dipelajari
+          masteredAt: v.UserVocabProgress?.mastered_at || null,
+        }));
         state.total = action.payload.meta.total;
         state.page = action.payload.meta.page;
         state.pageSize = action.payload.meta.pageSize;
@@ -97,6 +105,6 @@ const vocabSlice = createSlice({
   },
 });
 
-export const { setWords, setPage, setPageSize, markAsLearned, markAsLearning } =
+export const { setWords, setPage, setPageSize, markAsMastered, markAsReview } =
   vocabSlice.actions;
 export default vocabSlice.reducer;
