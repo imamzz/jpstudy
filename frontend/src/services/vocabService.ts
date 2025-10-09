@@ -19,7 +19,7 @@ export const vocabService = {
     if (level) params.level = level;
 
     const res = await privateApi.get("/vocab", { params });
-    console.log("API Response /vocab:", res.data);
+    // console.log("API Response /vocab:", res.data);
 
     // pastikan ambil dari data.vocab
     return Array.isArray(res.data?.data?.vocab) ? res.data.data.vocab : [];

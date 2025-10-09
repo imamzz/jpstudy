@@ -1,5 +1,6 @@
-import { useState, useEffect } from "react";
-import { useAppSelector } from "@/app/hooks";
+import { useState, useEffect, useMemo } from "react";
+import axios from "axios";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import StudyTimer from "@/features/vocab/components/StudyTimer";
 import BreakScreen from "@/features/vocab/components/BreakScreen";
@@ -10,16 +11,21 @@ import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
 import { shuffleArray } from "@/utils/vocabHelpers";
 import Button from "@/components/atoms/Button";
 import type { LevelVariant } from "@/types/common";
-import { saveVocabProgress } from "@/features/vocab/vocabProgressApi";
+import { fetchVocabStudy } from "@/features/vocab/vocabStudySlice";
+import privateApi from "@/base/privateApi";
 
 export default function VocabStudy() {
-  const words = useAppSelector((state) => state.vocab.words);
+  const dispatch = useAppDispatch();
+  const words = useAppSelector((state) => state.vocabStudy.studyWords) || [];
   const { config } = useAppSelector((state) => state.config);
 
-  // mapping config dari Redux → schema lokal
+  useEffect(() => {
+    dispatch(fetchVocabStudy());
+  }, [dispatch]);
+
   const studyConfig = {
     wordsPerSet: config.limit || 10,
-    totalSets: config.totalSets || 2,
+    totalSets: config.totalSets || 3,
     duration: config.duration || 10,
     level: (config.targetLevel as LevelVariant) || "N5",
     breakDuration: config.breakDuration || 90,
@@ -34,30 +40,39 @@ export default function VocabStudy() {
   const [isBreak, setIsBreak] = useState(false);
   const [breakTimeLeft, setBreakTimeLeft] = useState(studyConfig.breakDuration);
 
-  // === PILIH KATA SESUAI LEVEL ===
-  const levelWords =
-    studyConfig.level === "All"
-      ? shuffleArray(words)
-      : words.filter((w) => w.level === studyConfig.level);
+  // progress lokal (belum dikirim)
+  const [progressData, setProgressData] = useState<{ vocab_id: number; status: string }[]>([]);
+  const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
 
-      // exclude kata yang sudah punya status
-  const newWords = levelWords.filter((w) => !w.status);
+  // === FILTER KATA ===
+  const filteredWords = useMemo(() => {
+    if (!Array.isArray(words)) return [];
 
-  const setWords = newWords.slice(0, studyConfig.wordsPerSet);
-  const currentWord = setWords[currentWordIndex];
+    // hanya kata yang belum mastered di sesi ini
+    const availableWords = words.filter((w) => !masteredIds.has(w.id));
+
+    // hanya level sesuai config
+    const levelWords =
+      studyConfig.level === "All"
+        ? shuffleArray(availableWords)
+        : shuffleArray(availableWords.filter((w) => w.level === studyConfig.level));
+
+    return levelWords.slice(0, studyConfig.wordsPerSet);
+  }, [words, masteredIds, studyConfig.level, studyConfig.wordsPerSet]);
+
+  const currentWord = filteredWords[currentWordIndex];
 
   // === PROGRESS BAR ===
   const setProgress = (currentSet / studyConfig.totalSets) * 100;
   const totalKataProgress = ((currentWordIndex + 1) / studyConfig.wordsPerSet) * 100;
 
-  // === TIMER GLOBAL ===
+  // === TIMER ===
   useEffect(() => {
     if (finished || paused || isBreak) return;
     const interval = setInterval(() => setTotalTime((t) => t + 1), 1000);
     return () => clearInterval(interval);
   }, [finished, paused, isBreak]);
 
-  // === TIMER BREAK ===
   useEffect(() => {
     if (!isBreak) return;
     if (breakTimeLeft > 0) {
@@ -67,52 +82,51 @@ export default function VocabStudy() {
   }, [isBreak, breakTimeLeft]);
 
   // === NEXT WORD ===
-  const handleNextWord = async () => {
-    if (currentWord) {
-      try {
-        // default kalau lanjut → status "learned"
-        await saveVocabProgress(currentWord.id, "learned");
-      } catch (err) {
-        console.error("Failed to save progress", err);
-      }
+  const handleNextWord = (status = "learned") => {
+    if (!currentWord) return;
+
+    // simpan progress ke lokal
+    setProgressData((prev) => [...prev, { vocab_id: currentWord.id, status }]);
+
+    // kalau mastered → tambahkan ke daftar agar tidak muncul lagi
+    if (status === "mastered") {
+      setMasteredIds((prev) => new Set([...prev, currentWord.id]));
     }
-  
-    if (currentWordIndex < studyConfig.wordsPerSet - 1) {
+
+    // lanjut kata berikut
+    if (currentWordIndex < filteredWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       return;
     }
+
+    // lanjut ke set berikutnya atau selesai
     if (currentSet < studyConfig.totalSets) {
       setPaused(true);
       setIsBreak(true);
       setBreakTimeLeft(studyConfig.breakDuration);
       return;
     }
+
+    // kalau semua selesai
     setFinished(true);
   };
-  
 
-  const handleMarkMastered = async () => {
-    if (currentWord) {
-      try {
-        await saveVocabProgress(currentWord.id, "mastered");
-      } catch (err) {
-        console.error("Failed to save mastered progress", err);
-      }
-    }
-    await handleNextWord(); // langsung lanjut ke kata berikutnya
-  };
-  
-
-  const handleTimeUp = async () => {
+  const handleMarkMastered = () => {
     if (isBreak || finished) return;
-    await handleNextWord();
+    handleNextWord("mastered");
   };
 
-  const handleNext = async () => {
+  const handleNext = () => {
     if (isBreak || finished) return;
-    await handleNextWord();
+    handleNextWord("learned");
   };
 
+  const handleTimeUp = () => {
+    if (isBreak || finished) return;
+    handleNextWord("learned");
+  };
+
+  // === SELESAI ISTIRAHAT ===
   const handleBreakEnd = async () => {
     setIsBreak(false);
     setPaused(false);
@@ -121,21 +135,55 @@ export default function VocabStudy() {
     setBreakTimeLeft(studyConfig.breakDuration);
   };
 
+  // === SAAT SELESAI SEMUA SET ===
+  useEffect(() => {
+    const sendBulkProgress = async () => {
+      if (!finished || progressData.length === 0) return;
+      try {
+        const payload = {
+          items: progressData.map((p) => ({
+            id: p.vocab_id,
+            status: p.status,
+          })),
+        };
+  
+        console.log("📦 Sending bulk progress:", JSON.stringify(payload, null, 2));
+        await privateApi.post("/vocab-progress/bulk", payload);
+        console.log("✅ Bulk progress saved successfully!");
+      } catch (err) {
+        console.error("❌ Failed to save bulk progress:", err);
+      }
+    };
+  
+    sendBulkProgress();
+  }, [finished, progressData]);
+  
+
   // === SUMMARY ===
   if (finished) {
-    const totalWords = studyConfig.wordsPerSet;
-    const learnedCount = levelWords.filter((w) => w.status === "learned").length;
-    const notLearnedCount = totalWords - learnedCount;
+    const learnedCount = progressData.filter((p) => p.status === "learned").length;
+    const masteredCount = progressData.filter((p) => p.status === "mastered").length;
+    const notLearnedCount =
+      studyConfig.wordsPerSet * studyConfig.totalSets - (learnedCount + masteredCount);
 
     return (
       <VocabStudySummary
-        totalWords={totalWords}
+        totalWords={studyConfig.wordsPerSet}
         totalSets={studyConfig.totalSets}
-        learnedCount={learnedCount}
+        learnedCount={learnedCount + masteredCount}
         notLearnedCount={notLearnedCount}
         totalTime={totalTime}
         config={studyConfig}
       />
+    );
+  }
+
+  // === LOADING GUARD ===
+  if (!filteredWords.length) {
+    return (
+      <div className="flex justify-center items-center h-screen">
+        <p className="text-gray-500">Loading vocab data...</p>
+      </div>
     );
   }
 
@@ -160,7 +208,6 @@ export default function VocabStudy() {
         />
       </div>
 
-      {/* === FASE ISTIRAHAT === */}
       {isBreak ? (
         <>
           <BreakScreen
@@ -171,7 +218,12 @@ export default function VocabStudy() {
           <div className="w-full flex justify-center items-center flex-col">
             <hr className="w-full mb-12 border border-gray-200" />
             <div className="flex space-x-2 justify-between w-full max-w-6xl items-center">
-              <Button disabled={paused} variant="disabled" size="md" className="self-start w-[100px] border border-gray-200">
+              <Button
+                disabled={paused}
+                variant="disabled"
+                size="md"
+                className="self-start w-[100px] border border-gray-200"
+              >
                 Skip
               </Button>
               <Button onClick={handleBreakEnd} variant="primary" size="md">
@@ -204,7 +256,7 @@ export default function VocabStudy() {
             paused={paused}
             onPauseToggle={() => setPaused(!paused)}
             onNext={handleNext}
-            onMastered={handleMarkMastered} // tambahkan props baru
+            onMastered={handleMarkMastered}
           />
         </>
       )}

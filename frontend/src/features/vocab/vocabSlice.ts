@@ -46,6 +46,7 @@ export const fetchVocab = createAsyncThunk(
     return res.data; // { success, message, data, meta }
   }
 );
+
 const vocabSlice = createSlice({
   name: "vocab",
   initialState,

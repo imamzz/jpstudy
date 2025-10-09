@@ -6,6 +6,7 @@ import {
   getVocabByLevel,
   deleteVocab,
   updateVocab,
+  getVocabForLearning,
 } from "../controllers/vocabController";
 import { validateDto } from "../middleware/validateDto";
 import { CreateVocabDto } from "../dtos/vocabDto";
@@ -23,7 +24,10 @@ router.delete("/:id", authMiddleware, authorize("admin", "user"), deleteVocab);
 // IZINKAN ADMIN & USER
 router.get("/", authMiddleware, authorize("user", "admin"), getAllVocab);
 router.get("/level/:level", authMiddleware, authorize("user", "admin"), getVocabByLevel);
-router.get("/:id", authMiddleware, authorize("user", "admin"), getVocabById);
 
+// 🟢 letakkan di sini — sebelum :id
+router.get("/study", authMiddleware, authorize("user", "admin"), getVocabForLearning);
+
+router.get("/:id", authMiddleware, authorize("user", "admin"), getVocabById);
 
 export default router;

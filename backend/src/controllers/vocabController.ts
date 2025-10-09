@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as vocabService from "../services/vocabService";
 import { successResponse, errorResponse } from "../utils/newResponse";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 export async function createVocab(req: Request, res: Response, next: NextFunction) {
     try {
@@ -73,3 +74,18 @@ export async function deleteVocab(req: Request, res: Response, next: NextFunctio
         return res.status(400).json(errorResponse(error.message, error.details));
     }
 }
+
+export const getVocabForLearning = async (req: AuthRequest, res: Response) => {
+  try {
+    const user_id = req.user!.id;
+    const limit = Number(req.query.limit) || 5;
+    const level = req.query.level as string;
+
+    const words = await vocabService.getVocabForLearning(user_id, limit, level);
+
+    return res.json(successResponse("Vocab for learning fetched", words));
+  } catch (err: any) {
+    console.error("❌ Error in getVocabForLearning:", err);
+    return res.status(400).json(errorResponse("VOCAB_FETCH_ERROR", err.message));
+  }
+};

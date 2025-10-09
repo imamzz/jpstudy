@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { Vocab } from "../models";
+import { UserVocabProgress, Vocab } from "../models";
 import { AuthRequest } from "../middleware/authMiddleware";
 import sequelize from "../config/database";
 
@@ -84,4 +84,49 @@ export async function deleteVocab(id: string) {
 
     await vocab.destroy();
     return vocab;
+}
+
+export async function getVocabForLearning(user_id: number, limit = 10, level?: string) {
+  // 1️⃣ Ambil semua vocab yang sedang dipelajari (status = learned)
+  const learned = await UserVocabProgress.findAll({
+    where: { user_id, status: "learned" },
+    include: [{ model: Vocab, as: "progressVocab" }],
+    order: [["last_studied", "ASC"]],
+  });
+
+  const learnedIds = learned.map((p) => p.vocab_id);
+
+  // 2️⃣ Ambil semua vocab yang sudah mastered → akan dikecualikan
+  const mastered = await UserVocabProgress.findAll({
+    where: { user_id, status: "mastered" },
+    attributes: ["vocab_id"],
+  });
+
+  const masteredIds = mastered.map((m) => m.vocab_id);
+
+  // 3️⃣ Ambil vocab baru dari tabel vocab
+  const newVocab = await Vocab.findAll({
+    where: {
+      ...(level && { level }),
+      id: {
+        [Op.notIn]: [...learnedIds, ...masteredIds], // ❌ exclude mastered + learned
+      },
+    },
+    order: [["id", "ASC"]],
+    limit: Math.max(limit - learned.length, 0),
+  });
+
+  // 4️⃣ Gabungkan hasil
+  const result = [
+    ...learned.map((p) => ({
+      ...p.progressVocab.get(),
+      status: p.status,
+    })),
+    ...newVocab.map((v) => ({
+      ...v.get(),
+      status: null,
+    })),
+  ];
+
+  return result;
 }
