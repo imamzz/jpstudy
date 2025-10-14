@@ -15,11 +15,11 @@ export class CreateReviewDto {
 
   @IsDateString({}, { message: "Review date wajib berupa tanggal (ISO string)" })
   @IsNotEmpty({ message: "Review date wajib diisi" })
-  review_date!: string;
+  first_review_date!: string;
 
   @IsDateString({}, { message: "Next review wajib berupa tanggal (ISO string)" })
   @IsNotEmpty({ message: "Next review wajib diisi" })
-  next_review!: string;
+  last_review_date!: string;
 
   @IsString({ message: "Review wajib berupa string" })
   @IsNotEmpty({ message: "Review wajib diisi" })

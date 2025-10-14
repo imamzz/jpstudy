@@ -15,11 +15,11 @@ export class UpdateReviewDto {
 
   @IsOptional()
   @IsDateString({}, { message: "Review date wajib berupa tanggal (ISO string)" })
-  review_date?: string;
+  first_review_date?: string;
 
   @IsOptional()
   @IsDateString({}, { message: "Next review wajib berupa tanggal (ISO string)" })
-  next_review?: string;
+  last_review_date?: string;
 
   @IsOptional()
   @IsString({ message: "Review wajib berupa string" })

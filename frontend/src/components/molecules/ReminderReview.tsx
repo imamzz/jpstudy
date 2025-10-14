@@ -1,24 +1,36 @@
 import IconSetting from "@/assets/icon/setting.svg?react";
 import Button from "../atoms/Button";
 import { useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import ModalConfig from "../molecules/ModalConfig";
+import { useAppSelector, useAppDispatch } from "@/app/hooks";
+import { fetchReviewStudy } from "@/features/review/reviewSlice";
 
-interface ReminderReviewProps {
-  totalVocab: number;
-  totalReview: number;
-}
-
-const ReminderReview: React.FC<ReminderReviewProps> = ({ totalVocab, totalReview }) => {
+const ReminderReview: React.FC = () => {
   const navigate = useNavigate();
+  const dispatch = useAppDispatch();
+  const { items, loading } = useAppSelector((state) => state.review);
+
   const [isOpen, setIsOpen] = useState(false);
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault(); 
-    navigate("/review/study");
-  };
+  // 🔹 Fetch data review dari backend (default: vocab 7 hari terakhir)
+  useEffect(() => {
+    dispatch(fetchReviewStudy({ days: 7, type: "vocab" }));
+  }, [dispatch]);
 
-  const progress = (totalReview / totalVocab) * 100;
+  // 🔹 Hitung total & progress
+  const { totalVocab, totalReview, progress } = useMemo(() => {
+    const totalVocab = items.length;
+    const reviewedCount = items.filter((i) => i.correct === true).length;
+    const progress = totalVocab > 0 ? (reviewedCount / totalVocab) * 100 : 0;
+    const totalReview = totalVocab - reviewedCount;
+    return { totalVocab, totalReview, progress };
+  }, [items]);
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    navigate("/review/study", { state: { type: "vocab" } });
+  };
 
   return (
     <>
@@ -26,7 +38,7 @@ const ReminderReview: React.FC<ReminderReviewProps> = ({ totalVocab, totalReview
         className="p-4 bg-white border border-gray-200 rounded-xl space-y-3 w-full flex flex-col gap-4"
         onSubmit={handleSubmit}
       >
-        <div className="">
+        <div>
           <div className="flex items-center justify-between mb-2">
             <p className="text-sm font-semibold text-gray-600">Daily Review</p>
             <button type="button" onClick={() => setIsOpen(true)}>
@@ -36,22 +48,33 @@ const ReminderReview: React.FC<ReminderReviewProps> = ({ totalVocab, totalReview
           <p className="text-lg">Review vocab</p>
         </div>
 
+        {/* 🔹 Progress */}
         <div className="progress-bar">
-          <div className="progress flex justify-between w-full">
-            <p className="text-lg font-semibold">{progress}%</p>
-            <p className="text-md text-gray-600">{totalReview}/{totalVocab} vocab</p>
+          <div className="progress flex justify-between w-full mb-1">
+            <p className="text-lg font-semibold">{Math.round(progress)}%</p>
+            <p className="text-md text-gray-600">
+              {totalVocab - totalReview}/{totalVocab} selesai
+            </p>
           </div>
           <div className="progress w-full h-2 bg-gray-200 rounded-full">
-            <div className="progress w-0 h-2 bg-blue-500 rounded-full transition-all duration-300" style={{ width: `${progress}%` }}></div>
+            <div
+              className="progress h-2 bg-blue-500 rounded-full transition-all duration-500"
+              style={{ width: `${progress}%` }}
+            ></div>
           </div>
         </div>
 
-        <Button variant="primary" size="md" className="w-full">
-          Review
+        <Button
+          variant="primary"
+          size="md"
+          className="w-full"
+          disabled={loading || totalVocab === 0}
+        >
+          {loading ? "Loading..." : totalReview > 0 ? "Mulai Review" : "✅ Semua selesai!"}
         </Button>
       </form>
 
-      {/* ✅ ModalConfig langsung ditampilkan di sini */}
+      {/* ⚙️ Modal Config */}
       <ModalConfig
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}

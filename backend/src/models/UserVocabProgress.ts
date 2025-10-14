@@ -5,13 +5,13 @@ interface UserVocabProgressAttributes {
   id: number;
   user_id: number;
   vocab_id: number;
-  status: "learned" | "review" | "mastered";
-  last_studied: Date;
-  times_reviewed: number;
-  mastered_at: Date | null;
+  status?: string;
+  last_studied?: Date;
+  mastered_at?: Date | null;
 }
 
-interface UserVocabProgressCreationAttributes extends Optional<UserVocabProgressAttributes, "id"> {}
+interface UserVocabProgressCreationAttributes
+  extends Optional<UserVocabProgressAttributes, "id" | "mastered_at"> {}
 
 class UserVocabProgress
   extends Model<UserVocabProgressAttributes, UserVocabProgressCreationAttributes>
@@ -20,10 +20,9 @@ class UserVocabProgress
   public id!: number;
   public user_id!: number;
   public vocab_id!: number;
-  public status!: "learned" | "review" | "mastered";
-  public last_studied!: Date;
-  public times_reviewed!: number;
-  public mastered_at!: Date | null;
+  public status?: string;
+  public last_studied?: Date;
+  public mastered_at?: Date | null;
 }
 
 UserVocabProgress.init(
@@ -31,9 +30,8 @@ UserVocabProgress.init(
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
     vocab_id: { type: DataTypes.INTEGER, allowNull: false },
-    status: { type: DataTypes.ENUM("learned", "review", "mastered"), allowNull: false },
-    last_studied: { type: DataTypes.DATE, allowNull: false },
-    times_reviewed: { type: DataTypes.INTEGER, allowNull: false },
+    status: { type: DataTypes.STRING(10), allowNull: true },
+    last_studied: { type: DataTypes.DATE, allowNull: true },
     mastered_at: { type: DataTypes.DATE, allowNull: true },
   },
   {
@@ -43,7 +41,7 @@ UserVocabProgress.init(
     indexes: [
       {
         unique: true,
-        fields: ["user_id", "vocab_id"], // mencegah duplikasi di DB
+        fields: ["user_id", "vocab_id"], // mencegah duplikasi
       },
     ],
   }

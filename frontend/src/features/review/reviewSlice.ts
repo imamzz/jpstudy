@@ -1,26 +1,82 @@
 // src/features/review/reviewSlice.ts
-import { createSlice } from "@reduxjs/toolkit";
+import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/app/store";
+import privateApi from "@/base/privateApi";
 
 export type ReviewType = "vocab" | "grammar" | "kanji";
 
 export interface ReviewItem {
   id: number;
+  item_id: number;
   type: ReviewType;
-  content: string;        // kata / grammar / kanji
+  content: string;
   meaning: string;
+  correct: boolean;
   examples?: string[];
-  masteredAt: string;     // timestamp dari slice masing-masing
+  masteredAt?: string;
+}
+
+export interface ReviewResult {
+  id: number;
+  item_id: number;
+  type: ReviewType;
+  correct: boolean;
+  reviewedAt: string;
 }
 
 interface ReviewState {
   items: ReviewItem[];
+  results: ReviewResult[];
+  loading: boolean;
+  syncing: boolean;
+  error: string | null;
+  lastSync: string | null;
 }
 
 const initialState: ReviewState = {
   items: [],
+  results: [],
+  loading: false,
+  syncing: false,
+  error: null,
+  lastSync: null,
 };
+
+// ==============================
+// 🔹 Ambil data review dari backend
+// ==============================
+export const fetchReviewStudy = createAsyncThunk(
+  "review/fetchStudy",
+  async (
+    { days = 7, type = "vocab" }: { days?: number; type?: ReviewType },
+    { rejectWithValue }
+  ) => {
+    try {
+      const res = await privateApi.get("/review/study", { params: { days, type } });
+      if (!res.data.success) throw new Error(res.data.message);
+      return res.data.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
+
+// ==============================
+// 🔹 Simpan batch hasil review
+// ==============================
+export const submitReviewBatch = createAsyncThunk(
+  "review/submitBatch",
+  async (results: ReviewResult[], { rejectWithValue }) => {
+    try {
+      const res = await privateApi.post("/review/submit-batch", { reviews: results });
+      if (!res.data.success) throw new Error(res.data.message);
+      return res.data;
+    } catch (err: any) {
+      return rejectWithValue(err.response?.data?.message || err.message);
+    }
+  }
+);
 
 const reviewSlice = createSlice({
   name: "review",
@@ -32,76 +88,112 @@ const reviewSlice = createSlice({
     markReviewed: (state, action: PayloadAction<number>) => {
       state.items = state.items.filter((i) => i.id !== action.payload);
     },
+    addResult: (
+      state,
+      action: PayloadAction<{
+        id: number;
+        item_id: number;
+        type: ReviewType;
+        correct: boolean;
+      }>
+    ) => {
+      state.results.push({
+        id: action.payload.id,
+        item_id: action.payload.item_id,
+        type: action.payload.type,
+        correct: action.payload.correct,
+        reviewedAt: new Date().toISOString(),
+      });
+    },
     clearReview: (state) => {
       state.items = [];
+      state.results = [];
     },
+  },
+  extraReducers: (builder) => {
+    builder
+      // === FETCH STUDY ===
+      .addCase(fetchReviewStudy.pending, (state) => {
+        state.loading = true;
+        state.error = null;
+      })
+      .addCase(fetchReviewStudy.fulfilled, (state, action) => {
+        state.loading = false;
+        state.items = action.payload
+          .map((item: any) => {
+            if (item.item_type === "vocab" && item.vocab) {
+              return {
+                id: item.id,
+                item_id: item.item_id,
+                type: "vocab",
+                content: item.vocab.kanji || item.vocab.kana,
+                correct: item.correct ?? false,
+                meaning: item.vocab.meaning,
+                masteredAt: item.review_date,
+              };
+            }
+            if (item.item_type === "kanji" && item.kanji) {
+              return {
+                id: item.id,
+                item_id: item.item_id,
+                type: "kanji",
+                content: item.kanji.kanji,
+                correct: item.correct ?? false,
+                meaning: item.kanji.meaning,
+                masteredAt: item.review_date,
+              };
+            }
+            if (item.item_type === "grammar" && item.grammar) {
+              return {
+                id: item.id,
+                item_id: item.item_id,
+                type: "grammar",
+                content: item.grammar.pattern || item.grammar.title,
+                correct: item.correct ?? false,
+                meaning: item.grammar.meaning,
+                masteredAt: item.review_date,
+              };
+            }
+            return null;
+          })
+          .filter(Boolean) as ReviewItem[];
+      })
+      .addCase(fetchReviewStudy.rejected, (state, action) => {
+        state.loading = false;
+        state.error = (action.payload as string) || "Gagal memuat data review";
+      })
+
+      // === SUBMIT BATCH ===
+      .addCase(submitReviewBatch.pending, (state) => {
+        state.syncing = true;
+      })
+      .addCase(submitReviewBatch.fulfilled, (state, action) => {
+        state.syncing = false;
+        state.lastSync = new Date().toISOString();
+
+        // ✅ Tandai item yang sudah direview sebagai benar
+        const reviewedIds = action.meta.arg.map((r: any) => r.id);
+        state.items = state.items.map((item) =>
+          reviewedIds.includes(item.id) ? { ...item, correct: true } : item
+        );
+
+        state.results = [];
+      })
+      .addCase(submitReviewBatch.rejected, (state, action) => {
+        state.syncing = false;
+        state.error = (action.payload as string) || "Gagal menyimpan hasil review";
+      });
   },
 });
 
-// ✅ Selector untuk ambil item mastered ≤ 7 hari lalu
-export const selectRecentReviews = (state: RootState): ReviewItem[] => {
-  const now = new Date();
-  const sevenDaysAgo = new Date();
-  sevenDaysAgo.setDate(now.getDate() - 7);
+export const { setReviewItems, markReviewed, clearReview, addResult } =
+  reviewSlice.actions;
 
-  const allItems: ReviewItem[] = [];
+export const selectAllReviews = (state: RootState): ReviewItem[] => state.review.items;
+export const selectReviewLoading = (state: RootState): boolean => state.review.loading;
+export const selectReviewError = (state: RootState): string | null => state.review.error;
+export const selectPendingResults = (state: RootState): ReviewResult[] =>
+  state.review.results;
+export const selectLastSync = (state: RootState): string | null => state.review.lastSync;
 
-  // 🔹 Ambil vocab
-  state.vocab.words.forEach((w) => {
-    if (w.status === "mastered" && w.masteredAt) {
-      const masteredDate = new Date(w.masteredAt);
-      if (masteredDate >= sevenDaysAgo) {
-        allItems.push({
-          id: w.id,
-          type: "vocab",
-          content: w.kanji || w.kana,
-          meaning: w.meaning,
-          examples: [],
-          masteredAt: w.masteredAt,
-        });
-      }
-    }
-  });
-
-  // 🔹 Ambil grammar
-  state.grammar.points.forEach((g) => {
-    if (g.status === "mastered" && g.masteredAt) {
-      const masteredDate = new Date(g.masteredAt);
-      if (masteredDate >= sevenDaysAgo) {
-        allItems.push({
-          id: g.id,
-          type: "grammar",
-          content: g.title,
-          meaning: g.meaning,
-          examples: g.examples,
-          masteredAt: g.masteredAt,
-        });
-      }
-    }
-  });
-
-  // 🔹 Ambil kanji
-  state.kanji.items.forEach((k) => {
-    if (k.status === "mastered" && k.masteredAt) {
-      const masteredDate = new Date(k.masteredAt);
-      if (masteredDate >= sevenDaysAgo) {
-        allItems.push({
-          id: k.id,
-          type: "kanji",
-          content: k.kanji,
-          meaning: k.meaning,
-          examples: k.examples,
-          masteredAt: k.masteredAt,
-        });
-      }
-    }
-  });
-
-  // Urutkan terbaru dulu
-  return allItems.sort(
-    (a, b) => new Date(b.masteredAt).getTime() - new Date(a.masteredAt).getTime()
-  );
-};
-
-export const { setReviewItems, markReviewed, clearReview } = reviewSlice.actions;
 export default reviewSlice.reducer;

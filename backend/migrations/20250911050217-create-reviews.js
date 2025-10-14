@@ -14,8 +14,8 @@ module.exports = {
       },
       item_type: { type: Sequelize.STRING(50), allowNull: false }, // vocab, grammar, kanji
       item_id: { type: Sequelize.INTEGER, allowNull: false },
-      review_date: { type: Sequelize.DATE, defaultValue: Sequelize.fn("NOW") },
-      next_review: { type: Sequelize.DATE },
+      first_review_date: { type: Sequelize.DATE, defaultValue: Sequelize.fn("NOW") },
+      last_review_date: { type: Sequelize.DATE },
       attempt_count: { type: Sequelize.INTEGER, defaultValue: 0 },
       correct: { type: Sequelize.BOOLEAN, defaultValue: false },
       ease_factor: { type: Sequelize.FLOAT, defaultValue: 2.5 },

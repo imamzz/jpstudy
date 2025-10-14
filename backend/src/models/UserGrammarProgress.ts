@@ -2,43 +2,50 @@ import { Optional, Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
 interface UserGrammarProgressAttributes {
-    id: number;
-    user_id: number;
-    grammar_id: number;
-    level: string;
-    grammar: string;
-    meaning: string;
-    example?: string;
+  id: number;
+  user_id: number;
+  grammar_id: number;
+  status?: string;
+  last_studied?: Date;
+  mastered_at?: Date | null;
 }
 
-interface UserGrammarProgressCreationAttributes extends Optional<UserGrammarProgressAttributes, "id"> {}
+interface UserGrammarProgressCreationAttributes
+  extends Optional<UserGrammarProgressAttributes, "id"> {}
 
-class UserGrammarProgress extends Model<UserGrammarProgressAttributes, UserGrammarProgressCreationAttributes> implements UserGrammarProgressAttributes {
-    public id!: number;
-    public user_id!: number;
-    public grammar_id!: number;
-    public level!: string;
-    public grammar!: string;
-    public meaning!: string;
-    public example?: string;
+class UserGrammarProgress
+  extends Model<UserGrammarProgressAttributes, UserGrammarProgressCreationAttributes>
+  implements UserGrammarProgressAttributes
+{
+  public id!: number;
+  public user_id!: number;
+  public grammar_id!: number;
+  public status?: string;
+  public last_studied?: Date;
+  public mastered_at?: Date | null;
 }
 
 UserGrammarProgress.init(
-    {
-        id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-        user_id: { type: DataTypes.INTEGER, allowNull: false },
-        grammar_id: { type: DataTypes.INTEGER, allowNull: false },
-        level: { type: DataTypes.STRING(10), allowNull: false },
-        grammar: { type: DataTypes.STRING(10), allowNull: false },
-        meaning: { type: DataTypes.STRING(255), allowNull: false },
-        example: { type: DataTypes.TEXT },
-    },
-    {
-        sequelize,
-        tableName: "user_grammar_progress",
-        timestamps: true,
-        underscored: false
-    }
-)
+  {
+    id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
+    user_id: { type: DataTypes.INTEGER, allowNull: false },
+    grammar_id: { type: DataTypes.INTEGER, allowNull: false },
+    status: { type: DataTypes.STRING(10), allowNull: true },
+    last_studied: { type: DataTypes.DATE, allowNull: false },
+    mastered_at: { type: DataTypes.DATE, allowNull: true },
+  },
+  {
+    sequelize,
+    tableName: "user_grammar_progress",
+    timestamps: true,
+    underscored: false,
+    indexes: [
+      {
+        unique: true,
+        fields: ["user_id", "grammar_id"], // mencegah duplikasi
+      },
+    ],
+  }
+);
 
-export default UserGrammarProgress
+export default UserGrammarProgress;

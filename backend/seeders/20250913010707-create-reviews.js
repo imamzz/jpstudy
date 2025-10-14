@@ -27,8 +27,8 @@ module.exports = {
           user_id: u.id,
           item_type: "vocab",
           item_id: v.id,
-          review_date: new Date(now),
-          next_review: new Date(now.getTime() + 24 * 60 * 60 * 1000), // +1 hari
+          first_review_date: new Date(now),
+          last_review_date: new Date(now.getTime() + 24 * 60 * 60 * 1000), // +1 hari
           attempt_count: 1,
           correct: Math.random() > 0.3, // 70% benar
           ease_factor: 2.5,
@@ -44,8 +44,8 @@ module.exports = {
           user_id: u.id,
           item_type: "grammar",
           item_id: g.id,
-          review_date: new Date(now),
-          next_review: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000), // +3 hari
+          first_review_date: new Date(now),
+          last_review_date: new Date(now.getTime() + 3 * 24 * 60 * 60 * 1000), // +3 hari
           attempt_count: 2,
           correct: Math.random() > 0.4,
           ease_factor: 2.4,
@@ -61,8 +61,8 @@ module.exports = {
           user_id: u.id,
           item_type: "kanji",
           item_id: k.id,
-          review_date: new Date(now),
-          next_review: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // +7 hari
+          first_review_date: new Date(now),
+          last_review_date: new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000), // +7 hari
           attempt_count: 3,
           correct: Math.random() > 0.5,
           ease_factor: 2.3,

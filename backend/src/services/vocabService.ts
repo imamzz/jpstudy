@@ -87,46 +87,32 @@ export async function deleteVocab(id: string) {
 }
 
 export async function getVocabForLearning(user_id: number, limit = 10, level?: string) {
-  // 1️⃣ Ambil semua vocab yang sedang dipelajari (status = learned)
-  const learned = await UserVocabProgress.findAll({
-    where: { user_id, status: "learned" },
-    include: [{ model: Vocab, as: "progressVocab" }],
-    order: [["last_studied", "ASC"]],
-  });
-
-  const learnedIds = learned.map((p) => p.vocab_id);
-
-  // 2️⃣ Ambil semua vocab yang sudah mastered → akan dikecualikan
-  const mastered = await UserVocabProgress.findAll({
-    where: { user_id, status: "mastered" },
+  // 1️⃣ Ambil semua vocab_id yang sudah pernah dipelajari (learned/mastered)
+  const learnedOrMastered = await UserVocabProgress.findAll({
+    where: { 
+      user_id, 
+      status: { [Op.in]: ["learned", "mastered"] },
+    },
     attributes: ["vocab_id"],
   });
 
-  const masteredIds = mastered.map((m) => m.vocab_id);
+  const excludeIds = learnedOrMastered.map((p) => p.vocab_id);
 
-  // 3️⃣ Ambil vocab baru dari tabel vocab
+  // 2️⃣ Ambil vocab baru (belum pernah dipelajari)
   const newVocab = await Vocab.findAll({
     where: {
       ...(level && { level }),
-      id: {
-        [Op.notIn]: [...learnedIds, ...masteredIds], // ❌ exclude mastered + learned
-      },
+      ...(excludeIds.length > 0 && { id: { [Op.notIn]: excludeIds } }),
     },
     order: [["id", "ASC"]],
-    limit: Math.max(limit - learned.length, 0),
+    limit,
   });
 
-  // 4️⃣ Gabungkan hasil
-  const result = [
-    ...learned.map((p) => ({
-      ...p.progressVocab.get(),
-      status: p.status,
-    })),
-    ...newVocab.map((v) => ({
-      ...v.get(),
-      status: null,
-    })),
-  ];
+  // 3️⃣ Format hasil untuk frontend
+  const result = newVocab.map((v) => ({
+    ...v.get(),
+    status: null, // belum punya progres
+  }));
 
   return result;
 }

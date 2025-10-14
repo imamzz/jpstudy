@@ -1,6 +1,6 @@
 import UserVocabProgress from "../models/UserVocabProgress";
 import Review from "../models/Review";
-import db from "../config/database"; // ✅ pastikan ini import instance Sequelize
+import sequelize from "../config/database";
 
 export async function deleteVocabProgress(user_id: number, vocab_id: number) {
   const vocabProgress = await UserVocabProgress.destroy({ where: { user_id, vocab_id } });
@@ -12,73 +12,71 @@ export async function saveVocabProgress(
   vocab_id: number,
   status: "learned" | "review" | "mastered"
 ) {
+  // 🔍 Cari progress existing
   let progress = await UserVocabProgress.findOne({ where: { user_id, vocab_id } });
 
   if (progress) {
+    // update existing progress
     progress.status = status;
     progress.last_studied = new Date();
 
     if (status === "mastered" && !progress.mastered_at) {
       progress.mastered_at = new Date();
+    }
 
-      const existingReview = await Review.findOne({
-        where: { user_id, item_type: "vocab", item_id: vocab_id },
+    // pastikan ada entri review
+    const existingReview = await Review.findOne({
+      where: { user_id, item_type: "vocab", item_id: vocab_id },
+    });
+
+    // Jika belum ada review sama sekali → buat baru
+    if (!existingReview) {
+      await Review.create({
+        user_id,
+        item_type: "vocab",
+        item_id: vocab_id,
+        first_review_date: new Date(),
+        last_review_date: null, // ⬅️ belum pernah direview
+        correct: null,
+        attempt_count: 0,       // ⬅️ belum ada review
       });
-
-      if (!existingReview) {
-        await Review.create({
-          user_id,
-          item_type: "vocab",
-          item_id: vocab_id,
-          review_date: new Date(),
-          next_review: new Date(Date.now() + 24 * 60 * 60 * 1000),
-          correct: true,
-          ease_factor: 2.5,
-          interval_days: 1,
-          repetition_count: 1,
-          attempt_count: 1,
-        });
-      }
     }
 
     await progress.save();
     return progress;
   }
 
-  // jika belum ada progress → buat baru
+  // 🆕 Belum ada progress → buat baru
   progress = await UserVocabProgress.create({
     user_id,
     vocab_id,
     status,
     last_studied: new Date(),
-    times_reviewed: 1,
     mastered_at: status === "mastered" ? new Date() : null,
   });
 
-  if (status === "mastered") {
-    await Review.create({
-      user_id,
-      item_type: "vocab",
-      item_id: vocab_id,
-      review_date: new Date(),
-      next_review: new Date(Date.now() + 24 * 60 * 60 * 1000),
-      correct: true,
-      ease_factor: 2.5,
-      interval_days: 1,
-      repetition_count: 1,
-      attempt_count: 1,
-    });
-  }
+  // Buat entri di reviews agar siap untuk review berikutnya
+  await Review.create({
+    user_id,
+    item_type: "vocab",
+    item_id: vocab_id,
+    first_review_date: new Date(),
+    last_review_date: null, // ⬅️ belum direview
+    correct: null,
+    attempt_count: 0,
+  });
 
   return progress;
 }
 
-// ✅ NEW: BULK SAVE FUNCTION
+/**
+ * Simpan banyak vocab sekaligus (bulk)
+ */
 export async function saveBulkVocabProgress(
   user_id: number,
   items: { id: number; status: "learned" | "mastered" }[]
 ) {
-  const transaction = await db.transaction();
+  const transaction = await sequelize.transaction();
 
   try {
     const results = [];
