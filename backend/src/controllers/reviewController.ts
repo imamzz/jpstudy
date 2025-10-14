@@ -1,15 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import * as reviewService from "../services/reviewService";
-import { successResponse, errorResponse } from "../utils/response";
+import { successResponse, errorResponse } from "../utils/fixResponse";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 export async function createReview(req: Request, res: Response, next: NextFunction) {
   try {
     const { kanji, kana, romaji, meaning } = req.body;
     const review = await reviewService.createReview({ kanji, kana, romaji, meaning });
-    res.status(201).json(successResponse("Review berhasil dibuat", review));
+
+    return successResponse(res, review, null, "Review berhasil dibuat", 201);
   } catch (error: any) {
-    return res.status(400).json(errorResponse(error.message));
+    return errorResponse(res, "CREATE_FAILED", error.message, error, 400);
   }
 }
 
@@ -17,70 +18,82 @@ export async function updateReview(req: Request, res: Response) {
   try {
     const { id } = req.params;
     const review = await reviewService.updateReview(id, req.body);
-    res.status(200).json(successResponse("Review berhasil diperbarui", review));
+
+    return successResponse(res, review, null, "Review berhasil diperbarui");
   } catch (error: any) {
-    res.status(400).json(errorResponse(error.message));
+    return errorResponse(res, "UPDATE_FAILED", error.message, error, 400);
   }
 }
 
-export async function getAllReview(req: Request, res: Response, next: NextFunction) {
+export async function getAllReview(req: Request, res: Response) {
   try {
-    const reviewData = await reviewService.getAllReview();
-    res.status(200).json(successResponse("Review berhasil diambil", reviewData));
+    const reviews = await reviewService.getAllReview();
+
+    return successResponse(res, reviews, null, "Review berhasil diambil");
   } catch (error: any) {
-    return res.status(400).json(errorResponse(error.message));
+    return errorResponse(res, "FETCH_FAILED", error.message, error, 400);
   }
 }
 
-export async function getReviewById(req: Request, res: Response, next: NextFunction) {
+export async function getReviewById(req: Request, res: Response) {
   try {
     const { id } = req.params;
-    const reviewData = await reviewService.getReviewById(id);
-    res.status(200).json(successResponse("Review berhasil diambil", reviewData));
+    const review = await reviewService.getReviewById(id);
+
+    if (!review) {
+      return errorResponse(res, "NOT_FOUND", "Review tidak ditemukan", { id }, 404);
+    }
+
+    return successResponse(res, review, null, "Review berhasil diambil");
   } catch (error: any) {
-    return res.status(400).json(errorResponse(error.message));
+    return errorResponse(res, "FETCH_FAILED", error.message, error, 400);
   }
 }
 
 export async function reviewStudy(req: AuthRequest, res: Response) {
   try {
     const user_id = req.user.id;
-    const { type } = req.query;
-    const limit = parseInt(req.query.limit as string, 10) || 20;
+    const { type, days, limit } = req.query;
+    const parsedLimit = parseInt(limit as string, 10) || 20;
+    const parsedDays = parseInt(days as string, 10) || 7;
 
-    const reviews = await reviewService.reviewStudy(
+    const { data, meta } = await reviewService.reviewStudy(
       user_id,
       type as string,
-      limit
+      parsedLimit,
+      parsedDays
     );
 
-    return res.status(200).json(successResponse("Review berhasil diambil", reviews));
+    return successResponse(res, data, meta, "Review berhasil diambil");
   } catch (error: any) {
-    console.error("❌ reviewStudy error:", error);
-    return res.status(400).json(errorResponse(error.message));
+    return errorResponse(res, "REVIEW_STUDY_FAILED", error.message, error, 400);
   }
 }
 
 export async function saveBatchReview(req: AuthRequest, res: Response) {
   try {
     const user_id = req.user.id;
-    const { reviews } = req.body; // pastikan body-nya berbentuk { reviews: [...] }
+    const { reviews } = req.body;
 
-    // 🧩 Validasi sederhana
     if (!Array.isArray(reviews) || reviews.length === 0) {
-      return res.status(400).json(errorResponse("Tidak ada data review untuk disimpan."));
+      return errorResponse(
+        res,
+        "VALIDATION_ERROR",
+        "Tidak ada data review untuk disimpan.",
+        null,
+        400
+      );
     }
 
     const result = await reviewService.saveBatchReview(user_id, reviews);
 
-    return res.status(200).json(
-      successResponse("✅ Review berhasil disimpan", {
-        count: result.length,
-        items: result,
-      })
+    return successResponse(
+      res,
+      { count: result.length, items: result },
+      null,
+      "✅ Review berhasil disimpan"
     );
   } catch (error: any) {
-    console.error("❌ saveBatchReview error:", error);
-    return res.status(500).json(errorResponse(error.message || "Gagal menyimpan review"));
+    return errorResponse(res, "SAVE_FAILED", error.message || "Gagal menyimpan review", error, 500);
   }
 }

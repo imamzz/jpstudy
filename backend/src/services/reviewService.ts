@@ -78,20 +78,28 @@ export async function getReviewById(id: string) {
  * - terakhir direview minimal 1 hari lalu
  * - opsional filter item_type
  */
-export async function reviewStudy(user_id: number, type?: string, limit?: number) {
-  const oneDayAgo = new Date();
-  oneDayAgo.setDate(oneDayAgo.getDate() - 1);
+export async function reviewStudy(
+  user_id: number,
+  type?: string,
+  limit?: number,
+  days: number = 7
+) {
+  const now = new Date();
+  const startDate = new Date();
+  startDate.setDate(now.getDate() - days);
 
-  // 🔍 Filter utama
+  // Filter utama
   const where: any = {
     user_id,
     attempt_count: { [Op.lt]: 7 },
-    [Op.or]: [{ last_review_date: { [Op.lte]: oneDayAgo } }, { last_review_date: null }],
+    last_review_date: {
+      [Op.between]: [startDate, now],
+    },
   };
 
   if (type) where.item_type = type;
 
-  // 🔗 Tentukan relasi model berdasarkan tipe
+  // Tentukan relasi model sesuai tipe
   let includeModel: any;
 
   if (type === "vocab") {
@@ -113,7 +121,6 @@ export async function reviewStudy(user_id: number, type?: string, limit?: number
       attributes: ["id", "pattern", "meaning", "level"],
     };
   } else {
-    // Ambil semua tipe jika tidak ada filter type
     includeModel = [
       {
         model: Vocab,
@@ -136,19 +143,40 @@ export async function reviewStudy(user_id: number, type?: string, limit?: number
     ];
   }
 
-  // ⚙️ Ambil data review
+  // Ambil data review
   const reviews = await Review.findAll({
     where,
     include: includeModel,
     order: [
-      ["attempt_count", "ASC"], // Prioritaskan item dengan review paling sedikit
-      ["last_review_date", "ASC"], // Jika sama, yang paling lama direview dulu
+      ["attempt_count", "ASC"], // Prioritaskan item dengan sedikit review
+      ["last_review_date", "ASC"], // Yang paling lama direview ditampilkan dulu
     ],
     limit,
   });
 
-  return reviews;
+  // Hitung progress harian
+  const todayStart = new Date();
+  todayStart.setHours(0, 0, 0, 0);
+  const todayEnd = new Date(todayStart);
+  todayEnd.setDate(todayEnd.getDate() + 1);
+
+  const total = reviews.length;
+  const reviewedToday = reviews.filter(
+    (r: any) =>
+      r.last_review_date &&
+      new Date(r.last_review_date) >= todayStart &&
+      new Date(r.last_review_date) < todayEnd
+  ).length;
+
+  const progress = total > 0 ? (reviewedToday / total) * 100 : 0;
+
+  return {
+    data: reviews,
+    meta: { total, reviewedToday, progress },
+  };
 }
+
+
 
 export async function saveBatchReview(user_id: number, reviews: any[]) {
   const transaction = await sequelize.transaction();

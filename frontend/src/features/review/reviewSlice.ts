@@ -25,9 +25,16 @@ export interface ReviewResult {
   reviewedAt: string;
 }
 
+interface ReviewMeta {
+  total: number;
+  reviewedToday: number;
+  progress: number;
+}
+
 interface ReviewState {
   items: ReviewItem[];
   results: ReviewResult[];
+  meta: ReviewMeta | null;
   loading: boolean;
   syncing: boolean;
   error: string | null;
@@ -37,6 +44,7 @@ interface ReviewState {
 const initialState: ReviewState = {
   items: [],
   results: [],
+  meta: null,
   loading: false,
   syncing: false,
   error: null,
@@ -54,8 +62,11 @@ export const fetchReviewStudy = createAsyncThunk(
   ) => {
     try {
       const res = await privateApi.get("/review/study", { params: { days, type } });
-      if (!res.data.success) throw new Error(res.data.message);
-      return res.data.data;
+      if (!res.data || !res.data.data) throw new Error(res.data.message || "Data kosong");
+      return {
+        data: res.data.data, // array review
+        meta: res.data.meta || { total: 0, reviewedToday: 0, progress: 0 },
+      };
     } catch (err: any) {
       return rejectWithValue(err.response?.data?.message || err.message);
     }
@@ -108,6 +119,7 @@ const reviewSlice = createSlice({
     clearReview: (state) => {
       state.items = [];
       state.results = [];
+      state.meta = null;
     },
   },
   extraReducers: (builder) => {
@@ -119,13 +131,18 @@ const reviewSlice = createSlice({
       })
       .addCase(fetchReviewStudy.fulfilled, (state, action) => {
         state.loading = false;
-        state.items = action.payload
+
+        // simpan meta
+        state.meta = action.payload.meta;
+
+        // map hasil data
+        state.items = action.payload.data
           .map((item: any) => {
             if (item.item_type === "vocab" && item.vocab) {
               return {
                 id: item.id,
                 item_id: item.item_id,
-                type: "vocab",
+                type: "vocab" as ReviewType,
                 content: item.vocab.kanji || item.vocab.kana,
                 correct: item.correct ?? false,
                 meaning: item.vocab.meaning,
@@ -136,7 +153,7 @@ const reviewSlice = createSlice({
               return {
                 id: item.id,
                 item_id: item.item_id,
-                type: "kanji",
+                type: "kanji" as ReviewType,
                 content: item.kanji.kanji,
                 correct: item.correct ?? false,
                 meaning: item.kanji.meaning,
@@ -147,7 +164,7 @@ const reviewSlice = createSlice({
               return {
                 id: item.id,
                 item_id: item.item_id,
-                type: "grammar",
+                type: "grammar" as ReviewType,
                 content: item.grammar.pattern || item.grammar.title,
                 correct: item.correct ?? false,
                 meaning: item.grammar.meaning,
@@ -190,6 +207,7 @@ export const { setReviewItems, markReviewed, clearReview, addResult } =
   reviewSlice.actions;
 
 export const selectAllReviews = (state: RootState): ReviewItem[] => state.review.items;
+export const selectReviewMeta = (state: RootState): ReviewMeta | null => state.review.meta;
 export const selectReviewLoading = (state: RootState): boolean => state.review.loading;
 export const selectReviewError = (state: RootState): string | null => state.review.error;
 export const selectPendingResults = (state: RootState): ReviewResult[] =>

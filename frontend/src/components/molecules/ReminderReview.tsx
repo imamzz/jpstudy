@@ -9,7 +9,7 @@ import { fetchReviewStudy } from "@/features/review/reviewSlice";
 const ReminderReview: React.FC = () => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
-  const { items, loading } = useAppSelector((state) => state.review);
+  const { items, loading, meta } = useAppSelector((state) => state.review);
 
   const [isOpen, setIsOpen] = useState(false);
 
@@ -19,13 +19,22 @@ const ReminderReview: React.FC = () => {
   }, [dispatch]);
 
   // 🔹 Hitung total & progress
-  const { totalVocab, totalReview, progress } = useMemo(() => {
-    const totalVocab = items.length;
-    const reviewedCount = items.filter((i) => i.correct === true).length;
-    const progress = totalVocab > 0 ? (reviewedCount / totalVocab) * 100 : 0;
-    const totalReview = totalVocab - reviewedCount;
-    return { totalVocab, totalReview, progress };
-  }, [items]);
+const { totalVocab, totalReview, progress } = useMemo(() => {
+  if (meta) {
+    return {
+      totalVocab: meta.total || 0,
+      totalReview: meta.total - meta.reviewedToday || 0,
+      progress: meta.progress || 0,
+    };
+  }
+
+  // fallback lama
+  const totalVocab = items.length;
+  const reviewedCount = items.filter((i) => i.correct === true).length;
+  const progress = totalVocab > 0 ? (reviewedCount / totalVocab) * 100 : 0;
+  const totalReview = totalVocab - reviewedCount;
+  return { totalVocab, totalReview, progress };
+}, [items, meta]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

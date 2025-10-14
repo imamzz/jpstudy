@@ -14,7 +14,7 @@ const REFRESH_SECRET: Secret = process.env.REFRESH_SECRET || "refreshsupersecret
 // Access token (umur pendek, misalnya 15 menit)
 export function signToken(
   payload: object,
-  expiresIn: string | number = "15m"
+  expiresIn: string | number = "2h"
 ): string {
   const options: SignOptions = { expiresIn: expiresIn as any };
   return jwt.sign(payload, JWT_SECRET, options);

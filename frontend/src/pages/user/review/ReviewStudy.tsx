@@ -5,13 +5,13 @@ import {
   fetchReviewStudy,
   submitReviewBatch,
   addResult,
-  markReviewed,
   clearReview,
 } from "@/features/review/reviewSlice";
-import StudyTimer from "@/features/grammar/components/StudyTimer";
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import Button from "@/components/atoms/Button";
 import type { ReviewType } from "@/features/review/reviewSlice";
+import ReviewStudyProgress from "@/features/review/components/ReviewStudyProgress";
+import ReviewStudyControls from "../../../features/review/components/ReviewStudyControls";
 
 interface ReviewConfig {
   itemsPerSet: number;
@@ -29,7 +29,7 @@ export default function ReviewStudy() {
     (state) => state.review
   );
 
-  // ✅ Default config jika tidak ada state dari navigate()
+  // 🔹 Konfigurasi default jika tidak dikirim lewat navigate()
   const config: ReviewConfig = (location.state as ReviewConfig) || {
     itemsPerSet: 5,
     totalSets: 1,
@@ -38,25 +38,27 @@ export default function ReviewStudy() {
   };
 
   const [currentIndex, setCurrentIndex] = useState(0);
-  const [paused, setPaused] = useState(false);
+  const [isFlipped, setIsFlipped] = useState(false);
   const [finished, setFinished] = useState(false);
-  const [batchCount, setBatchCount] = useState<number>(0);
 
   const totalItems = items.length;
   const currentItem = items[currentIndex];
+  const totalItemsProgress = ((currentIndex + 1) / totalItems) * 100;
 
-  // 🔹 Ambil data review di awal
+  // ====================================================
+  // 🔹 Fetch data awal
+  // ====================================================
   useEffect(() => {
     dispatch(fetchReviewStudy({ days: 7, type: config.type }));
   }, [dispatch, config.type]);
 
-  // =============================
-  // 🔹 Handle jawaban benar/salah
-  // =============================
-  const handleNext = (isCorrect: boolean) => {
+  // ====================================================
+  // 🔹 Kirim jawaban (Tahu / Skip)
+  // ====================================================
+  const handleAnswer = (isCorrect: boolean) => {
     if (!currentItem) return;
 
-    // 1️⃣ Tambahkan hasil ke Redux
+    // Simpan hasil ke Redux
     dispatch(
       addResult({
         id: currentItem.id,
@@ -66,46 +68,46 @@ export default function ReviewStudy() {
       })
     );
 
-    // 2️⃣ Naikkan indeks dan batch count
+    // Siapkan hasil baru untuk batch
     const nextIndex = currentIndex + 1;
-    setCurrentIndex(nextIndex);
-    setBatchCount((prev) => prev + 1);
+    const updatedResults = [
+      ...results,
+      {
+        id: currentItem.id,
+        item_id: currentItem.item_id,
+        type: currentItem.type,
+        correct: isCorrect,
+        reviewedAt: new Date().toISOString(),
+      },
+    ];
 
-    // 3️⃣ Kirim batch setiap 5 hasil atau di akhir
-    if ((batchCount + 1) % 5 === 0 || nextIndex === totalItems) {
-      setTimeout(() => {
-        dispatch(submitReviewBatch([...results]));
-      }, 150);
-      setBatchCount(0);
-    }
+    // Flip balik dan lanjut ke kartu berikut
+    setIsFlipped(false);
 
-    // 4️⃣ Jika sudah item terakhir → selesai
-    if (nextIndex >= totalItems) {
+    if (nextIndex < totalItems) {
+      setCurrentIndex(nextIndex);
+    } else {
+      // jika kartu terakhir, kirim batch ke backend
       setFinished(true);
+      dispatch(submitReviewBatch(updatedResults));
     }
   };
 
-  const handleMarkReviewed = () => {
-    if (currentItem) dispatch(markReviewed(currentItem.id));
-    handleNext(true);
-  };
-
-  // =============================
-  // 🔹 Selesai Review
-  // =============================
+  // ====================================================
+  // 🔹 Reset state setelah selesai
+  // ====================================================
   useEffect(() => {
     if (finished && !syncing) {
-      // Setelah batch terakhir terkirim, reset & refetch untuk update dashboard
       setTimeout(() => {
         dispatch(clearReview());
-        dispatch(fetchReviewStudy({ days: 7, type: config.type }));
-      }, 800);
+        navigate("/review");
+      }, 1000);
     }
-  }, [finished, syncing, dispatch, config.type]);
+  }, [finished, syncing, dispatch, navigate]);
 
-  // =============================
+  // ====================================================
   // 🔹 Kondisi tampilan
-  // =============================
+  // ====================================================
   if (loading) return <p>Loading...</p>;
   if (error) return <p className="text-red-500">{error}</p>;
   if (!items.length) return <p>Tidak ada item untuk direview ✨</p>;
@@ -114,49 +116,59 @@ export default function ReviewStudy() {
     return (
       <div className="flex flex-col items-center justify-center min-h-screen p-6">
         <h2 className="text-2xl font-bold mb-4">🎉 Review Selesai!</h2>
-        <Button
-          onClick={() => {
-            navigate("/review");
-          }}
-        >
-          Kembali
-        </Button>
+        <Button onClick={() => navigate("/review")}>Kembali</Button>
       </div>
     );
   }
 
-  // =============================
-  // 🔹 Tampilan utama
-  // =============================
+  // ====================================================
+  // 🔹 Tampilan utama (Flashcard)
+  // ====================================================
   return (
-    <div className="p-6 flex flex-col items-center space-y-6">
-      <StudyTimer
-        key={currentIndex}
-        paused={paused}
-        duration={config.duration}
-        onTimeUp={() => handleNext(true)}
-      />
-
-      {currentItem && (
-        <WordDisplay
-          kanji={currentItem.content}
-          meaning={currentItem.meaning}
-          kana=""
-          romaji=""
+    <div className="py-12 flex flex-col items-center space-y-6 w-full mx-auto min-h-[calc(100vh)] max-h-[calc(100vh)] justify-between">
+      <div className="flex w-full max-w-6xl flex-col">
+        <div className="flex items-center justify-between mb-4">
+          <p className="font-medium text-gray-700">Review Study</p>
+        </div>
+        {/* Progress */}
+        <ReviewStudyProgress
+          currentIndex={currentIndex}
+          totalItems={totalItems}
+          totalItemsProgress={totalItemsProgress}
         />
-      )}
-
-      <div className="flex gap-4 mt-4">
-        <Button onClick={() => setPaused(!paused)}>
-          {paused ? "Resume" : "Pause"}
-        </Button>
-        <Button onClick={() => handleNext(true)} variant="primary">
-          Benar ✅
-        </Button>
-        <Button onClick={() => handleNext(false)} variant="danger">
-          Salah ❌
-        </Button>
       </div>
+
+      {/* Kartu */}
+      <div className="w-full max-w-md h-64 [perspective:1000px]">
+        <div
+          className={`relative w-full h-full transition-transform duration-500 ease-in-out [transform-style:preserve-3d] hover:scale-[1.02] ${
+            isFlipped ? "[transform:rotateY(180deg)]" : ""
+          }`}
+        >
+          {/* Sisi Depan */}
+          <div
+            className="absolute inset-0 flex items-center justify-center bg-white shadow-lg rounded-2xl p-6 [backface-visibility:hidden]"
+            onClick={() => setIsFlipped(true)}
+          >
+            <WordDisplay
+              kanji={currentItem.content}
+              meaning=""
+              kana=""
+              romaji=""
+            />
+          </div>
+
+          {/* Sisi Belakang */}
+          <div className="absolute inset-0 flex flex-col items-center justify-center bg-white shadow-lg rounded-2xl p-6 [transform:rotateY(180deg)] [backface-visibility:hidden]">
+            <p className="text-xl text-gray-800 mb-4">{currentItem.meaning}</p>
+          </div>
+        </div>
+      </div>
+
+      {!isFlipped && (
+        <p className="text-gray-400 mt-4">Klik kartu untuk melihat jawaban</p>
+      )}
+      <ReviewStudyControls onAnswer={handleAnswer} />
     </div>
   );
 }

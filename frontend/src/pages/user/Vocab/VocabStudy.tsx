@@ -1,5 +1,4 @@
 import { useState, useEffect, useMemo } from "react";
-import axios from "axios";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import WordDisplay from "@/features/vocab/components/WordDisplay";
 import StudyTimer from "@/features/vocab/components/StudyTimer";
