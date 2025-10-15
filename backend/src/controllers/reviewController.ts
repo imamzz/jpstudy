@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as reviewService from "../services/reviewService";
-import { successResponse, errorResponse } from "../utils/fixResponse";
+import { successResponse, errorResponse } from "../utils/response";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 export async function createReview(req: Request, res: Response, next: NextFunction) {

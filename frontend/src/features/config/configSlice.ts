@@ -27,7 +27,7 @@ export const fetchUserConfig = createAsyncThunk<Config, number>(
   async (userId) => {
     try {
       const res = await axios.get(`http://localhost:5000/api/user-settings/${userId}`);
-      const setting = res.data.data.userSetting;
+      const setting = res.data.data;
 
       return {
         targetLevel: setting.target_level,

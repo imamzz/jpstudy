@@ -7,59 +7,82 @@ export interface AuthRequest extends Request {
 }
 
 /**
- * Middleware untuk memverifikasi JWT token
- * Format wajib: "Authorization: Bearer <token>"
+ * 🧩 Middleware untuk memverifikasi JWT token
+ * Format header wajib: "Authorization: Bearer <token>"
  */
 export const authMiddleware = (
   req: AuthRequest,
   res: Response,
   next: NextFunction
 ) => {
-  const authHeader = req.headers.authorization || req.get("authorization");
-
-  if (!authHeader) {
-    return res
-      .status(401)
-      .json(errorResponse("Authorization header tidak ditemukan"));
-  }
-
-  const [scheme, token] = authHeader.split(" ");
-
-  if (scheme !== "Bearer" || !token) {
-    return res
-      .status(401)
-      .json(errorResponse("Format token tidak valid, gunakan Bearer <token>"));
-  }
-
   try {
+    const authHeader = req.headers.authorization || req.get("authorization");
+
+    if (!authHeader) {
+      return errorResponse(
+        res,
+        "AUTH_HEADER_MISSING",
+        "Authorization header tidak ditemukan",
+        null,
+        401
+      );
+    }
+
+    const [scheme, token] = authHeader.split(" ");
+
+    if (scheme !== "Bearer" || !token) {
+      return errorResponse(
+        res,
+        "INVALID_TOKEN_FORMAT",
+        "Format token tidak valid, gunakan 'Bearer <token>'",
+        { header: authHeader },
+        401
+      );
+    }
+
     const decoded = verifyToken<any>(token);
     req.user = decoded;
-    next();
-  } catch (err) {
-    return res
-      .status(403)
-      .json(errorResponse("Token tidak valid atau sudah kadaluarsa"));
+
+    return next();
+  } catch (err: any) {
+    console.error("❌ authMiddleware error:", err);
+    return errorResponse(
+      res,
+      "INVALID_OR_EXPIRED_TOKEN",
+      "Token tidak valid atau sudah kadaluarsa",
+      err.message,
+      403
+    );
   }
 };
 
-
 /**
- * Middleware untuk otorisasi berdasarkan role
- * Contoh: authorize("admin") → hanya admin yang bisa akses
+ * 🔒 Middleware untuk otorisasi berdasarkan role
+ * Contoh penggunaan:
+ *   app.get("/admin", authMiddleware, authorize("admin"), handler);
  */
 export const authorize =
   (...roles: string[]) =>
   (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {
-      return res.status(401).json(errorResponse("User tidak terautentikasi"));
+      return errorResponse(
+        res,
+        "UNAUTHENTICATED",
+        "User tidak terautentikasi",
+        null,
+        401
+      );
     }
 
     if (!roles.includes(req.user.role)) {
-      return res
-        .status(403)
-        .json(errorResponse("Akses ditolak, role tidak sesuai"));
+      return errorResponse(
+        res,
+        "FORBIDDEN",
+        "Akses ditolak, role tidak sesuai",
+        { requiredRoles: roles, userRole: req.user.role },
+        403
+      );
     }
 
     next();
   };
-

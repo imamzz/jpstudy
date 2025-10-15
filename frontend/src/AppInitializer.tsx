@@ -1,4 +1,3 @@
-// AppInitializer.tsx
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
 import { login, logout } from "@/features/user/userSlice";
@@ -12,31 +11,26 @@ function AppInitializer({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     const initAuth = async () => {
       try {
-        // const hasRefresh = document.cookie.includes("refreshToken="); // contoh check cookie
-        // if (!hasRefresh) {
-        //   setLoading(false);
-        //   return;
-        // }
-  
         const res = await api.post("/auth/refresh");
-        const { token, user } = res.data.data;
-  
-        dispatch(login({ token, user }));
+        const { accessToken, token, user } = res.data.data;
+
+        // ✅ gunakan salah satu, tergantung struktur respons API
+        const jwt = accessToken || token;
+        if (!jwt) throw new Error("No token in refresh response");
+
+        dispatch(login({ token: jwt, user }));
       } catch (err) {
+        console.warn("⚠️ Auth refresh failed:", err);
         dispatch(logout());
       } finally {
         setLoading(false);
       }
     };
-  
+
     initAuth();
   }, [dispatch]);
-  
 
-  if (loading) {
-    return <LoadingSpinner />;
-  }
-
+  if (loading) return <LoadingSpinner />;
   return <>{children}</>;
 }
 

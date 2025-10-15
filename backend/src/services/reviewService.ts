@@ -50,9 +50,7 @@ export async function getAllReview() {
     ],
     order: [["id", "ASC"]],
   });
-  return {
-    review: review,
-  };
+  return review;
 }
 
 export async function getReviewById(id: string) {
@@ -68,9 +66,7 @@ export async function getReviewById(id: string) {
     ],
     order: [["id", "ASC"]],
   });
-  return {
-    review: review,
-  };
+  return review;
 }
 /**
  * Ambil item untuk direview berdasarkan aturan:

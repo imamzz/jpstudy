@@ -5,8 +5,8 @@ import { successResponse, errorResponse } from "../utils/response";
 export async function profile(req: Request, res: Response) {
   try {
     const user = (req as any).user; // dari authMiddleware
-    return res.json(successResponse("Profile berhasil diambil", { user }));
+    return successResponse(res, { user }, null, "Profile berhasil diambil");
   } catch (error: any) {
-    return res.status(500).json(errorResponse(error.message));
+    return errorResponse(res, "PROFILE_FETCH_FAILED", error.message, error, 400);
   }
 }
