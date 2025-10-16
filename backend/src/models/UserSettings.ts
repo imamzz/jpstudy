@@ -28,13 +28,14 @@ class UserSettings extends Model<UserSettingsAttributes, UserSettingsCreationAtt
 UserSettings.init(
     {
         id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
-        user_id: { type: DataTypes.INTEGER, allowNull: false },
-        words_per_set: { type: DataTypes.INTEGER, allowNull: false },
-        seconds_per_word: { type: DataTypes.INTEGER, allowNull: false },
-        target_level: { type: DataTypes.ENUM("N5", "N4", "N3", "N2", "N1"), allowNull: false },
-        dark_mode: { type: DataTypes.BOOLEAN, allowNull: false },
-        break_per_set: { type: DataTypes.INTEGER, allowNull: false },
-        total_set: { type: DataTypes.INTEGER, allowNull: false },
+        user_id: { type: DataTypes.INTEGER, allowNull: false, unique: true },
+        words_per_set: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 10 },
+        seconds_per_word: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 10 },
+        break_per_set: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 60 },
+        total_set: { type: DataTypes.INTEGER, allowNull: false, defaultValue: 3 },
+        target_level: { type: DataTypes.ENUM("N5", "N4", "N3", "N2", "N1"), allowNull: false, defaultValue: "N5" },
+        dark_mode: { type: DataTypes.BOOLEAN, allowNull: false, defaultValue: false },
+
     },
     {
         sequelize,

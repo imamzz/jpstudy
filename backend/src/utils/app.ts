@@ -10,6 +10,7 @@ import bookmarkRoutes from "../routes/bookmarkRoutes";
 import userSettingRoutes from "../routes/userSettingRoutes";
 import cookieParser from "cookie-parser";
 import vocabProgressRoutes from "../routes/vocabProgressRoutes";
+import settingRoutes from "../routes/settingRoutes";
 
 const app = express();
 
@@ -36,6 +37,7 @@ app.use("/api/review", reviewRoutes);  // /api/review/create, /api/review/all, /
 app.use("/api/bookmark", bookmarkRoutes);  // /api/bookmark/create, /api/bookmark/all, /api/bookmark/:id, /api/bookmark/level/:level
 app.use("/api/user-settings", userSettingRoutes);  // /api/user-settings/:id
 app.use("/api/vocab-progress", vocabProgressRoutes);  // /api/vocab-progress/:id
+app.use("/api/setting", settingRoutes);  // /api/setting/:id
 
 // ✅ Health check (opsional, best practice untuk monitoring)
 app.get("/health", (_, res) => {
