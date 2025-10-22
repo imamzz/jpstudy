@@ -1,6 +1,6 @@
 import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
-import StartLearning from "../molecules/StartLearning";
+import StartLearning from "../../features/vocab/components/StartLearning";
 import { useLocation } from "react-router-dom";
 import ReminderReview from "../molecules/ReminderReview";
 

@@ -2,7 +2,7 @@ import IconSetting from "@/assets/icon/setting.svg?react";
 import Button from "../atoms/Button";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
-import ModalConfig from "../molecules/ModalConfig";
+import ModalConfig from "../../features/vocab/components/ModalConfig";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchReviewStudy } from "@/features/review/reviewSlice";
 

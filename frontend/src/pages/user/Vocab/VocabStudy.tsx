@@ -12,23 +12,37 @@ import Button from "@/components/atoms/Button";
 import type { LevelVariant } from "@/types/common";
 import { fetchVocabStudy } from "@/features/vocab/vocabStudySlice";
 import privateApi from "@/base/privateApi";
+import { fetchVocabSetting } from "@/features/settings/settingsSlice";
 
 export default function VocabStudy() {
   const dispatch = useAppDispatch();
-  const words = useAppSelector((state) => state.vocabStudy.studyWords) || [];
-  const { config } = useAppSelector((state) => state.config);
 
+  // ✅ Ambil vocab dari study dan setting Redux
+  const words = useAppSelector((state) => state.vocabStudy.studyWords) || [];
+  const { vocab, loading: settingLoading } = useAppSelector((state) => state.settings);
+
+  // 🔹 Ambil data study (daftar kata)
   useEffect(() => {
     dispatch(fetchVocabStudy());
   }, [dispatch]);
 
-  const studyConfig = {
-    wordsPerSet: config.limit || 10,
-    totalSets: config.totalSets || 3,
-    duration: config.duration || 10,
-    level: (config.targetLevel as LevelVariant) || "N5",
-    breakDuration: config.breakDuration || 90,
-  };
+  // 🔹 Ambil konfigurasi belajar user
+  useEffect(() => {
+    // ganti ke userId sesungguhnya nanti
+    const userId = 3;
+    dispatch(fetchVocabSetting(userId));
+  }, [dispatch]);
+
+
+  // ✅ Konfigurasi belajar (fallback default jika belum ada data Redux)
+  const studyConfig = useMemo(() => ({
+    wordsPerSet: vocab?.words_per_set ?? 10,
+    totalSets: vocab?.total_set ?? 3,
+    duration: vocab?.seconds_per_word ?? 10,
+    level: (vocab?.target_level as LevelVariant) ?? "N5",
+    breakDuration: vocab?.break_per_set ?? 90,
+  }), [vocab]);
+  
 
   // === STATE ===
   const [currentSet, setCurrentSet] = useState(1);
@@ -39,24 +53,21 @@ export default function VocabStudy() {
   const [isBreak, setIsBreak] = useState(false);
   const [breakTimeLeft, setBreakTimeLeft] = useState(studyConfig.breakDuration);
 
-  // progress lokal (belum dikirim)
   const [progressData, setProgressData] = useState<{ vocab_id: number; status: string }[]>([]);
   const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
 
   // === FILTER KATA ===
   const filteredWords = useMemo(() => {
-    if (!Array.isArray(words)) return [];
+    if (!Array.isArray(words) || words.length === 0) return [];
 
-    // hanya kata yang belum mastered di sesi ini
     const availableWords = words.filter((w) => !masteredIds.has(w.id));
 
-    // hanya level sesuai config
-    const levelWords =
+    const levelFiltered =
       studyConfig.level === "All"
         ? shuffleArray(availableWords)
         : shuffleArray(availableWords.filter((w) => w.level === studyConfig.level));
 
-    return levelWords.slice(0, studyConfig.wordsPerSet);
+    return levelFiltered.slice(0, studyConfig.wordsPerSet);
   }, [words, masteredIds, studyConfig.level, studyConfig.wordsPerSet]);
 
   const currentWord = filteredWords[currentWordIndex];
@@ -72,6 +83,7 @@ export default function VocabStudy() {
     return () => clearInterval(interval);
   }, [finished, paused, isBreak]);
 
+  // === BREAK TIMER ===
   useEffect(() => {
     if (!isBreak) return;
     if (breakTimeLeft > 0) {
@@ -84,21 +96,17 @@ export default function VocabStudy() {
   const handleNextWord = (status = "learned") => {
     if (!currentWord) return;
 
-    // simpan progress ke lokal
     setProgressData((prev) => [...prev, { vocab_id: currentWord.id, status }]);
 
-    // kalau mastered → tambahkan ke daftar agar tidak muncul lagi
     if (status === "mastered") {
       setMasteredIds((prev) => new Set([...prev, currentWord.id]));
     }
 
-    // lanjut kata berikut
     if (currentWordIndex < filteredWords.length - 1) {
       setCurrentWordIndex((prev) => prev + 1);
       return;
     }
 
-    // lanjut ke set berikutnya atau selesai
     if (currentSet < studyConfig.totalSets) {
       setPaused(true);
       setIsBreak(true);
@@ -106,7 +114,6 @@ export default function VocabStudy() {
       return;
     }
 
-    // kalau semua selesai
     setFinished(true);
   };
 
@@ -125,8 +132,7 @@ export default function VocabStudy() {
     handleNextWord("learned");
   };
 
-  // === SELESAI ISTIRAHAT ===
-  const handleBreakEnd = async () => {
+  const handleBreakEnd = () => {
     setIsBreak(false);
     setPaused(false);
     setCurrentSet((prev) => prev + 1);
@@ -134,10 +140,11 @@ export default function VocabStudy() {
     setBreakTimeLeft(studyConfig.breakDuration);
   };
 
-  // === SAAT SELESAI SEMUA SET ===
+  // === SIMPAN PROGRESS SAAT SELESAI ===
   useEffect(() => {
+    if (!finished || progressData.length === 0) return;
+
     const sendBulkProgress = async () => {
-      if (!finished || progressData.length === 0) return;
       try {
         const payload = {
           items: progressData.map((p) => ({
@@ -145,7 +152,7 @@ export default function VocabStudy() {
             status: p.status,
           })),
         };
-  
+
         console.log("📦 Sending bulk progress:", JSON.stringify(payload, null, 2));
         await privateApi.post("/vocab-progress/bulk", payload);
         console.log("✅ Bulk progress saved successfully!");
@@ -153,35 +160,37 @@ export default function VocabStudy() {
         console.error("❌ Failed to save bulk progress:", err);
       }
     };
-  
+
     sendBulkProgress();
   }, [finished, progressData]);
-  
 
   // === SUMMARY ===
   if (finished) {
     const learnedCount = progressData.filter((p) => p.status === "learned").length;
     const masteredCount = progressData.filter((p) => p.status === "mastered").length;
-    const notLearnedCount =
-      studyConfig.wordsPerSet * studyConfig.totalSets - (learnedCount + masteredCount);
+    const totalLearned = learnedCount + masteredCount;
+    const notLearned =
+      studyConfig.wordsPerSet * studyConfig.totalSets - totalLearned;
 
     return (
       <VocabStudySummary
         totalWords={studyConfig.wordsPerSet}
         totalSets={studyConfig.totalSets}
-        learnedCount={learnedCount + masteredCount}
-        notLearnedCount={notLearnedCount}
+        learnedCount={totalLearned}
+        notLearnedCount={notLearned}
         totalTime={totalTime}
         config={studyConfig}
       />
     );
   }
 
-  // === LOADING GUARD ===
-  if (!filteredWords.length) {
+  // === LOADING ===
+  if (settingLoading || !filteredWords.length) {
     return (
       <div className="flex justify-center items-center h-screen">
-        <p className="text-gray-500">Loading vocab data...</p>
+        <p className="text-gray-500">
+          {settingLoading ? "Memuat konfigurasi belajar..." : "Menyiapkan data vocab..."}
+        </p>
       </div>
     );
   }

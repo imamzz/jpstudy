@@ -13,16 +13,27 @@ export interface Word {
 
 export const fetchVocabStudy = createAsyncThunk(
   "vocabStudy/fetchVocabStudy",
-  async () => {
-    const res = await privateApi.get("/vocab/study");
-    // defensive: bisa jadi backend meletakkan array di data atau meta
+  async (_, { getState }) => {
+    const state: any = getState();
+    const vocab = state.settings.vocab;
+
+    const params = {
+      words_per_set: vocab?.words_per_set ?? 10,
+      level: vocab?.target_level ?? "N5",
+    };
+
+    const res = await privateApi.get("/vocab/study", { params });
+
+    console.log("🚀 vocabStudy:", res.data);
+
     if (Array.isArray(res.data)) return res.data;
     if (Array.isArray(res.data.data)) return res.data.data;
     if (Array.isArray(res.data.meta)) return res.data.meta;
     if (Array.isArray(res.data.meta?.words)) return res.data.meta.words;
-    return []; // fallback aman
+    return [];
   }
 );
+
 
 
 const vocabStudySlice = createSlice({

@@ -111,7 +111,7 @@ export async function deleteVocab(req: Request, res: Response, next: NextFunctio
 export const getVocabForLearning = async (req: AuthRequest, res: Response) => {
   try {
     const user_id = req.user!.id;
-    const limit = Number(req.query.limit) || 5;
+    const limit = Number(req.query.words_per_set) || 5;
     const level = req.query.level as string;
 
     const words = await vocabService.getVocabForLearning(user_id, limit, level);
