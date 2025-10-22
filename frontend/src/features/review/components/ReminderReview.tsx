@@ -1,12 +1,16 @@
 import IconSetting from "@/assets/icon/setting.svg?react";
-import Button from "../atoms/Button";
+import Button from "../../../components/atoms/Button";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
-import ModalConfig from "../../features/vocab/components/ModalConfig";
+import ModalConfigReview from "./ModalConfigReview";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchReviewStudy } from "@/features/review/reviewSlice";
 
-const ReminderReview: React.FC = () => {
+interface ReminderReviewProps {
+  userId: number;
+}
+
+const ReminderReview: React.FC<ReminderReviewProps> = ({ userId }) => {
   const navigate = useNavigate();
   const dispatch = useAppDispatch();
   const { items, loading, meta } = useAppSelector((state) => state.review);
@@ -84,11 +88,10 @@ const { totalVocab, totalReview, progress } = useMemo(() => {
       </form>
 
       {/* ⚙️ Modal Config */}
-      <ModalConfig
+      <ModalConfigReview
         isOpen={isOpen}
         onClose={() => setIsOpen(false)}
-        title="Konfigurasi"
-        description="Atur preferensi belajar"
+        userId={userId}
       />
     </>
   );

@@ -2,7 +2,7 @@ import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
 import StartLearning from "../../features/vocab/components/StartLearning";
 import { useLocation } from "react-router-dom";
-import ReminderReview from "../molecules/ReminderReview";
+import ReminderReview from "../../features/review/components/ReminderReview";
 
 const RightBar = () => {
   const location = useLocation();
@@ -25,11 +25,11 @@ const RightBar = () => {
               />
               <ShortCut variant="N5" size="lg" title="N5" description="Kanji" />
             </div>
-            <ReminderReview totalVocab={50} totalReview={10} />
+            <ReminderReview userId={3} />
           </>
         )}
         {location.pathname === "/review" && (
-          <ReminderReview totalVocab={50} totalReview={10} />
+          <ReminderReview userId={3} />
         )}
         <StartLearning
           userId={3}

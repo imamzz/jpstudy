@@ -1,13 +1,18 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { saveReviewSetting, fetchReviewSetting } from "@/features/settings/settingsSlice";
+import { saveReviewSetting, fetchReviewSetting, type ReviewSetting } from "@/features/settings/settingsSlice";
 import { useEffect, useState } from "react";
 import Button from "../../../components/atoms/Button";
 import Input from "../../../components/atoms/Input";
 
-export default function ModalConfigReview({ isOpen, onClose }: any) {
+interface ModalConfigReviewProps {
+  isOpen: boolean;
+  onClose: () => void;
+  userId: number;
+}
+
+export default function ModalConfigReview({ isOpen, onClose, userId }: ModalConfigReviewProps) {
   const dispatch = useAppDispatch();
   const { review, loading } = useAppSelector((state) => state.settings);
-  const userId = 3; // sementara hardcoded
 
   const [rangeDays, setRangeDays] = useState(7);
   const [targetLevel, setTargetLevel] = useState("N5");
@@ -15,7 +20,7 @@ export default function ModalConfigReview({ isOpen, onClose }: any) {
   // Ambil setting dari backend saat modal dibuka
   useEffect(() => {
     if (isOpen) dispatch(fetchReviewSetting(userId));
-  }, [isOpen, dispatch]);
+  }, [isOpen, dispatch, userId]);
 
   // Sync dengan state Redux
   useEffect(() => {
@@ -23,11 +28,11 @@ export default function ModalConfigReview({ isOpen, onClose }: any) {
       setRangeDays(review.review_days_range);
       setTargetLevel(review.target_level);
     }
-  }, [review]);
+  }, [review, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    dispatch(saveReviewSetting({ userId, data: { review_days_range: rangeDays, target_level: targetLevel } }));
+    dispatch(saveReviewSetting({ userId, data: { review_days_range: rangeDays, target_level: targetLevel as ReviewSetting['target_level'] } }));
     onClose();
   };
 

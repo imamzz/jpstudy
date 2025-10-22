@@ -1,5 +1,5 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { fetchVocabSetting, saveVocabSetting } from "@/features/settings/settingsSlice";
+import { fetchVocabSetting, saveVocabSetting, type VocabSetting } from "@/features/settings/settingsSlice";
 import { useEffect, useState } from "react";
 import Button from "../../../components/atoms/Button";
 import Input from "../../../components/atoms/Input";
@@ -42,7 +42,7 @@ export default function ModalConfig({
       setBreakPerSet(vocab.break_per_set);
       setTargetLevel(vocab.target_level);
     }
-  }, [vocab]);
+  }, [vocab, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +54,7 @@ export default function ModalConfig({
       target_level: targetLevel,
     };
 
-    dispatch(saveVocabSetting({ userId, data }));
+    dispatch(saveVocabSetting({ userId, data: data as Partial<VocabSetting> }));
     onClose();
   };
 

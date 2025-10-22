@@ -4,6 +4,7 @@ import {
   type PayloadAction,
 } from "@reduxjs/toolkit";
 import privateApi from "@/base/privateApi";
+import { AxiosError } from "axios";
 
 export interface ReviewSetting {
   review_days_range: number;
@@ -59,10 +60,11 @@ export const fetchReviewSetting = createAsyncThunk(
   "settings/fetchReview",
   async (userId: number, { rejectWithValue }) => {
     try {
-      const res = await privateApi.get(`/settings/review/${userId}`);
+      const res = await privateApi.get(`/setting/review/${userId}`);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -74,10 +76,11 @@ export const saveReviewSetting = createAsyncThunk(
     { rejectWithValue }
   ) => {
     try {
-      const res = await privateApi.put(`/settings/review/${userId}`, data);
+      const res = await privateApi.put(`/setting/review/${userId}`, data);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -91,8 +94,9 @@ export const fetchVocabSetting = createAsyncThunk(
     try {
       const res = await privateApi.get(`/setting/vocab/${userId}`);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -106,8 +110,9 @@ export const saveVocabSetting = createAsyncThunk(
     try {
       const res = await privateApi.put(`/setting/vocab/${userId}`, data);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -121,8 +126,9 @@ export const fetchGrammarSetting = createAsyncThunk(
     try {
       const res = await privateApi.get(`/setting/grammar/${userId}`);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -136,8 +142,9 @@ export const saveGrammarSetting = createAsyncThunk(
     try {
       const res = await privateApi.put(`/setting/grammar/${userId}`, data);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -151,8 +158,9 @@ export const fetchKanjiSetting = createAsyncThunk(
     try {
       const res = await privateApi.get(`/setting/kanji/${userId}`);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -166,8 +174,9 @@ export const saveKanjiSetting = createAsyncThunk(
     try {
       const res = await privateApi.put(`/setting/kanji/${userId}`, data);
       return res.data.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
