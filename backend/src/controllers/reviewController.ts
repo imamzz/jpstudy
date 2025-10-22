@@ -55,7 +55,6 @@ export async function reviewStudy(req: AuthRequest, res: Response) {
     const user_id = req.user.id;
     const { type, days } = req.query;
     const parsedDays = parseInt(days as string, 10) || 7;
-    console.log("reviewStudy => user_id", req.user.id, req.query, parsedDays);
     const { data, meta } = await reviewService.reviewStudy(
       user_id,
       type as string,

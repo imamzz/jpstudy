@@ -3,6 +3,7 @@ import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import type { RootState } from "@/app/store";
 import privateApi from "@/base/privateApi";
+import type { AxiosError } from "axios";
 
 export type ReviewType = "vocab" | "grammar" | "kanji";
 
@@ -67,8 +68,9 @@ export const fetchReviewStudy = createAsyncThunk(
         data: res.data.data, // array review
         meta: res.data.meta || { total: 0, reviewedToday: 0, progress: 0 },
       };
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
@@ -83,8 +85,9 @@ export const submitReviewBatch = createAsyncThunk(
       const res = await privateApi.post("/review/submit-batch", { reviews: results });
       if (!res.data.success) throw new Error(res.data.message);
       return res.data;
-    } catch (err: any) {
-      return rejectWithValue(err.response?.data?.message || err.message);
+    } catch (err: unknown) {
+      const error = err as AxiosError<{ message?: string }>;
+      return rejectWithValue(error.response?.data?.message || error.message);
     }
   }
 );
