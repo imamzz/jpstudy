@@ -38,7 +38,7 @@ export async function saveVocabProgress(
         first_review_date: new Date(),
         last_review_date: null, // ⬅️ belum pernah direview
         correct: null,
-        attempt_count: 0,       // ⬅️ belum ada review
+        attempt_count: 1,       // ⬅️ belum ada review
       });
     }
 
@@ -63,7 +63,7 @@ export async function saveVocabProgress(
     first_review_date: new Date(),
     last_review_date: null, // ⬅️ belum direview
     correct: null,
-    attempt_count: 0,
+    attempt_count: 1,
   });
 
   return progress;

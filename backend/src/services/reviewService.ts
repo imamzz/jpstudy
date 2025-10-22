@@ -77,7 +77,6 @@ export async function getReviewById(id: string) {
 export async function reviewStudy(
   user_id: number,
   type?: string,
-  limit?: number,
   days: number = 7
 ) {
   const now = new Date();
@@ -139,6 +138,7 @@ export async function reviewStudy(
     ];
   }
 
+  console.log("Filter where:", where);
   // Ambil data review
   const reviews = await Review.findAll({
     where,
@@ -147,8 +147,11 @@ export async function reviewStudy(
       ["attempt_count", "ASC"], // Prioritaskan item dengan sedikit review
       ["last_review_date", "ASC"], // Yang paling lama direview ditampilkan dulu
     ],
-    limit,
   });
+
+  console.log("Total reviews found:", reviews.length);
+console.log(reviews[0]?.toJSON());
+
 
   // Hitung progress harian
   const todayStart = new Date();
@@ -172,8 +175,6 @@ export async function reviewStudy(
   };
 }
 
-
-
 export async function saveBatchReview(user_id: number, reviews: any[]) {
   const transaction = await sequelize.transaction();
   try {
@@ -185,7 +186,6 @@ export async function saveBatchReview(user_id: number, reviews: any[]) {
         transaction,
       });
 
-      
       if (!review) {
         console.warn(`⚠️ Review id ${item.id} tidak ditemukan untuk user ${user_id}`);
         continue;
