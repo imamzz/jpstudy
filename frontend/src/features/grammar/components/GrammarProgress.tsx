@@ -8,7 +8,7 @@ export default function GrammarProgress() {
   const percent = total > 0 ? Math.round((mastered / total) * 100) : 0;
 
   return (
-    <div className="w-full p-4 border rounded-lg shadow bg-white">
+    <div className="w-full mb-4 p-4 border rounded-lg shadow bg-white">
       <h2 className="text-lg font-semibold mb-2">Progres Grammar</h2>
       <div className="w-full bg-gray-200 rounded-full h-4 overflow-hidden">
         <div

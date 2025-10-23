@@ -26,7 +26,7 @@ export default function GrammarConfigForm() {
   return (
     <form
       onSubmit={handleSubmit}
-      className="p-4 bg-gray-50 border border-gray-200 rounded-xl shadow space-y-3"
+      className="p-4 mb-4 bg-gray-50 border border-gray-200 rounded-xl shadow space-y-3"
     >
       <h2 className="font-bold text-gray-700">⚙️ Pengaturan Belajar Grammar</h2>
 

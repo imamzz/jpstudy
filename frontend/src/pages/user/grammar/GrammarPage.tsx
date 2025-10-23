@@ -5,9 +5,9 @@ import GrammarProgress from "@/features/grammar/components/GrammarProgress";
 
 export default function GrammarPage() {
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="w-full mx-auto ">
       {/* Header */}
-      <h1 className="text-2xl font-bold text-blue-700">📘 Daftar Grammar</h1>
+      <h1 className="text-2xl font-bold text-blue-700 mb-4">📘 Daftar Grammar</h1>
 
       {/* Progress */}
       <GrammarProgress />
