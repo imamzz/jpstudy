@@ -1,5 +1,5 @@
 // src/features/review/components/ReviewProgress.tsx
-import type { ReviewItem } from "@/features/review/reviewSlice";
+import type { ReviewItem } from "@/features/user/review/reviewSlice";
 
 interface Props {
   items: ReviewItem[];

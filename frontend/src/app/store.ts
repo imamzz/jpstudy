@@ -1,13 +1,13 @@
 import { configureStore } from "@reduxjs/toolkit";
-import userReducer from "../features/user/userSlice";
-import vocabReducer from "../features/vocab/vocabSlice";
-import vocabStudyReducer from "../features/vocab/vocabStudySlice";
-import grammarReducer from "../features/grammar/grammarSlice";
-import kanjiReducer from "../features/kanji/kanjiSlice";
-import reviewReducer from "../features/review/reviewSlice";
+import userReducer from "../features/profile/userSlice";
+import vocabReducer from "../features/user/vocab/vocabSlice";
+import vocabStudyReducer from "../features/user/vocab/vocabStudySlice";
+import grammarReducer from "../features/user/grammar/grammarSlice";
+import kanjiReducer from "../features/user/kanji/kanjiSlice";
+import reviewReducer from "../features/user/review/reviewSlice";
 import configReducer from "../features/config/configSlice";
-import settingsReducer from "../features/settings/settingsSlice"
-import progressSummaryReducer from "../features/home/progressSummarySlice";
+import settingsReducer from "../features/user/settings/settingsSlice"
+import progressSummaryReducer from "../features/user/home/progressSummarySlice";
 
 export const store = configureStore({
   reducer: {

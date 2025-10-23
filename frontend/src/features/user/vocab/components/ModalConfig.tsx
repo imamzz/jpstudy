@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { fetchVocabSetting, saveVocabSetting, type VocabSetting } from "@/features/settings/settingsSlice";
+import { fetchVocabSetting, saveVocabSetting, type VocabSetting } from "@/features/user/settings/settingsSlice";
 import { useEffect, useState } from "react";
-import Button from "../../../components/atoms/Button";
-import Input from "../../../components/atoms/Input";
+import Button from "../../../../components/atoms/Button";
+import Input from "../../../../components/atoms/Input";
 
 interface ModalConfigProps {
   isOpen: boolean;

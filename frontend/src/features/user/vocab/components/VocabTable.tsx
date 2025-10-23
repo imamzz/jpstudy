@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { fetchVocab, setPage } from "@/features/vocab/vocabSlice";
+import { fetchVocab, setPage } from "@/features/user/vocab/vocabSlice";
 import Button from "@/components/atoms/Button";
 import VocabDetailModal from "./VocabDetailModal";
 import Input from "@/components/atoms/Input";

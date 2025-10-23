@@ -1,18 +1,18 @@
 import { useState, useEffect, useMemo } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import WordDisplay from "@/features/vocab/components/WordDisplay";
-import StudyTimer from "@/features/vocab/components/StudyTimer";
-import BreakScreen from "@/features/vocab/components/BreakScreen";
+import WordDisplay from "@/features/user/vocab/components/WordDisplay";
+import StudyTimer from "@/features/user/vocab/components/StudyTimer";
+import BreakScreen from "@/features/user/vocab/components/BreakScreen";
 import Badge, { type BadgeVariant } from "@/components/atoms/Badge";
-import VocabStudyProgress from "@/features/vocab/components/VocabStudyProgress";
-import VocabStudySummary from "@/features/vocab/components/VocabStudySummary";
-import VocabStudyControls from "@/features/vocab/components/VocabStudyControls";
+import VocabStudyProgress from "@/features/user/vocab/components/VocabStudyProgress";
+import VocabStudySummary from "@/features/user/vocab/components/VocabStudySummary";
+import VocabStudyControls from "@/features/user/vocab/components/VocabStudyControls";
 import { shuffleArray } from "@/utils/vocabHelpers";
 import Button from "@/components/atoms/Button";
 import type { LevelVariant } from "@/types/common";
-import { fetchVocabStudy } from "@/features/vocab/vocabStudySlice";
+import { fetchVocabStudy } from "@/features/user/vocab/vocabStudySlice";
 import privateApi from "@/base/privateApi";
-import { fetchVocabSetting } from "@/features/settings/settingsSlice";
+import { fetchVocabSetting } from "@/features/user/settings/settingsSlice";
 
 export default function VocabStudy() {
   const dispatch = useAppDispatch();

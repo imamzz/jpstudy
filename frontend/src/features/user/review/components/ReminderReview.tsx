@@ -1,10 +1,10 @@
 import IconSetting from "@/assets/icon/setting.svg?react";
-import Button from "../../../components/atoms/Button";
+import Button from "../../../../components/atoms/Button";
 import { useNavigate } from "react-router-dom";
 import { useState, useEffect, useMemo } from "react";
 import ModalConfigReview from "./ModalConfigReview";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
-import { fetchReviewStudy } from "@/features/review/reviewSlice";
+import { fetchReviewStudy } from "@/features/user/review/reviewSlice";
 
 interface ReminderReviewProps {
   userId: number;

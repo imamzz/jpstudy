@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useAppDispatch } from "@/app/hooks";
-import { login, logout } from "@/features/user/userSlice";
+import { login, logout } from "@/features/profile/userSlice";
 import api from "@/base/api";
 import LoadingSpinner from "@/components/atoms/LoaderSpinner";
 

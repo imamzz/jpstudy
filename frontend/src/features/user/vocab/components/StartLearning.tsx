@@ -2,13 +2,13 @@ import IconSetting from "@/assets/icon/setting.svg?react";
 import IconRepeat from "@/assets/icon/repeat.svg?react";
 import IconTimer from "@/assets/icon/timer.svg?react";
 import IconTimerPause from "@/assets/icon/timer-pause.svg?react";
-import Button from "../../../components/atoms/Button";
+import Button from "../../../../components/atoms/Button";
 import { useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import ModalConfig from "./ModalConfig";
-import Badge, { type BadgeVariant } from "../../../components/atoms/Badge";
+import Badge, { type BadgeVariant } from "../../../../components/atoms/Badge";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { fetchVocabSetting } from "@/features/settings/settingsSlice";
+import { fetchVocabSetting } from "@/features/user/settings/settingsSlice";
 
 interface StartLearningProps {
   userId: number;

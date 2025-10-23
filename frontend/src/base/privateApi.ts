@@ -1,7 +1,7 @@
 // src/base/privateApi.ts
 import axios, { AxiosError, type InternalAxiosRequestConfig } from "axios";
 import { store } from "@/app/store";
-import { login, logout } from "@/features/user/userSlice";
+import { login, logout } from "@/features/profile/userSlice";
 import api from "./api"; // import public axios buat refresh
 
 const privateApi = axios.create({

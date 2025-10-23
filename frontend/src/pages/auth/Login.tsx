@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAppDispatch } from "@/app/hooks";
-import { login } from "@/features/user/userSlice";
+import { login } from "@/features/profile/userSlice";
 import { handleApiError } from "@/utils/handleApiError";
 import { authService } from "@/services/authService";
 

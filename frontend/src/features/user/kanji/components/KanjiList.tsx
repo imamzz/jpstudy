@@ -3,7 +3,7 @@ import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import {
   markKanjiLearning,
   markKanjiMastered,
-} from "@/features/kanji/kanjiSlice";
+} from "@/features/user/kanji/kanjiSlice";
 import Badge from "@/components/atoms/Badge";
 import { Link } from "react-router-dom";
 

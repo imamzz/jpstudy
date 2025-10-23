@@ -1,5 +1,5 @@
 // src/pages/user/review/ReviewPage.tsx
-import ReviewConfigForm from "@/features/review/components/ReviewConfigForm";
+import ReviewConfigForm from "@/features/user/review/components/ReviewConfigForm";
 
 export default function ReviewPage() {
 

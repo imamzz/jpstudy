@@ -2,7 +2,7 @@ import { NavLink } from "react-router-dom";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import logo from "@/assets/timer.png";
 import { authService } from "@/services/authService";
-import { logout as logoutAction } from "@/features/user/userSlice";
+import { logout as logoutAction } from "@/features/profile/userSlice";
 import { useNavigate } from "react-router-dom";
 import Button from "../atoms/Button";
 import IconHome from "@/assets/icon/home.svg?react";

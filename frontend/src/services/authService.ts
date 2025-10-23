@@ -1,5 +1,5 @@
 import api from "@/base/api";
-import { login, logout } from "@/features/user/userSlice";
+import { login, logout } from "@/features/profile/userSlice";
 import { store } from "@/app/store";
 
 export const authService = {

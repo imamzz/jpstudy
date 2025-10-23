@@ -1,7 +1,7 @@
 // src/pages/user/grammar/GrammarPage.tsx
-import GrammarList from "@/features/grammar/components/GrammarList";
-import GrammarConfigForm from "@/features/grammar/components/GrammarConfigForm";
-import GrammarProgress from "@/features/grammar/components/GrammarProgress";
+import GrammarList from "@/features/user/grammar/components/GrammarList";
+import GrammarConfigForm from "@/features/user/grammar/components/GrammarConfigForm";
+import GrammarProgress from "@/features/user/grammar/components/GrammarProgress";
 
 export default function GrammarPage() {
   return (

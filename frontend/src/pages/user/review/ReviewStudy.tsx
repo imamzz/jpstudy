@@ -6,12 +6,12 @@ import {
   submitReviewBatch,
   addResult,
   clearReview,
-} from "@/features/review/reviewSlice";
-import WordDisplay from "@/features/vocab/components/WordDisplay";
+} from "@/features/user/review/reviewSlice";
+import WordDisplay from "@/features/user/vocab/components/WordDisplay";
 import Button from "@/components/atoms/Button";
-import type { ReviewType } from "@/features/review/reviewSlice";
-import ReviewStudyProgress from "@/features/review/components/ReviewStudyProgress";
-import ReviewStudyControls from "../../../features/review/components/ReviewStudyControls";
+import type { ReviewType } from "@/features/user/review/reviewSlice";
+import ReviewStudyProgress from "@/features/user/review/components/ReviewStudyProgress";
+import ReviewStudyControls from "../../../features/user/review/components/ReviewStudyControls";
 
 interface ReviewConfig {
   itemsPerSet: number;

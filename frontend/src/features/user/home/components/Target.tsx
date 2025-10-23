@@ -1,7 +1,7 @@
-import img from "../../../assets/Target.png";
+import img from "../../../../assets/Target.png";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { useEffect } from "react";
-import { fetchProgressSummary } from "@/features/home/progressSummarySlice";
+import { fetchProgressSummary } from "@/features/user/home/progressSummarySlice";
 
 const Target = () => {
   const dispatch = useAppDispatch();

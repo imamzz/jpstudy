@@ -1,5 +1,5 @@
-import KanjiList from "@/features/kanji/components/KanjiList";
-import KanjiProgress from "@/features/kanji/components/KanjiProgress";
+import KanjiList from "@/features/user/kanji/components/KanjiList";
+import KanjiProgress from "@/features/user/kanji/components/KanjiProgress";
 import { useNavigate } from "react-router-dom";
 
 export default function KanjiPage() {

@@ -1,9 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { markKanjiMastered } from "@/features/kanji/kanjiSlice";
-import KanjiDisplay from "@/features/kanji/components/KanjiDisplay";
-import StudyTimer from "@/features/kanji/components/StudyTimer";
+import { markKanjiMastered } from "@/features/user/kanji/kanjiSlice";
+import KanjiDisplay from "@/features/user/kanji/components/KanjiDisplay";
+import StudyTimer from "@/features/user/kanji/components/StudyTimer";
 
 interface Config {
   kanjiPerSet: number;

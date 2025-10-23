@@ -2,9 +2,9 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { markGrammarMastered } from "@/features/grammar/grammarSlice";
-import GrammarDisplay from "@/features/grammar/components/GrammarDisplay";
-import StudyTimer from "@/features/grammar/components/StudyTimer";
+import { markGrammarMastered } from "@/features/user/grammar/grammarSlice";
+import GrammarDisplay from "@/features/user/grammar/components/GrammarDisplay";
+import StudyTimer from "@/features/user/grammar/components/StudyTimer";
 
 interface Config {
   grammarPerSet: number;

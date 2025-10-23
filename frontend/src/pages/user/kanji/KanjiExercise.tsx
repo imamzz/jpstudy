@@ -1,7 +1,7 @@
 import { useState } from "react";
-import KanjiMultipleChoice from "@/features/kanji/components/exercises/KanjiMultipleChoice";
-import KanjiFillBlank from "@/features/kanji/components/exercises/KanjiFillBlank";
-import KanjiTrueFalse from "@/features/kanji/components/exercises/KanjiTrueFalse";
+import KanjiMultipleChoice from "@/features/user/kanji/components/exercises/KanjiMultipleChoice";
+import KanjiFillBlank from "@/features/user/kanji/components/exercises/KanjiFillBlank";
+import KanjiTrueFalse from "@/features/user/kanji/components/exercises/KanjiTrueFalse";
 
 interface Exercise {
   type: "multiple" | "fill" | "truefalse";

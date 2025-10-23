@@ -1,8 +1,8 @@
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { saveReviewSetting, fetchReviewSetting, type ReviewSetting } from "@/features/settings/settingsSlice";
+import { saveReviewSetting, fetchReviewSetting, type ReviewSetting } from "@/features/user/settings/settingsSlice";
 import { useEffect, useState } from "react";
-import Button from "../../../components/atoms/Button";
-import Input from "../../../components/atoms/Input";
+import Button from "../../../../components/atoms/Button";
+import Input from "../../../../components/atoms/Input";
 
 interface ModalConfigReviewProps {
   isOpen: boolean;

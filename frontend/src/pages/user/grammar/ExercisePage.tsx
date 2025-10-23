@@ -1,8 +1,8 @@
 // src/pages/user/grammar/ExercisePage.tsx
 import { useState } from "react";
-import MultipleChoice from "@/features/grammar/components/exercises/MultipleChoice";
-import FillBlank from "@/features/grammar/components/exercises/FillBlank";
-import TrueFalse from "@/features/grammar/components/exercises/TrueFalse";
+import MultipleChoice from "@/features/user/grammar/components/exercises/MultipleChoice";
+import FillBlank from "@/features/user/grammar/components/exercises/FillBlank";
+import TrueFalse from "@/features/user/grammar/components/exercises/TrueFalse";
 
 interface Exercise {
   type: "multiple" | "fill" | "truefalse";

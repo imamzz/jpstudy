@@ -1,6 +1,6 @@
 import { useParams } from "react-router-dom";
 import { useAppSelector } from "@/app/hooks";
-import KanjiDetail from "@/features/kanji/components/KanjiDetail";
+import KanjiDetail from "@/features/user/kanji/components/KanjiDetail";
 
 export default function KanjiDetail() {
     const { id } = useParams<{ id: string }>();

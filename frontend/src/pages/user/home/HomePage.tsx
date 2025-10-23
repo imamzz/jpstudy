@@ -1,9 +1,9 @@
 import { useAppSelector } from "@/app/hooks";
-import Achievment from "@/features/home/components/Achievement";
-import Activity from "@/features/home/components/Activity";
-import Progress from "@/features/home/components/Progress";
-import ProgressCircle from "@/features/home/components/ProgressCircle";
-import Target from "@/features/home/components/Target";
+import Achievment from "@/features/user/home/components/Achievement";
+import Activity from "@/features/user/home/components/Activity";
+import Progress from "@/features/user/home/components/Progress";
+import ProgressCircle from "@/features/user/home/components/ProgressCircle";
+import Target from "@/features/user/home/components/Target";
 
 
 function Home() {

@@ -1,7 +1,7 @@
 // src/features/review/components/ReviewFilter.tsx
 import { useState } from "react";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
-import { setFilter } from "@/features/review/reviewSlice";
+import { setFilter } from "@/features/user/review/reviewSlice";
 
 export default function ReviewFilter() {
   const dispatch = useAppDispatch();

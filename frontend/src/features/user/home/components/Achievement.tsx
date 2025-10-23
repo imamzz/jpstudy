@@ -1,4 +1,4 @@
-import img from "../../../assets/Trophy.png";
+import img from "../../../../assets/Trophy.png";
 
 const  Achievement = () => {
 

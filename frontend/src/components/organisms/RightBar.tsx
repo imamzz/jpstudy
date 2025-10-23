@@ -1,8 +1,8 @@
 import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
-import StartLearning from "../../features/vocab/components/StartLearning";
+import StartLearning from "../../features/user/vocab/components/StartLearning";
 import { useLocation } from "react-router-dom";
-import ReminderReview from "../../features/review/components/ReminderReview";
+import ReminderReview from "../../features/user/review/components/ReminderReview";
 
 const RightBar = () => {
   const location = useLocation();
