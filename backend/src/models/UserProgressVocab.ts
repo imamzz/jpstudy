@@ -1,7 +1,7 @@
 import { Optional, Model, DataTypes } from "sequelize";
 import sequelize from "../config/database";
 
-interface UserVocabProgressAttributes {
+interface UserProgressVocabAttributes {
   id: number;
   user_id: number;
   vocab_id: number;
@@ -10,12 +10,12 @@ interface UserVocabProgressAttributes {
   mastered_at?: Date | null;
 }
 
-interface UserVocabProgressCreationAttributes
-  extends Optional<UserVocabProgressAttributes, "id" | "mastered_at"> {}
+interface UserProgressVocabCreationAttributes
+  extends Optional<UserProgressVocabAttributes, "id" | "mastered_at"> {}
 
-class UserVocabProgress
-  extends Model<UserVocabProgressAttributes, UserVocabProgressCreationAttributes>
-  implements UserVocabProgressAttributes
+class UserProgressVocab
+  extends Model<UserProgressVocabAttributes, UserProgressVocabCreationAttributes>
+  implements UserProgressVocabAttributes
 {
   public id!: number;
   public user_id!: number;
@@ -25,7 +25,7 @@ class UserVocabProgress
   public mastered_at?: Date | null;
 }
 
-UserVocabProgress.init(
+UserProgressVocab.init(
   {
     id: { type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true },
     user_id: { type: DataTypes.INTEGER, allowNull: false },
@@ -47,4 +47,4 @@ UserVocabProgress.init(
   }
 );
 
-export default UserVocabProgress;
+export default UserProgressVocab;

@@ -7,6 +7,7 @@ import kanjiReducer from "../features/kanji/kanjiSlice";
 import reviewReducer from "../features/review/reviewSlice";
 import configReducer from "../features/config/configSlice";
 import settingsReducer from "../features/settings/settingsSlice"
+import progressSummaryReducer from "../features/home/progressSummarySlice";
 
 export const store = configureStore({
   reducer: {
@@ -18,6 +19,7 @@ export const store = configureStore({
     review: reviewReducer,
     config: configReducer,
     settings: settingsReducer,
+    progressSummary: progressSummaryReducer,
   },
 });
 

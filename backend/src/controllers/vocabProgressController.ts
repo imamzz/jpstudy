@@ -4,6 +4,45 @@ import { successResponse, errorResponse } from "../utils/response";
 import { AuthRequest } from "../middleware/authMiddleware";
 
 /**
+ * Ambil progress vocab per user
+ */
+export const getVocabProgress = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user_id = req.user?.id;
+    const vocabProgress = await vocabProgressService.getVocabProgress(user_id);
+
+    return successResponse(res, vocabProgress, null, "Vocab progress berhasil diambil");
+  } catch (error: any) {
+    console.error("❌ getVocabProgress error:", error);
+    return errorResponse(
+      res,
+      "VOCAB_PROGRESS_GET_ERROR",
+      error.message || "Gagal mengambil vocab progress",
+      error,
+      400
+    );
+  }
+};
+
+export const getVocabProgressCount = async (req: AuthRequest, res: Response, next: NextFunction) => {
+  try {
+    const user_id = req.user?.id;
+    const vocabProgressCount = await vocabProgressService.getVocabProgressCount(user_id);
+
+    return successResponse(res, vocabProgressCount, null, "Vocab progress count berhasil diambil");
+  } catch (error: any) {
+    console.error("❌ getVocabProgressCount error:", error);
+    return errorResponse(
+      res,
+      "VOCAB_PROGRESS_COUNT_GET_ERROR",
+      error.message || "Gagal mengambil vocab progress count",
+      error,
+      400
+    );
+  }
+};
+
+/**
  * Simpan progress vocab per item
  */
 export const saveVocabProgress = async (req: AuthRequest, res: Response, next: NextFunction) => {

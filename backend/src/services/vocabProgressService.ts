@@ -1,9 +1,20 @@
-import UserVocabProgress from "../models/UserVocabProgress";
+import UserProgressVocab from "../models/UserProgressVocab";
 import Review from "../models/Review";
 import sequelize from "../config/database";
 
+
+export async function getVocabProgress(user_id: number) {
+  const vocabProgress = await UserProgressVocab.findAll({ where: { user_id } });
+  return vocabProgress;
+}
+
+export async function getVocabProgressCount(user_id: number) {
+  const vocabProgressCount = await UserProgressVocab.count({ where: { user_id } });
+  return vocabProgressCount;
+}
+
 export async function deleteVocabProgress(user_id: number, vocab_id: number) {
-  const vocabProgress = await UserVocabProgress.destroy({ where: { user_id, vocab_id } });
+  const vocabProgress = await UserProgressVocab.destroy({ where: { user_id, vocab_id } });
   return vocabProgress;
 }
 
@@ -13,7 +24,7 @@ export async function saveVocabProgress(
   status: "learned" | "review" | "mastered"
 ) {
   // 🔍 Cari progress existing
-  let progress = await UserVocabProgress.findOne({ where: { user_id, vocab_id } });
+  let progress = await UserProgressVocab.findOne({ where: { user_id, vocab_id } });
 
   if (progress) {
     // update existing progress
@@ -36,7 +47,7 @@ export async function saveVocabProgress(
         item_type: "vocab",
         item_id: vocab_id,
         first_review_date: new Date(),
-        last_review_date: null, // ⬅️ belum pernah direview
+        last_review_date: new Date(), // ⬅️ belum pernah direview
         correct: null,
         attempt_count: 1,       // ⬅️ belum ada review
       });
@@ -47,7 +58,7 @@ export async function saveVocabProgress(
   }
 
   // 🆕 Belum ada progress → buat baru
-  progress = await UserVocabProgress.create({
+  progress = await UserProgressVocab.create({
     user_id,
     vocab_id,
     status,
@@ -61,7 +72,7 @@ export async function saveVocabProgress(
     item_type: "vocab",
     item_id: vocab_id,
     first_review_date: new Date(),
-    last_review_date: null, // ⬅️ belum direview
+    last_review_date: new Date(), // ⬅️ belum direview
     correct: null,
     attempt_count: 1,
   });

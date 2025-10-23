@@ -1,5 +1,5 @@
 import { Op } from "sequelize";
-import { UserVocabProgress, Vocab } from "../models";
+import { UserProgressVocab, Vocab } from "../models";
 import { AuthRequest } from "../middleware/authMiddleware";
 import sequelize from "../config/database";
 
@@ -88,7 +88,7 @@ export async function deleteVocab(id: string) {
 
 export async function getVocabForLearning(user_id: number, limit = 10, level?: string) {
   // 1️⃣ Ambil semua vocab_id yang sudah pernah dipelajari (learned/mastered)
-  const learnedOrMastered = await UserVocabProgress.findAll({
+  const learnedOrMastered = await UserProgressVocab.findAll({
     where: { 
       user_id, 
       status: { [Op.in]: ["learned", "mastered"] },

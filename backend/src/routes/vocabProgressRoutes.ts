@@ -1,10 +1,14 @@
 import { Router } from "express";
 import { authMiddleware, authorize } from "../middleware/authMiddleware";
 import { validateDto } from "../middleware/validateDto";
-import { saveVocabProgress, deleteVocabProgress, saveBulkVocabProgress } from "../controllers/vocabProgressController";
+import { getVocabProgress, saveVocabProgress, deleteVocabProgress, saveBulkVocabProgress, getVocabProgressCount } from "../controllers/vocabProgressController";
 import { CreateVocabProgressDto } from "../dtos/createVocabProgressDto";
 
 const router = Router();
+
+router.get("/", authMiddleware, authorize("user"), getVocabProgress);
+
+router.get("/count", authMiddleware, authorize("user"), getVocabProgressCount);
 
 // single save (lama)
 router.post("/", authMiddleware, authorize("user"), validateDto(CreateVocabProgressDto), saveVocabProgress);

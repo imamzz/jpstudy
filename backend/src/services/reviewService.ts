@@ -3,7 +3,7 @@ import Review from "../models/Review";
 import Vocab from "../models/Vocab";
 import Kanji from "../models/Kanji";
 import Grammar from "../models/Grammar";
-import { UserVocabProgress } from "../models";
+import { UserProgressVocab } from "../models";
 import UserGrammarProgress from "../models/UserGrammarProgress";
 import UserKanjiProgress from "../models/UserKanjiProgress";
 import sequelize from "../config/database";
@@ -198,7 +198,7 @@ export async function saveBatchReview(user_id: number, reviews: any[]) {
         const masteredData = { status: "mastered", mastered_at: new Date() };
 
         if (review.item_type === "vocab") {
-          await UserVocabProgress.update(masteredData, {
+          await UserProgressVocab.update(masteredData, {
             where: { user_id, vocab_id: review.item_id },
             transaction,
           });
