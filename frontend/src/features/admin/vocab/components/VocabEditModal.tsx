@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
-import type { Word } from "@/features/user/vocab/vocabSlice";
+import type { Word } from "@/features/admin/vocab/vocabSlice";
 import Input from "@/components/atoms/Input";
 import TextArea from "@/components/atoms/TextArea";
 import privateApi from "@/base/privateApi";

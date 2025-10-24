@@ -1,7 +1,7 @@
 import Modal from "@/components/molecules/Modal";
 import Button from "@/components/atoms/Button";
 import VolumeHigh from "@/assets/icon/volume-high.svg?react";
-import type { Word } from "@/features/user/vocab/vocabSlice";
+import type { Word } from "@/features/admin/vocab/vocabSlice";
 
 interface VocabDetailModalProps {
   isOpen: boolean;

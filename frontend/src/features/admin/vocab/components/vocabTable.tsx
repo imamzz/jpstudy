@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchVocab, setPage } from "@/features/user/vocab/vocabSlice";
 import Button from "@/components/atoms/Button";
@@ -15,46 +15,109 @@ export default function VocabTable() {
   );
 
   const [searchQuery, setSearchQuery] = useState("");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchQuery);
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
   const [editWord, setEditWord] = useState<Word | null>(null);
   const [deleteWord, setDeleteWord] = useState<Word | null>(null);
+  const [keepFocus, setKeepFocus] = useState(false); // fokus manual
+
+  const inputRef = useRef<HTMLInputElement | null>(null);
+
+  // 🔸 Debounce search (500ms)
+  useEffect(() => {
+    const handler = setTimeout(() => {
+      setDebouncedSearch(searchQuery.trim());
+    }, 500);
+    return () => clearTimeout(handler);
+  }, [searchQuery]);
+
+  // 🔹 Fetch vocab saat page / search berubah
+  useEffect(() => {
+    let isCancelled = false;
+    dispatch(fetchVocab({ page, pageSize, search: debouncedSearch || undefined }))
+      .unwrap()
+      .then(() => {
+        // ✅ Setelah fetch selesai, pastikan tetap fokus jika user masih mengetik
+        if (!isCancelled && keepFocus && inputRef.current) {
+          inputRef.current.focus();
+        }
+      })
+      .catch(() => {
+        /* abaikan error */
+      });
+    return () => {
+      isCancelled = true;
+    };
+  }, [dispatch, page, pageSize, debouncedSearch]); // ❗ keepFocus tidak dimasukkan ke dependency
+
+  // 🔹 Reset halaman ke 1 jika search berubah
+  useEffect(() => {
+    dispatch(setPage(1));
+  }, [searchQuery, dispatch]);
+
+  // 🔹 Deteksi klik di luar input
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
+        setKeepFocus(false);
+      } else {
+        setKeepFocus(true);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  // 🔹 Fokus otomatis kalau user mulai mengetik di mana pun (tanpa klik)
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      // abaikan tombol navigasi / meta
+      if (
+        e.key.length === 1 &&
+        !e.ctrlKey &&
+        !e.metaKey &&
+        !e.altKey &&
+        document.activeElement?.tagName !== "INPUT" &&
+        document.activeElement?.tagName !== "TEXTAREA"
+      ) {
+        if (inputRef.current) {
+          inputRef.current.focus();
+          setSearchQuery((prev) => prev + e.key);
+          setKeepFocus(true);
+        }
+      }
+    };
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  }, []);
 
   const handleDeleteWord = (word: Word | null) => {
     if (!word) return;
     setDeleteWord(word);
   };
 
-  // 🔹 Fetch data setiap kali page / search berubah
-  useEffect(() => {
-    dispatch(fetchVocab({ page, pageSize, search: searchQuery || undefined }));
-  }, [dispatch, page, pageSize, searchQuery]);
-
   if (loading) return <p>⏳ Sedang memuat kosakata...</p>;
   if (error) return <p className="text-red-500">❌ {error}</p>;
-  if (words.length === 0) return <p className="text-gray-500">📭 Tidak ada kosakata.</p>;
 
   return (
     <div className="space-y-4">
       {/* Search bar */}
       <div className="flex justify-between items-center">
         <Input
+          ref={inputRef}
           type="text"
           placeholder="Cari kosakata..."
           value={searchQuery}
-          onChange={(e) => {
-            setSearchQuery(e.target.value);
-            dispatch(setPage(1)); // reset ke halaman 1 saat search
-          }}
+          onFocus={() => setKeepFocus(true)}
+          onChange={(e) => setSearchQuery(e.target.value)}
         />
-        {/* Add Button */}
         <Button
-            variant="primary"
-            size="sm"
-            onClick={() => setEditWord({} as Word)} // gunakan objek kosong agar modal tetap terbuka
-            >
-            Tambah Kosakata
+          variant="primary"
+          size="sm"
+          onClick={() => setEditWord({} as Word)}
+        >
+          Tambah Kosakata
         </Button>
-
       </div>
 
       {/* Table */}
@@ -71,26 +134,54 @@ export default function VocabTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {words.map((word, index) => (
-              <tr key={word.id} className="hover:bg-gray-50 transition">
-                <td className="px-2 py-2 w-2 text-center">{index + 1 + (page - 1) * pageSize}</td>
-                <td className="px-2 py-2 w-10 font-medium text-lg text-center">{word.kanji}</td>
-                <td className="px-2 py-2 w-10 text-center">{word.kana}</td>
-                <td className="px-2 py-2 w-10 italic text-gray-500 text-center">{word.romaji}</td>
-                <td className="px-2 py-2 w-45 text-center">{word.meaning}</td>
-                <td className="px-2 py-2 w-20 text-center items-center ">
-                  <Button variant="primary" size="sm" onClick={() => setSelectedWord(word)}>
-                    Lihat
-                  </Button>
-                  <Button className="ml-2" variant="warning" size="sm" onClick={() => setEditWord(word)}>
-                    Edit
-                  </Button>
-                  <Button className="ml-2" variant="danger" size="sm" onClick={() => handleDeleteWord(word)}>
-                    Hapus
-                  </Button>
+            {words.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="text-center py-4 text-gray-500">
+                  📭 Tidak ada kosakata yang cocok.
                 </td>
               </tr>
-            ))}
+            ) : (
+              words.map((word, index) => (
+                <tr key={word.id} className="hover:bg-gray-50 transition">
+                  <td className="px-2 py-2 w-2 text-center">
+                    {index + 1 + (page - 1) * pageSize}
+                  </td>
+                  <td className="px-2 py-2 w-10 font-medium text-lg text-center">
+                    {word.kanji}
+                  </td>
+                  <td className="px-2 py-2 w-10 text-center">{word.kana}</td>
+                  <td className="px-2 py-2 w-10 italic text-gray-500 text-center">
+                    {word.romaji}
+                  </td>
+                  <td className="px-2 py-2 w-45 text-center">{word.meaning}</td>
+                  <td className="px-2 py-2 w-20 text-center">
+                    <Button
+                      variant="primary"
+                      size="sm"
+                      onClick={() => setSelectedWord(word)}
+                    >
+                      Lihat
+                    </Button>
+                    <Button
+                      className="ml-2"
+                      variant="warning"
+                      size="sm"
+                      onClick={() => setEditWord(word)}
+                    >
+                      Edit
+                    </Button>
+                    <Button
+                      className="ml-2"
+                      variant="danger"
+                      size="sm"
+                      onClick={() => handleDeleteWord(word)}
+                    >
+                      Hapus
+                    </Button>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -121,22 +212,20 @@ export default function VocabTable() {
         </div>
       </div>
 
-      {/* Modal detail */}
+      {/* Modals */}
       <VocabDetailModal
         isOpen={!!selectedWord}
         onClose={() => setSelectedWord(null)}
         word={selectedWord}
       />
 
-      {/* Modal edit */}
       <VocabEditModal
         isOpen={!!editWord}
         onClose={() => setEditWord(null)}
         word={editWord}
         onUpdated={() => dispatch(fetchVocab({ page, pageSize }))}
-    />
+      />
 
-      {/* Modal delete */}
       <Modal
         isOpen={!!deleteWord}
         title="Hapus Kosakata"
