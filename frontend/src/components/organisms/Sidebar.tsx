@@ -40,6 +40,7 @@ const Sidebar = () => {
       </div>
 
       <nav className="space-y-2">
+        {/* Admin */}
         {role === "admin" && (
           <NavLink
             to="/dashboard"
@@ -52,6 +53,21 @@ const Sidebar = () => {
           </NavLink>
         )}
 
+        {role === "admin" && (
+          <NavLink
+            to="/vocabs"
+            className={({ isActive }) =>
+              `${baseClass} ${isActive ? activeClass : hoverClass}`
+            }
+          >
+            <IconVocab className="w-6 h-6 [stroke-width:1.5]" />
+            Vocab
+          </NavLink>
+        )}
+
+
+
+        {/* User */}
         {role === "user" && (
           <NavLink
             to="/home"

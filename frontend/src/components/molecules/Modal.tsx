@@ -7,9 +7,10 @@ interface ModalProps {
   children: ReactNode;
   footer?: ReactNode;
   example?: string[];
+  bookmark?: boolean;
 }
 
-export default function Modal({ isOpen, title, children, footer, example }: ModalProps) {
+export default function Modal({ isOpen, title, children, footer, example, bookmark }: ModalProps) {
   if (!isOpen) return null;
 
   return (
@@ -18,7 +19,9 @@ export default function Modal({ isOpen, title, children, footer, example }: Moda
         {title && (
           <div className="px-6 py-3 flex items-center justify-between">
             <h2 className="text-md">{title}</h2>
-            <Bookmark className="w-6 h-6 [stroke-width:1.2]" />
+            {bookmark && (
+              <Bookmark className="w-6 h-6 [stroke-width:1.2]" />
+            )}
           </div>
         )}
 

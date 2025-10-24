@@ -5,21 +5,28 @@ import LoadingSpinner from "../components/atoms/LoaderSpinner";
 
 // ✅ Lazy imports
 const AdminLayout = lazy(() => import("../layouts/AdminLayout"));
-const Dashboard = lazy(() => import("../pages/admin/dashboard/Dashboard"));
+
+const AdminPages = [
+  { path: "/dashboard", component: lazy(() => import("../pages/admin/dashboard/Dashboard")) },
+  { path: "/vocabs", component: lazy(() => import("../pages/admin/vocab/VocabPage")) },
+] 
 
 export default function AdminRoutes() {
   return (
     <Route element={<ProtectedRoute allowedRoles={["admin"]} />}>
-      <Route
-        path="/dashboard"
-        element={
-          <Suspense fallback={<LoadingSpinner />}>
-            <AdminLayout>
-              <Dashboard />
-            </AdminLayout>
-          </Suspense>
-        }
-      />
+      {AdminPages.map(({ path, component: Component }) => (
+        <Route
+          key={path}
+          path={path}
+          element={
+            <Suspense fallback={<LoadingSpinner />}>
+              <AdminLayout>
+                <Component />
+              </AdminLayout>
+            </Suspense>
+          }
+        />
+      ))}
     </Route>
   );
 }

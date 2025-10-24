@@ -5,6 +5,8 @@ import Button from "@/components/atoms/Button";
 import VocabDetailModal from "./VocabDetailModal";
 import Input from "@/components/atoms/Input";
 import type { Word } from "@/features/user/vocab/vocabSlice";
+import VocabEditModal from "./VocabEditModal";
+import Modal from "@/components/molecules/Modal";
 
 export default function VocabTable() {
   const dispatch = useAppDispatch();
@@ -14,6 +16,13 @@ export default function VocabTable() {
 
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedWord, setSelectedWord] = useState<Word | null>(null);
+  const [editWord, setEditWord] = useState<Word | null>(null);
+  const [deleteWord, setDeleteWord] = useState<Word | null>(null);
+
+  const handleDeleteWord = (word: Word | null) => {
+    if (!word) return;
+    setDeleteWord(word);
+  };
 
   // 🔹 Fetch data setiap kali page / search berubah
   useEffect(() => {
@@ -37,6 +46,15 @@ export default function VocabTable() {
             dispatch(setPage(1)); // reset ke halaman 1 saat search
           }}
         />
+        {/* Add Button */}
+        <Button
+            variant="primary"
+            size="sm"
+            onClick={() => setEditWord({} as Word)} // gunakan objek kosong agar modal tetap terbuka
+            >
+            Tambah Kosakata
+        </Button>
+
       </div>
 
       {/* Table */}
@@ -44,25 +62,31 @@ export default function VocabTable() {
         <table className="min-w-full text-sm">
           <thead className="bg-gray-50">
             <tr className="text-left text-gray-600">
-              <th className="px-4 py-2 w-10 text-center">No</th>
-              <th className="px-4 py-2 w-10 text-center">Kanji</th>
-              <th className="px-4 py-2 w-10 text-center">Kana</th>
-              <th className="px-4 py-2 w-10 text-center">Romaji</th>
-              <th className="px-4 py-2 w-50 text-center">Arti</th>
-              <th className="px-4 py-2 w-10 text-center">Aksi</th>
+              <th className="px-2 py-2 w-2 text-center">No</th>
+              <th className="px-2 py-2 w-10 text-center">Kanji</th>
+              <th className="px-2 py-2 w-10 text-center">Kana</th>
+              <th className="px-2 py-2 w-10 text-center">Romaji</th>
+              <th className="px-2 py-2 w-45 text-center">Arti</th>
+              <th className="px-2 py-2 w-20 text-center">Aksi</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
             {words.map((word, index) => (
               <tr key={word.id} className="hover:bg-gray-50 transition">
-                <td className="px-4 py-2 w-10 text-center">{index + 1 + (page - 1) * pageSize}</td>
-                <td className="px-4 py-2 w-10 font-medium text-lg text-center">{word.kanji}</td>
-                <td className="px-4 py-2 w-10 text-center">{word.kana}</td>
-                <td className="px-4 py-2 w-10 italic text-gray-500 text-center">{word.romaji}</td>
-                <td className="px-4 py-2 w-50 text-center">{word.meaning}</td>
-                <td className="px-4 py-2 w-10 text-center">
+                <td className="px-2 py-2 w-2 text-center">{index + 1 + (page - 1) * pageSize}</td>
+                <td className="px-2 py-2 w-10 font-medium text-lg text-center">{word.kanji}</td>
+                <td className="px-2 py-2 w-10 text-center">{word.kana}</td>
+                <td className="px-2 py-2 w-10 italic text-gray-500 text-center">{word.romaji}</td>
+                <td className="px-2 py-2 w-45 text-center">{word.meaning}</td>
+                <td className="px-2 py-2 w-20 text-center items-center ">
                   <Button variant="primary" size="sm" onClick={() => setSelectedWord(word)}>
                     Lihat
+                  </Button>
+                  <Button className="ml-2" variant="warning" size="sm" onClick={() => setEditWord(word)}>
+                    Edit
+                  </Button>
+                  <Button className="ml-2" variant="danger" size="sm" onClick={() => handleDeleteWord(word)}>
+                    Hapus
                   </Button>
                 </td>
               </tr>
@@ -102,8 +126,33 @@ export default function VocabTable() {
         isOpen={!!selectedWord}
         onClose={() => setSelectedWord(null)}
         word={selectedWord}
-        bookmark={true}
       />
+
+      {/* Modal edit */}
+      <VocabEditModal
+        isOpen={!!editWord}
+        onClose={() => setEditWord(null)}
+        word={editWord}
+        onUpdated={() => dispatch(fetchVocab({ page, pageSize }))}
+    />
+
+      {/* Modal delete */}
+      <Modal
+        isOpen={!!deleteWord}
+        title="Hapus Kosakata"
+        footer={
+          <>
+            <Button variant="secondary" size="sm" onClick={() => setDeleteWord(null)}>
+              Batal
+            </Button>
+            <Button variant="danger" size="sm" onClick={() => handleDeleteWord(deleteWord)}>
+              Hapus
+            </Button>
+          </>
+        }
+      >
+        <p>Apakah Anda yakin ingin menghapus kosakata ini?</p>
+      </Modal>
     </div>
   );
 }
