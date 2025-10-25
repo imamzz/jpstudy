@@ -5,7 +5,7 @@ import type { Word } from "@/features/admin/vocab/vocabSlice";
 import Input from "@/components/atoms/Input";
 import TextArea from "@/components/atoms/TextArea";
 import privateApi from "@/base/privateApi";
-import { toast } from "react-hot-toast";
+import { useToast } from "@/components/molecules/ToastProvider";
 
 interface VocabEditModalProps {
   isOpen: boolean;
@@ -30,7 +30,8 @@ export default function VocabEditModal({
   });
   const [loading, setLoading] = useState(false);
 
-  // isi ulang form saat edit atau tambah
+  const [formErrors, setFormErrors] = useState<Record<string, string[]>>({});
+
   useEffect(() => {
     if (word) {
       setFormData({
@@ -42,7 +43,6 @@ export default function VocabEditModal({
         level: word.level || "",
       });
     } else {
-      // reset untuk mode tambah
       setFormData({
         kana: "",
         kanji: "",
@@ -60,6 +60,7 @@ export default function VocabEditModal({
     const { name, value } = e.target;
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
+  const { showToast } = useToast();
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -67,23 +68,41 @@ export default function VocabEditModal({
       setLoading(true);
 
       if (word?.id) {
-        // 🔹 UPDATE
         await privateApi.put(`/vocab/${word.id}`, formData);
-        toast.success("Kosakata berhasil diperbarui!");
+        showToast("success", "Kosakata berhasil diperbarui!");
       } else {
-        // 🔹 CREATE
         await privateApi.post(`/vocab`, formData);
-        toast.success("Kosakata berhasil ditambahkan!");
+        showToast("success", "Kosakata berhasil ditambahkan!");
       }
 
       setLoading(false);
       onClose();
       if (onUpdated) onUpdated();
-    } catch (err: any) {
-      console.error(err);
-      toast.error(err.response?.data?.message || "Gagal menyimpan kosakata");
+    }catch (err: any) {
+      const data = err.response?.data;
+
+      // --- 1️⃣ Error umum ---
+      if (data?.error) {
+        showToast("error", data.error.message || "Terjadi kesalahan");
+      }
+
+      // --- 2️⃣ Error validasi per field ---
+      if (data?.errors) {
+        const fieldErrors: Record<string, string[]> = {};
+        data.errors.forEach((e: any) => {
+          fieldErrors[e.field] = e.messages;
+        });
+        setFormErrors(fieldErrors);
+      }
+
+      // --- 3️⃣ Fallback umum ---
+      if (!data?.error && !data?.errors) {
+        showToast("error", data?.message || "Gagal menyimpan data");
+      }
+
       setLoading(false);
     }
+
   };
 
   if (!isOpen) return null;
@@ -113,57 +132,63 @@ export default function VocabEditModal({
     >
       <form id="editForm" onSubmit={handleSubmit}>
         <Input
-          className="mb-2"
           label="Kana"
           name="kana"
           type="text"
           placeholder="Kana"
           value={formData.kana}
           onChange={handleChange}
+          variant={formErrors.kana ? "error" : "default"}
+          errorMessage={formErrors.kana?.[0]}
         />
         <Input
-          className="mb-2"
           label="Kanji"
           name="kanji"
           type="text"
           placeholder="Kanji"
           value={formData.kanji}
           onChange={handleChange}
+          variant={formErrors.kanji ? "error" : "default"}
+          errorMessage={formErrors.kanji?.[0]}
         />
         <Input
-          className="mb-2"
           label="Romaji"
           name="romaji"
           type="text"
           placeholder="Romaji"
           value={formData.romaji}
           onChange={handleChange}
+          variant={formErrors.romaji ? "error" : "default"}
+          errorMessage={formErrors.romaji?.[0]}
         />
         <Input
-          className="mb-2"
           label="Arti"
           name="meaning"
           type="text"
           placeholder="Arti"
           value={formData.meaning}
           onChange={handleChange}
+          variant={formErrors.meaning ? "error" : "default"}
+          errorMessage={formErrors.meaning?.[0]}
         />
         <TextArea
-          className="mb-2"
           label="Contoh"
           name="example"
           placeholder="Contoh"
           value={formData.example}
           onChange={handleChange}
+          variant={formErrors.example ? "error" : "default"}
+          errorMessage={formErrors.example?.[0]}
         />
         <Input
-          className="mb-2"
           label="Level"
           name="level"
           type="text"
           placeholder="Level"
           value={formData.level}
           onChange={handleChange}
+          variant={formErrors.level ? "error" : "default"}
+          errorMessage={formErrors.level?.[0]}
         />
       </form>
     </Modal>
