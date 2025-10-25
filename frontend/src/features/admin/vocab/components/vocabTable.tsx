@@ -2,13 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { fetchVocab, setPage } from "@/features/user/vocab/vocabSlice";
 import Button from "@/components/atoms/Button";
-import VocabDetailModal from "./VocabDetailModal";
-import Input from "@/components/atoms/Input";
 import type { Word } from "@/features/user/vocab/vocabSlice";
+import VocabDetailModal from "./VocabDetailModal";
 import VocabEditModal from "./VocabEditModal";
 import Modal from "@/components/molecules/Modal";
-import privateApi from "@/base/privateApi"; // pastikan ini sudah ada
+import privateApi from "@/base/privateApi";
 import { useToast } from "@/components/molecules/ToastProvider";
+import DataTable, { type Column } from "@/components/molecules/DataTable";
 
 export default function VocabTable() {
   const dispatch = useAppDispatch();
@@ -21,28 +21,22 @@ export default function VocabTable() {
   const [editWord, setEditWord] = useState<Word | null>(null);
   const [deleteWord, setDeleteWord] = useState<Word | null>(null);
   const [keepFocus, setKeepFocus] = useState(false);
-
   const inputRef = useRef<HTMLInputElement | null>(null);
+  const { showToast } = useToast();
 
-  // 🔸 Debounce search (500ms)
+  // 🔸 Debounce search
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setDebouncedSearch(searchQuery.trim());
-    }, 500);
+    const handler = setTimeout(() => setDebouncedSearch(searchQuery.trim()), 500);
     return () => clearTimeout(handler);
   }, [searchQuery]);
 
-  // 🔹 Fetch vocab saat page / search berubah
+  // 🔹 Fetch data
   useEffect(() => {
     let isCancelled = false;
-    dispatch(
-      fetchVocab({ page, pageSize, search: debouncedSearch || undefined })
-    )
+    dispatch(fetchVocab({ page, pageSize, search: debouncedSearch || undefined }))
       .unwrap()
       .then(() => {
-        if (!isCancelled && keepFocus && inputRef.current) {
-          inputRef.current.focus();
-        }
+        if (!isCancelled && keepFocus && inputRef.current) inputRef.current.focus();
       })
       .catch(() => {});
     return () => {
@@ -50,25 +44,22 @@ export default function VocabTable() {
     };
   }, [dispatch, page, pageSize, debouncedSearch]);
 
-  // 🔹 Reset halaman ke 1 jika search berubah
+  // 🔹 Reset ke page 1 jika search berubah
   useEffect(() => {
     dispatch(setPage(1));
   }, [searchQuery, dispatch]);
 
-  // 🔹 Deteksi klik di luar input
+  // 🔹 Klik luar input → hilangkan fokus
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
-      if (inputRef.current && !inputRef.current.contains(e.target as Node)) {
-        setKeepFocus(false);
-      } else {
-        setKeepFocus(true);
-      }
+      if (inputRef.current && !inputRef.current.contains(e.target as Node)) setKeepFocus(false);
+      else setKeepFocus(true);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  // 🔹 Fokus otomatis kalau user mulai mengetik di mana pun
+  // 🔹 Ketik → fokus ke input otomatis
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       if (
@@ -90,178 +81,104 @@ export default function VocabTable() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  // 🗑️ Klik tombol hapus → buka modal konfirmasi
-  const handleDeleteWord = (word: Word | null) => {
-    if (!word) return;
-    setDeleteWord(word);
-  };
-
-  const { showToast } = useToast();
-
+  // 🗑️ Hapus kosakata
   const confirmDeleteWord = async () => {
     if (!deleteWord) return;
-
     try {
       await privateApi.delete(`/vocab/${deleteWord.id}`);
       showToast("success", "Kosakata berhasil dihapus!");
       setDeleteWord(null);
-      dispatch(
-        fetchVocab({ page, pageSize, search: debouncedSearch || undefined })
-      );
+      dispatch(fetchVocab({ page, pageSize, search: debouncedSearch || undefined }));
     } catch (err: any) {
-      showToast(
-        "error",
-        err.response?.data?.message || "Gagal menghapus kosakata"
-      );
+      showToast("error", err.response?.data?.message || "Gagal menghapus kosakata");
     }
   };
 
-  if (error) return <p className="text-red-500">❌ {error}</p>;
+  // 📋 Kolom tabel
+  const columns: Column<Word>[] = [
+    {
+      key: "no",
+      header: "No",
+      render: (_: Word, index: number) => index + 1 + (page - 1) * pageSize,
+      className: "w-5",
+    },
+    { key: "kanji", header: "Kanji", className: "w-10 font-medium text-lg" },
+    { key: "kana", header: "Kana", className: "w-10" },
+    {
+      key: "romaji",
+      header: "Romaji",
+      render: (word) => <span className="italic text-gray-500">{word.romaji}</span>,
+      className: "w-5",
+    },
+    { key: "meaning", header: "Arti", className: "w-55" },
+    {
+      key: "aksi",
+      header: "Aksi",
+      className: "w-30",
+      render: (word) => (
+        <>
+          <Button variant="primary" size="sm" onClick={() => setSelectedWord(word)}>
+            Lihat
+          </Button>
+          <Button className="ml-2" variant="warning" size="sm" onClick={() => setEditWord(word)}>
+            Edit
+          </Button>
+          <Button className="ml-2" variant="danger" size="sm" onClick={() => setDeleteWord(word)}>
+            Hapus
+          </Button>
+        </>
+      ),
+    },
+  ];
+
+
+  // 🧩 Header kanan → tombol tambah
+  const rightHeader = (
+    <Button variant="primary" size="sm" onClick={() => setEditWord({} as Word)}>
+      Tambah Kosakata
+    </Button>
+  );
 
   return (
-    <div className="space-y-4">
-      {/* Search bar */}
-      <div className="flex justify-between items-center">
-        <Input
-          ref={inputRef}
-          type="text"
-          placeholder="Cari kosakata..."
-          value={searchQuery}
-          onFocus={() => setKeepFocus(true)}
-          onChange={(e) => setSearchQuery(e.target.value)}
-        />
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => setEditWord({} as Word)}
-        >
-          Tambah Kosakata
-        </Button>
-      </div>
+    <>
+      <DataTable
+        columns={columns}
+        data={words}
+        loading={loading}
+        error={error}
+        total={total}
+        page={page}
+        totalPages={totalPages}
+        onPageChange={(p) => dispatch(setPage(p))}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
+        searchPlaceholder="Cari kosakata..."
+        inputRef={inputRef}
+        rightHeader={rightHeader}
+      />
 
-      {/* Table */}
-      <div className="overflow-x-auto border border-gray-200 rounded-lg shadow-md bg-white">
-        <table className="min-w-full text-sm">
-          <thead className="bg-gray-50">
-            <tr className="text-left text-gray-600">
-              <th className="px-2 py-2 w-2 text-center">No</th>
-              <th className="px-2 py-2 w-10 text-center">Kanji</th>
-              <th className="px-2 py-2 w-10 text-center">Kana</th>
-              <th className="px-2 py-2 w-10 text-center">Romaji</th>
-              <th className="px-2 py-2 w-45 text-center">Arti</th>
-              <th className="px-2 py-2 w-20 text-center">Aksi</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-gray-100">
-            {loading ? (
-              <tr>
-                <td colSpan={6} className="text-center py-6 text-gray-500">
-                  ⏳ Sedang memuat kosakata...
-                </td>
-              </tr>
-            ) : words.length === 0 ? (
-              <tr>
-                <td colSpan={6} className="text-center py-4 text-gray-500">
-                  📭 Tidak ada kosakata yang cocok.
-                </td>
-              </tr>
-            ) : (
-              words.map((word, index) => (
-                <tr key={word.id} className="hover:bg-gray-50 transition">
-                  <td className="px-2 py-2 text-center">
-                    {index + 1 + (page - 1) * pageSize}
-                  </td>
-                  <td className="px-2 py-2 text-center text-lg font-medium">
-                    {word.kanji}
-                  </td>
-                  <td className="px-2 py-2 text-center">{word.kana}</td>
-                  <td className="px-2 py-2 text-center italic text-gray-500">
-                    {word.romaji}
-                  </td>
-                  <td className="px-2 py-2 text-center">{word.meaning}</td>
-                  <td className="px-2 py-2 text-center">
-                    <Button
-                      variant="primary"
-                      size="sm"
-                      onClick={() => setSelectedWord(word)}
-                    >
-                      Lihat
-                    </Button>
-                    <Button
-                      className="ml-2"
-                      variant="warning"
-                      size="sm"
-                      onClick={() => setEditWord(word)}
-                    >
-                      Edit
-                    </Button>
-                    <Button
-                      className="ml-2"
-                      variant="danger"
-                      size="sm"
-                      onClick={() => handleDeleteWord(word)}
-                    >
-                      Hapus
-                    </Button>
-                  </td>
-                </tr>
-              ))
-            )}
-          </tbody>
-        </table>
-      </div>
-
-      {/* Pagination */}
-      <div className="flex justify-between items-center text-sm">
-        <span>
-          Halaman {page} dari {totalPages} (total {total} kosakata)
-        </span>
-        <div className="flex gap-2">
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={page === 1}
-            onClick={() => dispatch(setPage(page - 1))}
-          >
-            « Prev
-          </Button>
-          <span>{page}</span>
-          <Button
-            variant="secondary"
-            size="sm"
-            disabled={page === totalPages}
-            onClick={() => dispatch(setPage(page + 1))}
-          >
-            Next »
-          </Button>
-        </div>
-      </div>
-
-      {/* Modals */}
+      {/* Modal: Detail */}
       <VocabDetailModal
         isOpen={!!selectedWord}
         onClose={() => setSelectedWord(null)}
         word={selectedWord}
       />
 
+      {/* Modal: Tambah/Edit */}
       <VocabEditModal
         isOpen={!!editWord}
         onClose={() => setEditWord(null)}
         word={editWord}
-        onUpdated={() => dispatch(fetchVocab({ page, pageSize }))}
+        onUpdated={() => dispatch(fetchVocab({ page, pageSize, search: debouncedSearch }))}
       />
 
-      {/* Modal Konfirmasi Hapus */}
+      {/* Modal: Konfirmasi Hapus */}
       <Modal
         isOpen={!!deleteWord}
         title="Hapus Kosakata"
         footer={
           <>
-            <Button
-              variant="secondary"
-              size="sm"
-              onClick={() => setDeleteWord(null)}
-            >
+            <Button variant="secondary" size="sm" onClick={() => setDeleteWord(null)}>
               Batal
             </Button>
             <Button variant="danger" size="sm" onClick={confirmDeleteWord}>
@@ -270,10 +187,8 @@ export default function VocabTable() {
           </>
         }
       >
-        <p>
-          Apakah Anda yakin ingin menghapus kosakata ini? {deleteWord?.kana}
-        </p>
+        <p>Apakah Anda yakin ingin menghapus kosakata ini? {deleteWord?.kana}</p>
       </Modal>
-    </div>
+    </>
   );
 }
