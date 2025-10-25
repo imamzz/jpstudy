@@ -66,16 +66,12 @@ export async function getAllVocab(req: AuthRequest, search?: string, level?: str
 
 export async function getVocabById(id: string) {
     const vocab = await Vocab.findByPk(id, { attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
-    return {
-        vocab: vocab,
-    };
+    return vocab;
 }
 
 export async function getVocabByLevel(level: string) {
     const vocab = await Vocab.findAll({ where: { level }, attributes: ["id", "kana", "meaning", "example", "kanji", "romaji", "level"], order: [["id", "ASC"]] });
-    return {
-        vocab: vocab,
-    };
+    return vocab;
 }
 
 export async function deleteVocab(id: string) {

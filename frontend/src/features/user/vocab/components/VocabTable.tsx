@@ -87,7 +87,6 @@ export default function VocabTable() {
     return () => document.removeEventListener("keydown", handleKeyDown);
   }, []);
 
-  if (loading) return <p>⏳ Sedang memuat kosakata...</p>;
   if (error) return <p className="text-red-500">❌ {error}</p>;
 
   return (
@@ -118,7 +117,13 @@ export default function VocabTable() {
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
-            {words.length === 0 ? (
+            {loading ? (
+              <tr>
+                <td colSpan={6} className="text-center py-6 text-gray-500">
+                  ⏳ Sedang memuat kosakata...
+                </td>
+              </tr>
+            ) : words.length === 0 ? (
               <tr>
                 <td colSpan={6} className="text-center py-4 text-gray-500">
                   📭 Tidak ada kosakata yang cocok.

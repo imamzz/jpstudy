@@ -6,9 +6,7 @@ export async function createBookmark(data: any) {
     throw new Error("Bookmark already exists");
   }
   const bookmark = await Bookmark.create(data);
-  return {
-    bookmark: { id: bookmark.id, item_id: bookmark.item_id },
-  };
+  return bookmark;
 }
 
 export async function updateBookmark(id: string, data: any) {
@@ -21,23 +19,17 @@ export async function updateBookmark(id: string, data: any) {
 
 export async function getAllBookmark() {
   const bookmark = await Bookmark.findAll({ attributes: ["id", "item_id"], order: [["id", "ASC"]] });
-  return {
-    bookmark: bookmark,
-  };
+  return bookmark;
 }
 
 export async function getBookmarkById(id: string) {
   const bookmark = await Bookmark.findByPk(id, { attributes: ["id", "item_id"], order: [["id", "ASC"]] });
-  return {
-    bookmark: bookmark,
-  };
+  return bookmark;
 }
 
 export async function getBookmarkByLevel(level: string) {
   const bookmark = await Bookmark.findAll({ where: { item_type: level }, attributes: ["id", "item_id"], order: [["id", "ASC"]] });
-  return {
-    bookmark: bookmark,
-  };
+  return bookmark;
 }
 
 export async function deleteBookmark(id: string) {

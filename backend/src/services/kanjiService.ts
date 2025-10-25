@@ -6,9 +6,7 @@ export async function createKanji(data: any) {
     throw new Error("Kanji already exists");    
   }
   const kanji = await Kanji.create(data);
-  return {
-    kanji: { id: kanji.id, kanji: kanji.kanji, meaning: kanji.meaning, level: kanji.level, example_words: kanji.example_words, kana: kanji.kana, romaji: kanji.romaji },
-  };
+  return kanji;
 }
 
 export async function updateKanji(id: string, data: any) {
@@ -21,23 +19,17 @@ export async function updateKanji(id: string, data: any) {
 
 export async function getAllKanji() {
   const kanji = await Kanji.findAll({ attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
-  return {
-    kanji: kanji,
-  };
+  return kanji;
 }
 
 export async function getKanjiById(id: string) {
   const kanji = await Kanji.findByPk(id, { attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
-  return {
-    kanji: kanji,
-  };
+  return kanji;
 }
 
 export async function getKanjiByLevel(level: string) {
   const kanji = await Kanji.findAll({ where: { level }, attributes: ["id", "kanji", "meaning", "level", "example_words", "kana", "romaji"], order: [["id", "ASC"]] });
-  return {
-    kanji: kanji,
-  };
+  return kanji;
 }
 
 export async function deleteKanji(id: string) {
