@@ -3,6 +3,7 @@ import { fetchVocabSetting, saveVocabSetting, type VocabSetting } from "@/featur
 import { useEffect, useState } from "react";
 import Button from "../../../../components/atoms/Button";
 import Input from "../../../../components/atoms/Input";
+import Modal from "../../../../components/molecules/Modal";
 
 interface ModalConfigProps {
   isOpen: boolean;
@@ -61,15 +62,28 @@ export default function ModalConfig({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
-      <div className="bg-white rounded-lg shadow-lg w-[550px] relative">
-        <form onSubmit={handleSubmit}>
-          <div className="px-6 py-3 text-center border-b border-gray-200">
-            <h2 className="text-md font-semibold">{title}</h2>
-            {description && <p className="text-sm text-gray-500 mt-1">{description}</p>}
-          </div>
-
-          <div className="px-6 py-4 flex flex-col gap-3">
+    <Modal
+      isOpen={isOpen}
+      title={title}
+      description={description}
+      divider={true}
+      footer={
+        <>
+          <Button variant="secondary" size="md" onClick={onClose}>
+            Batal
+          </Button>
+          <Button
+            variant="primary"
+            size="md"
+            onClick={handleSubmit}
+            disabled={loading}
+          >
+            {loading ? "Menyimpan..." : "Simpan"}
+          </Button>
+        </>
+      }
+    >
+      <form onSubmit={handleSubmit}>
             <Input
               name="wordsPerSet"
               label="Word per set"
@@ -105,18 +119,7 @@ export default function ModalConfig({
               value={targetLevel}
               onChange={(e) => setTargetLevel(e.target.value)}
             />
-          </div>
-
-          <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-2">
-            <Button variant="secondary" size="md" onClick={onClose}>
-              Batal
-            </Button>
-            <Button variant="primary" size="md" type="submit" disabled={loading}>
-              {loading ? "Menyimpan..." : "Simpan"}
-            </Button>
-          </div>
-        </form>
-      </div>
-    </div>
+      </form>
+    </Modal>
   );
 }
