@@ -20,8 +20,10 @@ export interface VocabSetting {
 }
 
 export interface GrammarSetting {
-  total_question_per_set: number;
+  grammar_per_set: number;
+  seconds_per_grammar: number;
   break_per_set: number;
+  total_set: number;
   target_level: "N5" | "N4" | "N3" | "N2" | "N1";
 }
 

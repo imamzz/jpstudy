@@ -1,10 +1,11 @@
 import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
 import { useLocation } from "react-router-dom";
+import { useAppSelector } from "@/app/hooks";
 import ReminderReview from "../../features/user/review/components/ReminderReview";
 import StartLearningKanji from "../../features/user/kanji/components/StartLearningKanji";
 import StartLearningVocab from "../../features/user/vocab/components/StartLearningVocab";
-import { useAppSelector } from "@/app/hooks";
+import StartLearningGrammar from "../../features/user/grammar/components/StartLearningGrammar";
 
 const RightBar = () => {
   const location = useLocation();
@@ -35,6 +36,7 @@ const RightBar = () => {
         {location.pathname === "/review" && <ReminderReview userId={user?.id || 0} />}
         {location.pathname === "/kanji" && <StartLearningKanji userId={user?.id || 0} />}
         {location.pathname === "/vocab" && <StartLearningVocab userId={user?.id || 0} />}
+        {location.pathname === "/grammar" && <StartLearningGrammar userId={user?.id || 0} />}
       </aside>
     </>
   );
