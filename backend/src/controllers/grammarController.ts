@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as grammarService from "../services/grammarService";
 import { successResponse, errorResponse } from "../utils/response";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 /**
  * Tambah grammar baru
@@ -46,11 +47,18 @@ export async function updateGrammar(req: Request, res: Response) {
 /**
  * Ambil semua grammar
  */
-export async function getAllGrammar(req: Request, res: Response, next: NextFunction) {
+export async function getAllGrammar(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const grammar = await grammarService.getAllGrammar();
+    const { search, level, page = "1", pageSize = "10" } = req.query;
+    const grammar = await grammarService.getAllGrammar(
+      req,
+      search as string,
+      level as string,
+      parseInt(page as string, 10),
+      parseInt(pageSize as string, 10)
+    );
 
-    return successResponse(res, grammar, null, "Grammar berhasil diambil");
+    return successResponse(res, grammar.data, grammar.meta, "Grammar berhasil diambil");
   } catch (error: any) {
     console.error("❌ getAllGrammar error:", error);
     return errorResponse(res, "FETCH_FAILED", error.message || "Gagal mengambil grammar", error, 400);

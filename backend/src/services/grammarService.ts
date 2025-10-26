@@ -1,4 +1,7 @@
 import Grammar from "../models/Grammar";
+import { AuthRequest } from "../middleware/authMiddleware";
+import { Op } from "sequelize";
+import sequelize from "../config/database";
 
 export async function createGrammar(data: any) {
   const existingGrammar = await Grammar.findOne({ where: { pattern: data.pattern } });
@@ -17,9 +20,45 @@ export async function updateGrammar(id: string, data: any) {
   return grammar;
 }
 
-export async function getAllGrammar() {
-  const grammar = await Grammar.findAll({ attributes: ["id", "pattern", "meaning", "example"], order: [["id", "ASC"]] });
-  return grammar;
+export async function getAllGrammar(req: AuthRequest, search?: string, level?: string, page = 1, pageSize = 10  ) {
+  const where: any = {};
+
+  if (level) where.level = level;
+  if (search) {
+    where[Op.or] = [
+      { pattern: { [Op.iLike]: `%${search}%` } },
+      { meaning: { [Op.iLike]: `%${search}%` } },
+      { example: { [Op.iLike]: `%${search}%` } },
+    ];
+  }
+
+  const offset = (page - 1) * pageSize;
+
+  const { rows, count } = await Grammar.findAndCountAll({
+    attributes: ["id", "pattern", "meaning", "example", "level"],
+    where: {
+      ...where,
+      id: {
+        // ❌ Exclude kanji_id yang sudah ada di user_kanji_progress user ini
+        [Op.notIn]: sequelize.literal(`(
+          SELECT grammar_id FROM user_grammar_progress WHERE user_id = ${req.user.id}
+        )`),
+      },
+    },
+    limit: pageSize,
+    offset,
+    order: [["id", "ASC"]],
+  });
+
+  return {
+    data: rows,
+    meta: {
+      total: count,
+      page,
+      pageSize,
+      totalPages: Math.ceil(count / pageSize),
+    },
+  };
 }
 
 export async function getGrammarById(id: string) {

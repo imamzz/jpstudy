@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from "express";
 import * as kanjiService from "../services/kanjiService";
 import { successResponse, errorResponse } from "../utils/response";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 /**
  * Tambah kanji baru
@@ -53,11 +54,18 @@ export async function updateKanji(req: Request, res: Response) {
 /**
  * Ambil semua kanji
  */
-export async function getAllKanji(req: Request, res: Response, next: NextFunction) {
+export async function getAllKanji(req: AuthRequest, res: Response, next: NextFunction) {
   try {
-    const kanjiList = await kanjiService.getAllKanji();
+    const { search, level, page = "1", pageSize = "10" } = req.query;
+    const kanjiList = await kanjiService.getAllKanji(
+      req, 
+      search as string, 
+      level as string, 
+      parseInt(page as string, 10), 
+      parseInt(pageSize as string, 10)
+    );
 
-    return successResponse(res, kanjiList, null, "Kanji berhasil diambil");
+    return successResponse(res, kanjiList.data, kanjiList.meta, "Kanji berhasil diambil");
   } catch (error: any) {
     console.error("❌ getAllKanji error:", error);
     return errorResponse(res, "FETCH_FAILED", error.message || "Gagal mengambil daftar kanji", error, 400);

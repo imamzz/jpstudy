@@ -20,8 +20,8 @@ router.put("/:id", authMiddleware, authorize("admin"), validateDto(UpdateGrammar
 router.delete("/:id", authMiddleware, authorize("admin"), deleteGrammar);
 
 // public
-router.get("/", getAllGrammar);
-router.get("/:id", getGrammarById);
-router.get("/level/:level", getGrammarByLevel);
+router.get("/", authMiddleware, authorize("user", "admin"), getAllGrammar);
+router.get("/:id", authMiddleware, authorize("user", "admin"), getGrammarById);
+router.get("/level/:level", authMiddleware, authorize("user", "admin"), getGrammarByLevel);
 
 export default router;

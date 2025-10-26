@@ -20,8 +20,8 @@ router.put("/:id", authMiddleware, authorize("admin"), validateDto(UpdateKanjiDt
 router.delete("/:id", authMiddleware, authorize("admin"), deleteKanji);
 
 // public
-router.get("/", getAllKanji);
-router.get("/:id", getKanjiById);
-router.get("/level/:level", getKanjiByLevel);
+router.get("/", authMiddleware, authorize("user", "admin"), getAllKanji);
+router.get("/:id", authMiddleware, authorize("user", "admin"), getKanjiById);
+router.get("/level/:level", authMiddleware, authorize("user", "admin"), getKanjiByLevel);
 
 export default router;
