@@ -24,21 +24,21 @@ export default function VocabStudyProgress({
         </p>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
-            className="bg-blue-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${setProgress}%` }}
+           className="bg-blue-500 h-3 rounded-full transition-all duration-300"
+            style={{ width: `${Math.max(0, Math.min(setProgress, 100))}%` }}
           />
         </div>
       </div>
 
       {/* 🔹 Progress bar per set */}
-      <div>
+      <div >
         <p className="text-sm text-gray-600 mb-1">
           Kata {(currentIndex % wordsPerSet) + 1}/{wordsPerSet}
         </p>
         <div className="w-full bg-gray-200 rounded-full h-3">
           <div
             className="bg-green-500 h-3 rounded-full transition-all duration-300"
-            style={{ width: `${totalKataProgress}%` }}
+            style={{ width: `${Math.max(0, Math.min(totalKataProgress, 100))}%` }}
           />
         </div>
       </div>

@@ -55,26 +55,74 @@ export default function VocabStudy() {
 
   const [progressData, setProgressData] = useState<{ vocab_id: number; status: string }[]>([]);
   const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
+  // kata yang dipakai untuk sesi/set saat ini — tidak berubah selama set berjalan
+  const [sessionWords, setSessionWords] = useState<typeof words>([]);
+
+  // Build sessionWords once per set (menggunakan masteredIds yang ada saat set mulai)
+  useEffect(() => {
+    if (!Array.isArray(words) || words.length === 0) {
+      setSessionWords([]);
+      return;
+    }
+
+    // ambil kata yang belum mastered saat set mulai
+    const remaining = words.filter((w) => !masteredIds.has(w.id));
+
+    const levelFiltered =
+      studyConfig.level === "All"
+        ? remaining
+        : remaining.filter((w) => w.level === studyConfig.level);
+
+    const selected = shuffleArray(levelFiltered).slice(0, studyConfig.wordsPerSet);
+
+    setSessionWords(selected);
+    setCurrentWordIndex(0);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [words, currentSet, studyConfig.level, studyConfig.wordsPerSet]);
+
+
 
   // === FILTER KATA ===
   const filteredWords = useMemo(() => {
     if (!Array.isArray(words) || words.length === 0) return [];
 
-    const availableWords = words.filter((w) => !masteredIds.has(w.id));
+    // Ambil hanya kata yang belum mastered
+    const remainingWords = words.filter((w) => !masteredIds.has(w.id));
 
+    // Filter berdasarkan level (kalau perlu)
     const levelFiltered =
       studyConfig.level === "All"
-        ? shuffleArray(availableWords)
-        : shuffleArray(availableWords.filter((w) => w.level === studyConfig.level));
+        ? remainingWords
+        : remainingWords.filter((w) => w.level === studyConfig.level);
 
-    return levelFiltered.slice(0, studyConfig.wordsPerSet);
-  }, [words, masteredIds, studyConfig.level, studyConfig.wordsPerSet]);
+    // Tidak menambah kata baru — cukup pakai kata tersisa
+    return shuffleArray(levelFiltered);
+  }, [words, masteredIds, studyConfig.level]);
 
-  const currentWord = filteredWords[currentWordIndex];
+  // ✅ Jika semua kata sudah mastered (filteredWords kosong), akhiri sesi otomatis
+  useEffect(() => {
+    if (!finished && filteredWords.length === 0) {
+      setFinished(true);
+    }
+  }, [filteredWords, finished]);
+
+
+
+  const currentWord = sessionWords[currentWordIndex];
 
   // === PROGRESS BAR ===
-  const setProgress = (currentSet / studyConfig.totalSets) * 100;
-  const totalKataProgress = ((currentWordIndex + 1) / studyConfig.wordsPerSet) * 100;
+  const activeWordCount = sessionWords.length; // kata di set ini (tidak berubah selama set berjalan)
+
+  const safeTotalSets = Math.max(1, studyConfig.totalSets);
+  const clampedCurrentSet = Math.min(currentSet, safeTotalSets);
+  const setProgressUnclamped = (clampedCurrentSet / safeTotalSets) * 100;
+  const setProgress = Math.max(0, Math.min(setProgressUnclamped, 100));
+
+  let totalKataProgress = 100;
+  if (activeWordCount > 0) {
+    const ratio = (currentWordIndex + 1) / activeWordCount;
+    totalKataProgress = Math.max(0, Math.min(ratio * 100, 100));
+  }
 
   // === TIMER ===
   useEffect(() => {
@@ -94,28 +142,41 @@ export default function VocabStudy() {
 
   // === NEXT WORD ===
   const handleNextWord = (status = "learned") => {
-    if (!currentWord) return;
-
-    setProgressData((prev) => [...prev, { vocab_id: currentWord.id, status }]);
-
-    if (status === "mastered") {
-      setMasteredIds((prev) => new Set([...prev, currentWord.id]));
-    }
-
-    if (currentWordIndex < filteredWords.length - 1) {
-      setCurrentWordIndex((prev) => prev + 1);
+    if (!filteredWords || filteredWords.length === 0) {
+      setFinished(true);
       return;
     }
 
+    const totalBefore = filteredWords.length;
+    const isMastered = status === "mastered";
+
+    // Simpan progres ke state
+    setProgressData((prev) => [...prev, { vocab_id: currentWord.id, status }]);
+
+    if (isMastered) {
+      setMasteredIds((prev) => new Set([...prev, currentWord.id]));
+    }
+
+    // 🔹 Logika index aman:
+    const nextIndex = currentWordIndex + 1;
+
+    // Jika masih ada kata berikutnya (berdasarkan totalBefore, bukan setelah filter berubah)
+    if (nextIndex < totalBefore) {
+      setCurrentWordIndex(nextIndex);
+      return;
+    }
+
+    // Kalau tidak ada kata berikut, masuk ke break atau selesai total
     if (currentSet < studyConfig.totalSets) {
       setPaused(true);
       setIsBreak(true);
       setBreakTimeLeft(studyConfig.breakDuration);
-      return;
+    } else {
+      setFinished(true);
     }
-
-    setFinished(true);
   };
+
+
 
   const handleMarkMastered = () => {
     if (isBreak || finished) return;
@@ -210,10 +271,11 @@ export default function VocabStudy() {
           currentSet={currentSet}
           totalSets={studyConfig.totalSets}
           currentIndex={currentWordIndex}
-          wordsPerSet={studyConfig.wordsPerSet}
+          wordsPerSet={activeWordCount}
           setProgress={setProgress}
           totalKataProgress={totalKataProgress}
         />
+
       </div>
 
       {isBreak ? (

@@ -90,7 +90,7 @@ export default function VocabTable() {
       render: (_: Word, index: number) => index + 1 + (page - 1) * pageSize,
       className: "w-5",
     },
-    { key: "kanji", header: "Kanji", className: "w-10 font-medium text-lg" },
+    { key: "kanji", header: "Kanji", className: "w-10" },
     { key: "kana", header: "Kana", className: "w-10" },
     {
       key: "romaji",

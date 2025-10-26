@@ -21,7 +21,7 @@ export default function WordDisplay({ kanji, kana, romaji, meaning }: WordDispla
         <div className="flex flex-col items-center gap-1 align-self-stretch">
           <div className="flex justify-center items-center gap-1 align-self-stretch">
             <p className="text-center text-gray-500">{kanji}</p>
-            <p className="text-center text-gray-500">({romaji}romaji)</p>
+            <p className="text-center text-gray-500">({romaji})</p>
           </div>
           <p className="definition text-md text-center">{meaning}</p>
         </div>
