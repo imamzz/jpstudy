@@ -1,11 +1,14 @@
 import Reminder from "../molecules/Reminder";
 import ShortCut from "../molecules/ShortCut";
-import StartLearning from "../../features/user/vocab/components/StartLearning";
 import { useLocation } from "react-router-dom";
 import ReminderReview from "../../features/user/review/components/ReminderReview";
+import StartLearningKanji from "../../features/user/kanji/components/StartLearningKanji";
+import StartLearningVocab from "../../features/user/vocab/components/StartLearningVocab";
+import { useAppSelector } from "@/app/hooks";
 
 const RightBar = () => {
   const location = useLocation();
+  const user = useAppSelector((state) => state.user.user);
   return (
     <>
       <div className="w-80 h-full bg-right-bar fixed right-0 top-0"></div>
@@ -25,15 +28,13 @@ const RightBar = () => {
               />
               <ShortCut variant="N5" size="lg" title="N5" description="Kanji" />
             </div>
-            <ReminderReview userId={3} />
+            <ReminderReview userId={user?.id || 0} />
+            <StartLearningVocab userId={user?.id || 0} />
           </>
         )}
-        {location.pathname === "/review" && (
-          <ReminderReview userId={3} />
-        )}
-        <StartLearning
-          userId={3}
-        />
+        {location.pathname === "/review" && <ReminderReview userId={user?.id || 0} />}
+        {location.pathname === "/kanji" && <StartLearningKanji userId={user?.id || 0} />}
+        {location.pathname === "/vocab" && <StartLearningVocab userId={user?.id || 0} />}
       </aside>
     </>
   );

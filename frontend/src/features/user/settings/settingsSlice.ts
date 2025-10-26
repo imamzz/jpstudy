@@ -21,7 +21,6 @@ export interface VocabSetting {
 
 export interface GrammarSetting {
   total_question_per_set: number;
-  difficulty: "easy" | "medium" | "hard";
   break_per_set: number;
   target_level: "N5" | "N4" | "N3" | "N2" | "N1";
 }
