@@ -20,4 +20,13 @@ Review.belongsTo(Kanji, { foreignKey: "item_id", as: "kanji" });
 Review.belongsTo(Grammar, { foreignKey: "item_id", as: "grammar" });
 Review.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
+// Grammar progress
+Grammar.hasMany(UserProgressGrammar, { foreignKey: "grammar_id", as: "progressList" });
+UserProgressGrammar.belongsTo(Grammar, { foreignKey: "grammar_id", as: "progressGrammar" });
+
+// Kanji progress
+Kanji.hasMany(UserProgressKanji, { foreignKey: "kanji_id", as: "progressList" });
+UserProgressKanji.belongsTo(Kanji, { foreignKey: "kanji_id", as: "progressKanji" });
+
+
 export { Vocab, UserProgressVocab, UserProgressGrammar, UserProgressKanji, Review, User, Kanji, Grammar };

@@ -8,6 +8,7 @@ import reviewReducer from "../features/user/review/reviewSlice";
 import configReducer from "../features/config/configSlice";
 import settingsReducer from "../features/user/settings/settingsSlice"
 import progressSummaryReducer from "../features/user/home/progressSummarySlice";
+import reviewTableReducer from "../features/user/review/reviewTableSlice";
 
 export const store = configureStore({
   reducer: {
@@ -20,6 +21,7 @@ export const store = configureStore({
     config: configReducer,
     settings: settingsReducer,
     progressSummary: progressSummaryReducer,
+    reviewTable: reviewTableReducer,
   },
 });
 

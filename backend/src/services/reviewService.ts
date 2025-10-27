@@ -1,12 +1,15 @@
 import { Op } from "sequelize";
-import Review from "../models/Review";
-import Vocab from "../models/Vocab";
-import Kanji from "../models/Kanji";
-import Grammar from "../models/Grammar";
-import { UserProgressVocab } from "../models";
-import UserGrammarProgress from "../models/UserGrammarProgress";
-import UserKanjiProgress from "../models/UserKanjiProgress";
+import { 
+  Vocab,
+  Grammar,
+  Kanji,
+  Review,
+  UserProgressVocab,
+  UserProgressKanji,
+  UserProgressGrammar,
+} from "../models";
 import sequelize from "../config/database";
+import { AuthRequest } from "../middleware/authMiddleware";
 
 export async function createReview(data: any) {
   const existingReview = await Review.findOne({
@@ -37,20 +40,134 @@ export async function updateReview(id: string, data: any) {
   return review;
 }
 
-export async function getAllReview() {
-  const review = await Review.findAll({
-    attributes: [
-      "id",
-      "item_id",
-      "item_type",
-      "first_review_date",
-      "last_review_date",
-      "attempt_count",
-      "correct",
-    ],
+export async function getAllReview(req: AuthRequest, search?: string, page = 1, pageSize = 10) {
+  const userId = req.user.id;
+  const where: any = { user_id: userId };
+
+  // 🔍 Filter pencarian
+  if (search && search.trim()) {
+    const q = `%${search.trim()}%`;
+    where[Op.or] = [
+      { item_type: { [Op.iLike]: q } },
+      { "$vocab.kanji$": { [Op.iLike]: q } },
+      { "$vocab.kana$": { [Op.iLike]: q } },
+      { "$vocab.meaning$": { [Op.iLike]: q } },
+      { "$grammar.pattern$": { [Op.iLike]: q } },
+      { "$grammar.meaning$": { [Op.iLike]: q } },
+      { "$kanji.kanji$": { [Op.iLike]: q } },
+      { "$kanji.meaning$": { [Op.iLike]: q } },
+    ];
+  }
+
+  const offset = (page - 1) * pageSize;
+
+  // 🧩 Join progress untuk ambil status
+  const include = [
+    {
+      model: Vocab,
+      as: "vocab",
+      attributes: ["id", "kanji", "kana", "romaji", "meaning", "level"],
+      required: false,
+      include: [
+        {
+          model: UserProgressVocab,
+          as: "progressList",
+          where: { user_id: userId },
+          attributes: ["status", "mastered_at"],
+          required: false,
+        },
+      ],
+    },
+    {
+      model: Grammar,
+      as: "grammar",
+      attributes: ["id", "pattern", "meaning", "level"],
+      required: false,
+      include: [
+        {
+          model: UserProgressGrammar,
+          as: "progressList",
+          where: { user_id: userId },
+          attributes: ["status", "mastered_at"],
+          required: false,
+        },
+      ],
+    },
+    {
+      model: Kanji,
+      as: "kanji",
+      attributes: ["id", "kanji", "meaning", "level"],
+      required: false,
+      include: [
+        {
+          model: UserProgressKanji,
+          as: "progressList",
+          where: { user_id: userId },
+          attributes: ["status", "mastered_at"],
+          required: false,
+        },
+      ],
+    },
+  ];
+
+  // 🧠 Ambil data
+  const { rows, count } = await Review.findAndCountAll({
+    where,
+    include,
+    distinct: true,
+    limit: pageSize,
+    offset,
     order: [["id", "ASC"]],
   });
-  return review;
+
+  // 🧾 Mapping hasil
+  const data = rows.map((r: any) => {
+    let detail: any = null;
+    let status: string | null = null;
+    let mastered_at: string | null = null;
+
+    if (r.item_type === "vocab") {
+      detail = r.vocab;
+      status = r.vocab?.progressList?.[0]?.status ?? null;
+      mastered_at = r.vocab?.progressList?.[0]?.mastered_at ?? null;
+    } else if (r.item_type === "grammar") {
+      detail = r.grammar;
+      status = r.grammar?.progressList?.[0]?.status ?? null;
+      mastered_at = r.grammar?.progressList?.[0]?.mastered_at ?? null;
+    } else if (r.item_type === "kanji") {
+      detail = r.kanji;
+      status = r.kanji?.progressList?.[0]?.status ?? null;
+      mastered_at = r.kanji?.progressList?.[0]?.mastered_at ?? null;
+    }
+
+    // Hapus progressList sebelum dikirim ke frontend
+    if (detail && detail.dataValues?.progressList) {
+      delete detail.dataValues.progressList;
+    }
+
+    return {
+      id: r.id,
+      item_type: r.item_type,
+      item_id: r.item_id,
+      first_review_date: r.first_review_date,
+      last_review_date: r.last_review_date,
+      attempt_count: r.attempt_count,
+      correct: r.correct,
+      status, // ✅ status progress user
+      mastered_at,
+      item_detail: detail,
+    };
+  });
+
+  return {
+    data,
+    meta: {
+      total: count,
+      page,
+      pageSize,
+      totalPages: Math.ceil(count / pageSize),
+    },
+  };
 }
 
 export async function getReviewById(id: string) {
@@ -74,11 +191,7 @@ export async function getReviewById(id: string) {
  * - terakhir direview minimal 1 hari lalu
  * - opsional filter item_type
  */
-export async function reviewStudy(
-  user_id: number,
-  type?: string,
-  days: number = 7
-) {
+export async function reviewStudy(user_id: number, type?: string, days: number = 7) {
   const now = new Date();
   const startDate = new Date();
   startDate.setDate(now.getDate() - days);

@@ -25,13 +25,20 @@ export async function updateReview(req: Request, res: Response) {
   }
 }
 
-export async function getAllReview(req: Request, res: Response) {
+export async function getAllReview(req: Request, res: Response, next: NextFunction) {
   try {
-    const reviews = await reviewService.getAllReview();
+    const { search, page = "1", pageSize = "10" } = req.query;
+    const result = await reviewService.getAllReview(
+      req,
+      search as string,
+      parseInt(page as string, 10),
+      parseInt(pageSize as string, 10)
+    );
 
-    return successResponse(res, reviews, null, "Review berhasil diambil");
+    return successResponse(res, result.data, result.meta, "Review berhasil diambil");
   } catch (error: any) {
-    return errorResponse(res, "FETCH_FAILED", error.message, error, 400);
+    console.error("❌ getAllReview error:", error);
+    return errorResponse(res, "REVIEW_FETCH_ERROR", error.message || "Gagal mengambil review", error, 400);
   }
 }
 

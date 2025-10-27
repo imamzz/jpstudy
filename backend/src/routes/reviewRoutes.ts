@@ -19,8 +19,8 @@ router.post("/submit-batch", authMiddleware, authorize("user", "admin"), saveBat
 
 router.post("/", validateDto(CreateReviewDto), createReview);
 router.put("/:id", validateDto(UpdateReviewDto), updateReview);
-router.get("/", getAllReview);
-router.get("/:id", getReviewById);
+router.get("/", authMiddleware, authorize("user", "admin"), getAllReview);
+router.get("/:id", authMiddleware, authorize("user", "admin"), getReviewById);
 
 
 export default router;

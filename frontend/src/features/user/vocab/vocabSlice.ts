@@ -1,4 +1,3 @@
-// src/features/vocab/vocabSlice.ts
 import { createSlice, createAsyncThunk } from "@reduxjs/toolkit";
 import type { PayloadAction } from "@reduxjs/toolkit";
 import privateApi from "@/base/privateApi";
