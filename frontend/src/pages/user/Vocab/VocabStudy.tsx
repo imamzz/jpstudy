@@ -102,12 +102,11 @@ export default function VocabStudy() {
 
   // ✅ Jika semua kata sudah mastered (filteredWords kosong), akhiri sesi otomatis
   useEffect(() => {
-    if (!finished && filteredWords.length === 0) {
+    // pastikan data study sudah ter-load
+    if (!finished && words.length > 0 && filteredWords.length === 0) {
       setFinished(true);
     }
-  }, [filteredWords, finished]);
-
-
+  }, [words, filteredWords, finished]);
 
   const currentWord = sessionWords[currentWordIndex];
 
