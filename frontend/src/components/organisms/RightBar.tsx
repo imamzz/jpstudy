@@ -27,16 +27,29 @@ const RightBar = () => {
                 title="N5"
                 description="Grammar"
               />
-              <ShortCut variant="N5" size="lg" title="N5" description="Kanji" />
+              <ShortCut
+                variant="N5"
+                size="lg"
+                title="N5"
+                description="Kanji"
+              />
             </div>
             <ReminderReview userId={user?.id || 0} />
             <StartLearningVocab userId={user?.id || 0} />
           </>
         )}
-        {location.pathname === "/review" && <ReminderReview userId={user?.id || 0} />}
-        {location.pathname === "/kanji" && <StartLearningKanji userId={user?.id || 0} />}
-        {location.pathname === "/vocab" && <StartLearningVocab userId={user?.id || 0} />}
-        {location.pathname === "/grammar" && <StartLearningGrammar userId={user?.id || 0} />}
+        {location.pathname === "/review" && (
+          <ReminderReview userId={user?.id || 0} />
+        )}
+        {location.pathname === "/kanji" && (
+          <StartLearningKanji userId={user?.id || 0} />
+        )}
+        {location.pathname === "/vocab" && (
+          <StartLearningVocab userId={user?.id || 0} />
+        )}
+        {location.pathname === "/grammar" && (
+          <StartLearningGrammar userId={user?.id || 0} />
+        )}
       </aside>
     </>
   );
