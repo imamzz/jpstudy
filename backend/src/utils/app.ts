@@ -12,6 +12,7 @@ import cookieParser from "cookie-parser";
 import vocabProgressRoutes from "../routes/vocabProgressRoutes";
 import settingRoutes from "../routes/settingRoutes";
 import progressRoutes from "../routes/progressRoutes";
+import studySessionRoutes from "../routes/studySessionRoutes";
 const app = express();
 
 
@@ -39,6 +40,7 @@ app.use("/api/user-settings", userSettingRoutes);  // /api/user-settings/:id
 app.use("/api/vocab-progress", vocabProgressRoutes);  // /api/vocab-progress/:id
 app.use("/api/setting", settingRoutes);  // /api/setting/:id
 app.use("/api/progress", progressRoutes);  // /api/progress/summary
+app.use("/api/study-session", studySessionRoutes);  // /api/study-session/:id
 
 // ✅ Health check (opsional, best practice untuk monitoring)
 app.get("/health", (_, res) => {

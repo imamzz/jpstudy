@@ -43,7 +43,6 @@ export default function VocabStudy() {
     breakDuration: vocab?.break_per_set ?? 90,
   }), [vocab]);
   
-
   // === STATE ===
   const [currentSet, setCurrentSet] = useState(1);
   const [currentWordIndex, setCurrentWordIndex] = useState(0);
@@ -57,6 +56,8 @@ export default function VocabStudy() {
   const [masteredIds, setMasteredIds] = useState<Set<number>>(new Set());
   // kata yang dipakai untuk sesi/set saat ini — tidak berubah selama set berjalan
   const [sessionWords, setSessionWords] = useState<typeof words>([]);
+  const [sessionStart] = useState<Date>(new Date());
+
 
   // Build sessionWords once per set (menggunakan masteredIds yang ada saat set mulai)
   useEffect(() => {
@@ -176,8 +177,6 @@ export default function VocabStudy() {
     }
   };
 
-
-
   const handleMarkMastered = () => {
     if (isBreak || finished) return;
     handleNextWord("mastered");
@@ -222,16 +221,36 @@ export default function VocabStudy() {
       }
     };
 
+    const sendStudySession = async () => {
+      try {
+        const payload = {
+        activity_type: "vocab",
+        start_time: sessionStart,
+        end_time: new Date(),
+        duration_seconds: totalTime,
+        item_count: progressData.length,
+        learned_count: progressData.filter((p) => p.status === "learned").length,
+        mastered_count: progressData.filter((p) => p.status === "mastered").length,
+      };
+
+        console.log("📦 Sending study session:", JSON.stringify(payload, null, 2));
+        await privateApi.post("/study-session", payload);
+        console.log("✅ Study session saved successfully!");
+      } catch (err) {
+        console.error("❌ Failed to save study session:", err);
+      }
+    };
+
     sendBulkProgress();
-  }, [finished, progressData]);
+    sendStudySession();
+  }, [finished, progressData, totalTime]);
 
   // === SUMMARY ===
   if (finished) {
     const learnedCount = progressData.filter((p) => p.status === "learned").length;
     const masteredCount = progressData.filter((p) => p.status === "mastered").length;
     const totalLearned = learnedCount + masteredCount;
-    const notLearned =
-      studyConfig.wordsPerSet * studyConfig.totalSets - totalLearned;
+    const notLearned = studyConfig.wordsPerSet * studyConfig.totalSets - totalLearned;
 
     return (
       <VocabStudySummary
@@ -240,7 +259,6 @@ export default function VocabStudy() {
         learnedCount={totalLearned}
         notLearnedCount={notLearned}
         totalTime={totalTime}
-        config={studyConfig}
       />
     );
   }

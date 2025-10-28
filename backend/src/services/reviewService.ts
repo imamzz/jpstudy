@@ -5,11 +5,13 @@ import {
   Kanji,
   Review,
   UserProgressVocab,
-  UserProgressKanji,
-  UserProgressGrammar,
 } from "../models";
+import UserProgressGrammar from "../models/UserProgressGrammar";
+import UserProgressKanji from "../models/UserProgressKanji";
 import sequelize from "../config/database";
 import { AuthRequest } from "../middleware/authMiddleware";
+import UserGrammarProgress from "../models/UserProgressGrammar";
+import UserKanjiProgress from "../models/UserKanjiProgress";
 
 export async function createReview(data: any) {
   const existingReview = await Review.findOne({

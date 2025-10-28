@@ -1,5 +1,5 @@
 import { useNavigate } from "react-router-dom";
-import type { StudyConfig } from "@/types/study";
+import Button from "@/components/atoms/Button";
 
 interface VocabStudySummaryProps {
   totalWords: number;
@@ -7,8 +7,7 @@ interface VocabStudySummaryProps {
   learnedCount: number;
   notLearnedCount: number;
   totalTime: number;
-  config: StudyConfig;
-}
+} 
 
 export default function VocabStudySummary({
   totalWords,
@@ -16,17 +15,8 @@ export default function VocabStudySummary({
   learnedCount,
   notLearnedCount,
   totalTime,
-  config,
 }: VocabStudySummaryProps) {
   const navigate = useNavigate();
-
-  const studyConfig = {
-    wordsPerSet: config.wordsPerSet,
-    totalSets: config.totalSets,
-    duration: config.duration,
-    level: config.level,
-    breakDuration: config.breakDuration,
-  };
 
   // Helper: format waktu jadi mm:ss
   const formatTime = (seconds: number) => {
@@ -69,18 +59,13 @@ export default function VocabStudySummary({
 
         {/* Tombol aksi */}
         <div className="flex space-x-4 justify-center mt-6">
-          <button
-            onClick={() => navigate("/vocab/study"  , { state: studyConfig })}
-            className="px-4 py-2 rounded bg-blue-500 text-white hover:bg-blue-600 transition"
-          >
-            🔁 Ulangi Sesi
-          </button>
-          <button
+          <Button
             onClick={() => navigate("/vocab")}
-            className="px-4 py-2 rounded bg-green-500 text-white hover:bg-green-600 transition"
+            variant="primary"
+            size="md"
           >
-            ✅ Kembali ke Vocab
-          </button>
+            Kembali ke Vocab
+          </Button>
         </div>
       </div>
     </div>
