@@ -9,19 +9,42 @@ import configReducer from "../features/config/configSlice";
 import settingsReducer from "../features/user/settings/settingsSlice"
 import progressSummaryReducer from "../features/user/home/progressSummarySlice";
 import reviewTableReducer from "../features/user/review/reviewTableSlice";
+import vocabProgressDurationReducer from "../features/user/vocab/vocabProgressDurationSlice";
+import vocabProgressMasteredReducer from "../features/user/vocab/vocabProgressMasteredSlice";
 
 export const store = configureStore({
   reducer: {
-    user: userReducer,
+    // vocab
     vocab: vocabReducer,
+    vocabProgressDuration: vocabProgressDurationReducer,
+    vocabProgressMastered: vocabProgressMasteredReducer,
     vocabStudy: vocabStudyReducer,
-    grammar: grammarReducer,
-    kanji: kanjiReducer,
+
+
+    // review
     review: reviewReducer,
-    config: configReducer,
-    settings: settingsReducer,
-    progressSummary: progressSummaryReducer,
     reviewTable: reviewTableReducer,
+
+
+    // kanji
+    kanji: kanjiReducer,
+
+
+    // grammar
+    grammar: grammarReducer,
+
+
+    // user
+    user: userReducer,
+
+
+    // setting
+    settings: settingsReducer,
+    config: configReducer,
+
+    
+    // progress summary
+    progressSummary: progressSummaryReducer,
   },
 });
 

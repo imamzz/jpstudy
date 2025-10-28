@@ -6,9 +6,9 @@ import { Request, Response } from "express";
 export const getStudySessionSummary = async (req: Request, res: Response) => {
   try {
     const userId = req.params.userId;
-    const days = parseInt(req.query.days as string) || 7;
+    const range = req.query.range;
 
-    const summary = await studySessionService.getStudySessionSummary(userId, days);
+    const summary = await studySessionService.getStudySessionByRange(userId, null, range as "week" | "month" | "year");
     return successResponse(res, summary, null, "Study session summary berhasil diambil");   
   } catch (error: any) {
     console.error(error);
@@ -17,22 +17,24 @@ export const getStudySessionSummary = async (req: Request, res: Response) => {
 };
 
 export const getVocabStudySession = async (req: AuthRequest, res: any) => {
-    try {
-        const userId = req.user.id;
-        const days = parseInt(req.query.days as string) || 7;
-        const vocab = await studySessionService.getVocabStudySession(userId, days);
-        return successResponse(res, vocab, null, "Vocab study session berhasil diambil");
-    } catch (error: any) {
-        console.error(error);
-        return errorResponse(res, "STUDY_SESSION_GET_ERROR", error.message || "Gagal mengambil study session", error, 400);
-    }
+  try {
+    const { userId } = req.params;
+    const { range = "week" } = req.query; // week | month | year
+
+    const data = await studySessionService.getStudySessionByRange(userId, "vocab", range as "week" | "month" | "year");
+
+    return successResponse(res, data, null, "Vocab study session berhasil diambil");
+  } catch (error: any) {
+    console.error(error);
+    return errorResponse(res, "STUDY_SESSION_GET_ERROR", error.message || "Gagal mengambil study session", error, 400);
+  }
 };
 
 export const getGrammarStudySession = async (req: AuthRequest, res: any) => {
     try {
         const userId = req.user.id;
-        const days = parseInt(req.query.days as string) || 7;
-        const grammar = await studySessionService.getGrammarStudySession(userId, days);
+        const range = req.query.range;
+        const grammar = await studySessionService.getStudySessionByRange(userId, "grammar", range as "week" | "month" | "year");
         return successResponse(res, grammar, null, "Grammar study session berhasil diambil");
     } catch (error: any) {
         console.error(error);
@@ -43,8 +45,8 @@ export const getGrammarStudySession = async (req: AuthRequest, res: any) => {
 export const getKanjiStudySession = async (req: AuthRequest, res: any) => {
     try {
         const userId = req.user.id;
-        const days = parseInt(req.query.days as string) || 7;
-        const kanji = await studySessionService.getKanjiStudySession(userId, days);
+        const range = req.query.range;
+        const kanji = await studySessionService.getStudySessionByRange(userId, "kanji", range as "week" | "month" | "year");
         return successResponse(res, kanji, null, "Kanji study session berhasil diambil");
     } catch (error: any) {
         console.error(error);

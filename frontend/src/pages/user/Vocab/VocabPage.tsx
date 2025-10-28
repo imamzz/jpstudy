@@ -1,16 +1,14 @@
-// import VocabList from "@/features/vocab/components/VocabList";
-import VocabProgress from "@/features/user/vocab/components/VocabProgress";
+import VocabProgressDuration from "@/features/user/vocab/components/VocabProgressDuration";
+import VocabProgressMastered from "@/features/user/vocab/components/VocabProgressMastered";
 import VocabTable from "@/features/user/vocab/components/VocabTable";
-// import VocabConfigForm from "@/features/vocab/components/VocabConfigForm";
 
 export default function VocabPage() {
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-blue-600">📚 Kosakata</h1>
-
-      <VocabProgress />
-      {/* <VocabConfigForm /> */}
-      {/* <VocabList /> */}
+      <div className="grid-cols-2 grid gap-8">
+        <VocabProgressDuration />
+        <VocabProgressMastered />
+      </div>
       <VocabTable />
     </div>
   );
