@@ -6,7 +6,8 @@ import * as progressService from "../services/progressService";
 export const getProgressSummary = async (req: AuthRequest, res: Response, next: NextFunction) => {
   try {
     const user_id = req.user?.id;
-    const progressSummary = await progressService.getProgressSummary(user_id);
+    const level = req.query.level as string;
+    const progressSummary = await progressService.getProgressSummary(user_id, level);
 
     return successResponse(res, progressSummary, null, "Progress summary berhasil diambil");
   } catch (error: any) {

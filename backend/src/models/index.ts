@@ -8,11 +8,12 @@ import Kanji from "./Kanji";
 import Grammar from "./Grammar";
 
 // === Relasi antara User, Vocab, dan UserProgressVocab ===
-Vocab.hasMany(UserProgressVocab, { foreignKey: "vocab_id", as: "progressList" });
 UserProgressVocab.belongsTo(Vocab, { foreignKey: "vocab_id", as: "progressVocab" });
-
-User.hasMany(UserProgressVocab, { foreignKey: "user_id", as: "vocabProgressList" });
+UserProgressVocab.belongsTo(Vocab, { foreignKey: "vocab_id", as: "vocab" });
 UserProgressVocab.belongsTo(User, { foreignKey: "user_id", as: "progressUser" });
+
+UserProgressGrammar.belongsTo(Grammar, { foreignKey: "grammar_id", as: "progressGrammar" });
+UserProgressGrammar.belongsTo(Grammar, { foreignKey: "grammar_id", as: "grammar" });
 
 // === Relasi antara Review dan User/Vocab ===
 Review.belongsTo(Vocab, { foreignKey: "item_id", as: "vocab" });
@@ -20,13 +21,32 @@ Review.belongsTo(Kanji, { foreignKey: "item_id", as: "kanji" });
 Review.belongsTo(Grammar, { foreignKey: "item_id", as: "grammar" });
 Review.belongsTo(User, { foreignKey: "user_id", as: "user" });
 
-// Grammar progress
-Grammar.hasMany(UserProgressGrammar, { foreignKey: "grammar_id", as: "progressList" });
-UserProgressGrammar.belongsTo(Grammar, { foreignKey: "grammar_id", as: "progressGrammar" });
-
 // Kanji progress
-Kanji.hasMany(UserProgressKanji, { foreignKey: "kanji_id", as: "progressList" });
 UserProgressKanji.belongsTo(Kanji, { foreignKey: "kanji_id", as: "progressKanji" });
 
+// Grammar progress
+Grammar.hasMany(UserProgressGrammar, { foreignKey: "grammar_id", as: "progressList" });
+Grammar.hasMany(UserProgressGrammar, { foreignKey: "grammar_id" });
 
-export { Vocab, UserProgressVocab, UserProgressGrammar, UserProgressKanji, Review, User, Kanji, Grammar };
+// Relasi untuk vocab
+Vocab.hasMany(UserProgressVocab, { foreignKey: "vocab_id" });
+Vocab.hasMany(UserProgressVocab, { foreignKey: "vocab_id", as: "progressList" });
+
+// Relasi untuk kanji
+UserProgressKanji.belongsTo(Kanji, { foreignKey: "kanji_id", as: "kanji" });
+
+Kanji.hasMany(UserProgressKanji, { foreignKey: "kanji_id" });
+Kanji.hasMany(UserProgressKanji, { foreignKey: "kanji_id", as: "progressList" });
+
+User.hasMany(UserProgressVocab, { foreignKey: "user_id", as: "vocabProgressList" });
+
+export {
+  Vocab,
+  UserProgressVocab,
+  UserProgressGrammar,
+  UserProgressKanji,
+  Review,
+  User,
+  Kanji,
+  Grammar,
+};

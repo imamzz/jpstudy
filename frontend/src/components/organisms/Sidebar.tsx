@@ -10,6 +10,7 @@ import IconVocab from "@/assets/icon/book.svg?react";
 import IconGrammar from "@/assets/icon/book-open.svg?react";
 import IconKanji from "@/assets/icon/kanji.svg?react";
 import IconReview from "@/assets/icon/clock.svg?react";
+import IconProfile from "@/assets/icon/profile.svg?react";
 
 const Sidebar = () => {
   const dispatch = useAppDispatch();
@@ -125,6 +126,18 @@ const Sidebar = () => {
           >
             <IconReview className="w-6 h-6 [stroke-width:1.5]" />
             Review
+          </NavLink>
+        )}
+
+        {role === "user" && (
+          <NavLink
+            to="/profile"
+            className={({ isActive }) =>
+              `${baseClass} ${isActive ? activeClass : hoverClass}`
+            }
+          >
+            <IconProfile className="w-6 h-6 [stroke-width:1.5]" />
+            Profile
           </NavLink>
         )}
       </nav>
