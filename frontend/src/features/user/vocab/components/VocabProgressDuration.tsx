@@ -4,6 +4,7 @@ import { fetchVocabDurationProgress } from "@/features/user/vocab/vocabProgressD
 import { useAppDispatch } from "@/app/hooks";
 import { useAppSelector } from "@/app/hooks";
 import { getXLabel } from "@/utils/dateLabel";
+import { chartThemes } from "../../settings/chartTheme";
 
 const FILTERS = [
   { key: "week", label: "Minggu" },
@@ -12,6 +13,7 @@ const FILTERS = [
 ] as const;
 
 const VocabProgressDuration = () => {
+  const theme = chartThemes.vocab;
   const [range, setRange] = useState<"week" | "month" | "year">("week");
 
   const dispatch = useAppDispatch();
@@ -34,7 +36,7 @@ const VocabProgressDuration = () => {
     }));
 
   return (
-    <div className="col-span-1 bg-blue-50 rounded-xl p-4 shadow-sm">
+    <div className={`col-span-1 bg-blue-50 rounded-xl p-4 shadow-sm ${theme.bg}`}>
       <div className="flex justify-between items-center mb-3">
         <h2 className="text-lg font-semibold text-gray-700">
           Durasi Belajar Vocab
@@ -63,7 +65,7 @@ const VocabProgressDuration = () => {
         ) : progress.length ? (
           <ChartBase
             data={chartData}
-            color="#3b82f6"
+            color={theme.color1}
             height={300}
             yLabel={isHourScale ? "Jam" : "Menit"}
             type="line"

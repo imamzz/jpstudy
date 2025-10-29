@@ -11,6 +11,10 @@ import progressSummaryReducer from "../features/user/home/progressSummarySlice";
 import reviewTableReducer from "../features/user/review/reviewTableSlice";
 import vocabProgressDurationReducer from "../features/user/vocab/vocabProgressDurationSlice";
 import vocabProgressMasteredReducer from "../features/user/vocab/vocabProgressMasteredSlice";
+import grammarProgressDurationReducer from "../features/user/grammar/grammarProgressDurationSlice";
+import grammarProgressMasteredReducer from "../features/user/grammar/grammarProgressMasteredSlice";
+import kanjiProgressDurationReducer from "../features/user/kanji/kanjiProgressDurationSlice";
+import kanjiProgressMasteredReducer from "../features/user/kanji/kanjiProgressMasteredSlice";
 
 export const store = configureStore({
   reducer: {
@@ -28,10 +32,14 @@ export const store = configureStore({
 
     // kanji
     kanji: kanjiReducer,
+    kanjiProgressDuration: kanjiProgressDurationReducer,
+    kanjiProgressMastered: kanjiProgressMasteredReducer,
 
 
     // grammar
     grammar: grammarReducer,
+    grammarProgressDuration: grammarProgressDurationReducer,
+    grammarProgressMastered: grammarProgressMasteredReducer,
 
 
     // user

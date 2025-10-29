@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import ChartBase from "@/components/molecules/ChartBase";
-import { fetchVocabMasteredProgress } from "@/features/user/vocab/vocabProgressMasteredSlice";
+import { fetchGrammarMasteredProgress } from "@/features/user/grammar/grammarProgressMasteredSlice";
 import { useAppDispatch, useAppSelector } from "@/app/hooks";
 import { getXLabel } from "@/utils/dateLabel";
 import { chartThemes } from "../../settings/chartTheme";
@@ -11,16 +11,16 @@ const FILTERS = [
   { key: "year", label: "Tahun" },
 ] as const;
 
-const VocabProgressMastered = () => {
-  const theme = chartThemes.vocab;
+const GrammarProgressMastered = () => {
+  const theme = chartThemes.grammar;
   const [range, setRange] = useState<"week" | "month" | "year">("week");
   const dispatch = useAppDispatch();
 
   useEffect(() => {
-    dispatch(fetchVocabMasteredProgress(range));
+    dispatch(fetchGrammarMasteredProgress(range));
   }, [dispatch, range]);
 
-  const { progress, loading } = useAppSelector((state) => state.vocabProgressMastered);
+  const { progress, loading } = useAppSelector((state) => state.grammarProgressMastered);
 
   // Gunakan jumlah kata dipelajari (learned_count)
   const chartData = progress.map((p) => ({
@@ -71,4 +71,4 @@ const VocabProgressMastered = () => {
   );
 };
 
-export default VocabProgressMastered;
+export default GrammarProgressMastered;
