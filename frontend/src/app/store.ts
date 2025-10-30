@@ -4,6 +4,7 @@ import vocabReducer from "../features/user/vocab/vocabSlice";
 import vocabStudyReducer from "../features/user/vocab/vocabStudySlice";
 import grammarReducer from "../features/user/grammar/grammarSlice";
 import kanjiReducer from "../features/user/kanji/kanjiSlice";
+import kanjiStudyReducer from "../features/user/kanji/kanjiStudySlice";
 import reviewReducer from "../features/user/review/reviewSlice";
 import configReducer from "../features/config/configSlice";
 import settingsReducer from "../features/user/settings/settingsSlice"
@@ -33,6 +34,7 @@ export const store = configureStore({
 
     // kanji
     kanji: kanjiReducer,
+    kanjiStudy: kanjiStudyReducer,
     kanjiProgressDuration: kanjiProgressDurationReducer,
     kanjiProgressMastered: kanjiProgressMasteredReducer,
 
