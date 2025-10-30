@@ -8,17 +8,18 @@ export interface ProgressSummary {
   kanji: { mastered: number; total: number };
 }
 
-export const fetchProgressSummary = createAsyncThunk(
-  "progressSummary/fetchProgressSummary",
-  async (level: string) => {
+export const fetchTarget = createAsyncThunk(
+  "target/fetchProgressSummary",
+  async () => {
+    const level = "N5";
     const res = await privateApi.get("/progress/summary", { params: { level } });
     console.log("🚀 progressSummary:", res.data);
     return res.data.data as ProgressSummary;
   }
 );
 
-const progressSummarySlice = createSlice({
-  name: "progressSummary",
+const targetSlice = createSlice({
+  name: "target",
   initialState: {
     progress: null as ProgressSummary | null,
     loading: false,
@@ -31,20 +32,20 @@ const progressSummarySlice = createSlice({
   },
   extraReducers: (builder) => {
     builder
-      .addCase(fetchProgressSummary.pending, (state) => {
+      .addCase(fetchTarget.pending, (state) => {
         state.loading = true;
         state.error = null;
       })
-      .addCase(fetchProgressSummary.fulfilled, (state, action) => {
+      .addCase(fetchTarget.fulfilled, (state, action) => {
         state.loading = false;
         state.progress = action.payload;
       })
-      .addCase(fetchProgressSummary.rejected, (state) => {
+      .addCase(fetchTarget.rejected, (state) => {
         state.loading = false;
         state.error = "Gagal mengambil progress summary";
       });
   },
 });
 
-export const { setProgress } = progressSummarySlice.actions;
-export default progressSummarySlice.reducer;
+export const { setProgress } = targetSlice.actions;
+export default targetSlice.reducer;

@@ -15,6 +15,7 @@ import grammarProgressDurationReducer from "../features/user/grammar/grammarProg
 import grammarProgressMasteredReducer from "../features/user/grammar/grammarProgressMasteredSlice";
 import kanjiProgressDurationReducer from "../features/user/kanji/kanjiProgressDurationSlice";
 import kanjiProgressMasteredReducer from "../features/user/kanji/kanjiProgressMasteredSlice";
+import targetReducer from "../features/user/home/targetSlice";
 
 export const store = configureStore({
   reducer: {
@@ -53,6 +54,9 @@ export const store = configureStore({
     
     // progress summary
     progressSummary: progressSummaryReducer,
+
+    // target
+    target: targetReducer,
   },
 });
 

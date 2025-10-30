@@ -1,15 +1,15 @@
 import img from "../../../../assets/Target.png";
 import { useAppSelector, useAppDispatch } from "@/app/hooks";
 import { useEffect } from "react";
-import { fetchProgressSummary } from "@/features/user/home/progressSummarySlice";
+import { fetchTarget } from "@/features/user/home/targetSlice";
 
 const Target = () => {
   const dispatch = useAppDispatch();
-  const { progressSummary, loading } = useAppSelector((state) => state.progressSummary);
+  const { progress, loading } = useAppSelector((state) => state.target);
 
   // 🔹 Ambil data saat pertama kali komponen muncul
   useEffect(() => {
-    dispatch(fetchProgressSummary());
+    dispatch(fetchTarget("N5"));
   }, [dispatch]);
 
   if (loading) {
@@ -20,10 +20,10 @@ const Target = () => {
     );
   }
 
-  if (!progressSummary) return null;
+  if (!progress) return null;
 
-  const { mastered, total } = progressSummary.vocab;
-  const progress = Math.round((mastered / total) * 100);
+  const { mastered, total } = progress.vocab;
+  const progressValue = Math.round((mastered / total) * 100);
 
   return (
     <div className="flex items-center flex-shrink-0 gap-4 bg-blue-50 rounded-xl p-4 col-span-2 h-[150px] shadow-sm">
@@ -46,7 +46,7 @@ const Target = () => {
         <h2 className="text-lg font-semibold text-gray-700">Perbanyak vocab</h2>
 
         <div className="flex items-center justify-between text-sm mt-1 w-full">
-          <span className="font-semibold text-gray-700">{progress}%</span>
+          <span className="font-semibold text-gray-700">{progressValue}%</span>
           <span className="text-gray-500">
             {mastered}/{total} word
           </span>
@@ -55,7 +55,7 @@ const Target = () => {
         <div className="w-full bg-gray-200 h-2 rounded-full mt-1">
           <div
             className="bg-blue-500 h-2 rounded-full transition-all"
-            style={{ width: `${progress}%` }}
+            style={{ width: `${progressValue}%` }}
           ></div>
         </div>
       </div>
