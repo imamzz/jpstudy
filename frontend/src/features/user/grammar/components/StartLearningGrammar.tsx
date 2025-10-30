@@ -28,7 +28,7 @@ const StartLearning = ({ userId }: StartLearningProps) => {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    navigate("/vocab/study");
+    navigate("/grammar/study");
   };
 
   return (
