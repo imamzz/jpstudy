@@ -5,7 +5,8 @@ import {
     getGrammarById, 
     getGrammarByLevel,
     updateGrammar,
-    deleteGrammar 
+    deleteGrammar,
+    getGrammarForLearning 
 } from "../controllers/grammarController";
 import { validateDto } from "../middleware/validateDto";
 import { CreateGrammarDto } from "../dtos/grammarDto";
@@ -13,6 +14,8 @@ import { UpdateGrammarDto } from "../dtos/updateGrammarDto";
 import { authMiddleware, authorize } from "../middleware/authMiddleware";
 
 const router = Router();
+
+router.get("/study", authMiddleware, authorize("user", "admin"), getGrammarForLearning);
 
 // hanya admin yang boleh create, update, delete
 router.post("/", authMiddleware, authorize("admin"), validateDto(CreateGrammarDto), createGrammar);

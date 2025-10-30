@@ -2,6 +2,7 @@ import { AuthRequest } from "../middleware/authMiddleware";
 import Kanji from "../models/Kanji";
 import { Op } from "sequelize";
 import sequelize from "../config/database";
+import { UserProgressKanji } from "../models";
 
 export async function createKanji(data: any) {
   const existingKanji = await Kanji.findOne({ where: { kanji: data.kanji } });
@@ -78,4 +79,32 @@ export async function deleteKanji(id: string) {
 
   await kanji.destroy();
   return kanji;
+}
+
+export async function getKanjiForLearning(user_id: number, limit = 10, level?: string) {
+  const learnedOrMastered = await UserProgressKanji.findAll({
+    where: { 
+      user_id, 
+      status: { [Op.in]: ["learned", "mastered"] },
+    },
+    attributes: ["kanji_id"],
+  });
+
+  const excludeIds = learnedOrMastered.map((p) => p.kanji_id);
+
+  const newKanji = await Kanji.findAll({
+    where: {
+      ...(level && { level }),
+      ...(excludeIds.length > 0 && { id: { [Op.notIn]: excludeIds } }),
+    },
+    order: [["id", "ASC"]],
+    limit,
+  });
+
+  const result = newKanji.map((v) => ({
+    ...v.get(),
+    status: null,
+  }));
+
+  return result;
 }

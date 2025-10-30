@@ -120,3 +120,22 @@ export async function deleteKanji(req: Request, res: Response, next: NextFunctio
     return errorResponse(res, "DELETE_FAILED", error.message || "Gagal menghapus kanji", error, 400);
   }
 }
+
+/**
+ * Ambil kanji untuk belajar
+ */
+export const getKanjiForLearning = async (req: AuthRequest, res: Response) => {
+  try {
+    const user_id = req.user!.id;
+    const limit = Number(req.query.kanji_per_set) || 5;
+    const level = req.query.level as string;
+
+    const words = await kanjiService.getKanjiForLearning(user_id, limit, level);
+
+    return successResponse(res, words, null, "Kanji untuk belajar berhasil diambil");
+  } catch (error: any) {
+    console.error("❌ getKanjiForLearning error:", error);
+    return errorResponse(res, "KANJI_FETCH_ERROR", error.message || "Gagal mengambil kanji", error, 400);
+  }
+};
+

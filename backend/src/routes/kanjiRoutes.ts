@@ -4,6 +4,7 @@ import {
     getAllKanji, 
     getKanjiById, 
     getKanjiByLevel, 
+    getKanjiForLearning,
     deleteKanji,
     updateKanji 
 } from "../controllers/kanjiController";
@@ -14,6 +15,8 @@ import { authMiddleware, authorize } from "../middleware/authMiddleware";
 
 const router = Router();
 
+router.get("/study", authMiddleware, authorize("user", "admin"), getKanjiForLearning);
+
 // hanya admin yang boleh create, update, delete
 router.post("/", authMiddleware, authorize("admin"), validateDto(CreateKanjiDto), createKanji);
 router.put("/:id", authMiddleware, authorize("admin"), validateDto(UpdateKanjiDto), updateKanji);
@@ -23,5 +26,6 @@ router.delete("/:id", authMiddleware, authorize("admin"), deleteKanji);
 router.get("/", authMiddleware, authorize("user", "admin"), getAllKanji);
 router.get("/:id", authMiddleware, authorize("user", "admin"), getKanjiById);
 router.get("/level/:level", authMiddleware, authorize("user", "admin"), getKanjiByLevel);
+
 
 export default router;

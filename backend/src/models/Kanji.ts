@@ -9,6 +9,8 @@ interface KanjiAttributes {
   example_words?: string;
   kana?: string;
   romaji?: string;
+  onyomi?: string;
+  kunyomi?: string;
 }
 
 interface KanjiCreationAttributes extends Optional<KanjiAttributes, "id"> {}
@@ -22,6 +24,8 @@ class Kanji extends Model<KanjiAttributes, KanjiCreationAttributes>
   public example_words?: string;
   public kana?: string;
   public romaji?: string;
+  public onyomi?: string;
+  public kunyomi?: string;
 }
 
 Kanji.init(
@@ -42,6 +46,8 @@ Kanji.init(
     example_words: { type: DataTypes.TEXT },
     kana: { type: DataTypes.STRING(255) },
     romaji: { type: DataTypes.STRING(255) },
+    onyomi: { type: DataTypes.STRING(255) },
+    kunyomi: { type: DataTypes.STRING(255) },
   },
   { sequelize, tableName: "kanji", timestamps: true, underscored: false }
 );

@@ -3,18 +3,20 @@ interface NotificationProps {
   onClose: () => void;
 }
 
+// ketika di klik diluar menutup
+
 export default function Notification({ isOpen, onClose }: NotificationProps) {
   if (!isOpen) return null;
 
   return (
-    <div className="fixed top-20 right-55 z-[9999]">
+    <div className="fixed top-20 right-57 z-[9999]">
       <div className="w-[360px] max-h-[420px] bg-white rounded-2xl shadow-2xl border border-gray-100 overflow-hidden animate-fade-in">
         {/* Header */}
         <div className="flex items-center justify-between px-4 py-3 border-b border-gray-100 bg-gradient-to-r from-blue-50 to-white">
           <h2 className="text-lg font-semibold text-gray-800">Notifications</h2>
           <button
             onClick={onClose}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
           >
             See All
           </button>
@@ -51,7 +53,7 @@ export default function Notification({ isOpen, onClose }: NotificationProps) {
         <div className="flex justify-center py-3 bg-white border-t border-gray-100">
           <button
             onClick={onClose}
-            className="text-sm font-medium text-blue-600 hover:text-blue-800"
+            className="text-sm font-medium text-blue-600 hover:text-blue-800 cursor-pointer"
           >
             See More
           </button>

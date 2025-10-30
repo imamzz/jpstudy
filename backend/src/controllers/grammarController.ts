@@ -113,3 +113,23 @@ export async function deleteGrammar(req: Request, res: Response) {
     return errorResponse(res, "DELETE_FAILED", error.message || "Gagal menghapus grammar", error, 400);
   }
 }
+
+
+/**
+ * Ambil grammar untuk belajar
+ */
+export const getGrammarForLearning = async (req: AuthRequest, res: Response) => {
+  try {
+    const user_id = req.user!.id;
+    const limit = Number(req.query.grammar_per_set) || 5;
+    const level = req.query.level as string;
+
+    const words = await grammarService.getGrammarForLearning(user_id, limit, level);
+
+    return successResponse(res, words, null, "Grammar untuk belajar berhasil diambil");
+  } catch (error: any) {
+    console.error("❌ getGrammarForLearning error:", error);
+    return errorResponse(res, "GRAMMAR_FETCH_ERROR", error.message || "Gagal mengambil grammar", error, 400);
+  }
+};
+

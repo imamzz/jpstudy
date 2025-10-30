@@ -2,6 +2,7 @@ import Grammar from "../models/Grammar";
 import { AuthRequest } from "../middleware/authMiddleware";
 import { Op } from "sequelize";
 import sequelize from "../config/database";
+import { UserProgressGrammar } from "../models";
 
 export async function createGrammar(data: any) {
   const existingGrammar = await Grammar.findOne({ where: { pattern: data.pattern } });
@@ -77,4 +78,33 @@ export async function deleteGrammar(id: string) {
 
     await grammar.destroy();
     return grammar;
+}
+
+
+export async function getGrammarForLearning(user_id: number, limit = 10, level?: string) {
+  const learnedOrMastered = await UserProgressGrammar.findAll({
+    where: { 
+      user_id, 
+      status: { [Op.in]: ["learned", "mastered"] },
+    },
+    attributes: ["grammar_id"],
+  });
+
+  const excludeIds = learnedOrMastered.map((p) => p.grammar_id);
+
+  const newGrammar = await Grammar.findAll({
+    where: {
+      ...(level && { level }),
+      ...(excludeIds.length > 0 && { id: { [Op.notIn]: excludeIds } }),
+    },
+    order: [["id", "ASC"]],
+    limit,
+  });
+
+  const result = newGrammar.map((v) => ({
+    ...v.get(),
+    status: null,
+  }));
+
+  return result;
 }

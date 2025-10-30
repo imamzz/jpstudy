@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import { createPortal } from "react-dom";
 import Bookmark from "@/assets/icon/bookmark.svg?react";
 
 interface ModalProps {
@@ -12,30 +13,32 @@ interface ModalProps {
   divider?: boolean;
 }
 
-export default function Modal({ isOpen, title, children, footer, example, bookmark, description, divider }: ModalProps) {
+export default function Modal({
+  isOpen,
+  title,
+  children,
+  footer,
+  example,
+  bookmark,
+  description,
+  divider,
+}: ModalProps) {
   if (!isOpen) return null;
 
-  return (
-    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-50">
+  return createPortal(
+    <div className="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center z-[9999]">
       <div className="bg-white rounded-lg shadow-lg w-[550px] relative">
         {title && (
           <header className="px-6 py-3 flex items-center justify-between">
             <h2 className="text-md font-semibold">{title}</h2>
-            {bookmark && (
-              <Bookmark className="w-6 h-6 [stroke-width:1.2]" />
-            )}
+            {bookmark && <Bookmark className="w-6 h-6 [stroke-width:1.2]" />}
           </header>
         )}
 
-        {description && (
-          <p className="px-6 py-2 text-sm text-gray-600">{description}</p>
-        )}
-
-        {/* divider == true*/}
+        {description && <p className="px-6 py-2 text-sm text-gray-600">{description}</p>}
         {divider && <hr className="w-full border-gray-200" />}
 
         <div className="px-6 py-4">{children}</div>
-
         <hr className="w-full border-gray-200" />
 
         {example && (
@@ -49,9 +52,13 @@ export default function Modal({ isOpen, title, children, footer, example, bookma
           </div>
         )}
 
-
-        {footer && <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-2">{footer}</div>}
+        {footer && (
+          <div className="border-t border-gray-200 px-6 py-4 flex justify-end gap-2">
+            {footer}
+          </div>
+        )}
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
