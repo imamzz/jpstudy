@@ -26,11 +26,7 @@ export const fetchVocabStudy = createAsyncThunk(
 
     console.log("🚀 vocabStudy:", res.data);
 
-    if (Array.isArray(res.data)) return res.data;
-    if (Array.isArray(res.data.data)) return res.data.data;
-    if (Array.isArray(res.data.meta)) return res.data.meta;
-    if (Array.isArray(res.data.meta?.words)) return res.data.meta.words;
-    return [];
+    return res.data.data;
   }
 );
 
