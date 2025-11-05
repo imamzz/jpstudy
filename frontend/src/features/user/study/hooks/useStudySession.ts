@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from "react";
-import { shuffleArray } from "@/utils/vocabHelpers";
+import { shuffleArray } from "@/utils/shuffleArray";
 
 interface StudyConfig {
   itemsPerSet: number;
