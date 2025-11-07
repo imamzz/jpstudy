@@ -12,8 +12,8 @@ const RightBar = () => {
   const user = useAppSelector((state) => state.user.user);
   return (
     <>
-      <div className="w-80 h-full bg-right-bar fixed right-0 top-0"></div>
-      <aside className="w-80 min-h-screen px-[28px] py-6 flex flex-col sticky top-0 max-h-screen gap-6">
+      {/* <div className="w-96 h-full bg-right-bar fixed right-0 top-0"></div> */}
+      <aside className="w-96 min-h-screen px-[28px] py-6 flex flex-col sticky top-0 max-h-screen gap-6 ">
         <div className="flex flex-col">
           <h2 className="text-md font-bold mb-6">Study</h2>
         </div>

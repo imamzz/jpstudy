@@ -16,6 +16,7 @@ const userPages = [
   { path: "/kanji/exercise", component: lazy(() => import("../pages/user/kanji/KanjiExercise")) },
   { path: "/review", component: lazy(() => import("../pages/user/review/ReviewPage")) },
   { path: "/profile", component: lazy(() => import("../pages/user/profile/ProfilePage")) },
+  { path: "/settings", component: lazy(() => import("../pages/user/settings/SettingsPage")) },
 ];
 
 // Halaman study (tanpa layout)
